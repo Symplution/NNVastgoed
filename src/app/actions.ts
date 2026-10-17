@@ -4,6 +4,7 @@ import { randomUUID } from 'node:crypto';
 import { hasSupabase, isDemo, siteUrl } from '@/lib/env';
 import { createAnonClient } from '@/lib/supabase/anon';
 import { validateLead } from '@/lib/lead-input';
+import { validateBrokerRequest } from '@/lib/broker-input';
 import { filtersToParams, modeFromParams, parseFilters } from '@/lib/search';
 import { getOffice } from '@/lib/data';
 import { sendMail } from '@/lib/usage';
@@ -64,6 +65,24 @@ export async function saveSearch(_: FormState, form: FormData): Promise<FormStat
     text: `Je krijgt een mail zodra er nieuwe woningen zijn die bij je zoekopdracht passen.\n\nBevestig je e-mailadres: ${siteUrl()}/zoekopdracht/bevestig?token=${token}\n\nAfmelden kan altijd: ${siteUrl()}/zoekopdracht/stop?token=${token}\n\nHeb je dit niet aangevraagd? Dan hoef je niets te doen.`,
   });
   return { ok: true, message: 'Check je mail en bevestig je e-mailadres om meldingen te ontvangen.' };
+}
+
+/** Aanmelding van een makelaarskantoor. Iedereen mag aanmelden; alleen eigenaar en beheerder lezen de aanmeldingen. */
+export async function submitBrokerRequest(_: FormState, form: FormData): Promise<FormState> {
+  const v = validateBrokerRequest(form);
+  const done = { ok: true, message: 'Bedankt voor je aanmelding! We nemen binnen twee werkdagen contact met je op om je kantoor aan te sluiten.' };
+  if (!v.ok) return v.bot ? done : { error: v.error };
+  const b = v.value;
+  if (isDemo()) return { ok: true, message: 'Demo: je aanmelding is niet verstuurd. In de echte site komt hij direct bij het beheer van NNvastgoed.' };
+  if (!hasSupabase()) return { error: 'Aanmelden is nu niet mogelijk. Probeer het later opnieuw.' };
+  const { error } = await createAnonClient().from('broker_requests').insert({
+    office_name: b.officeName, city: b.city, province: b.province, kvk: b.kvk ?? null, nvm_member: b.nvm, contact_name: b.contactName, email: b.email,
+    phone: b.phone ?? null, software: b.software ?? null, listing_count: b.listingCount ?? null, message: b.message ?? null, consent: true,
+  });
+  if (error) return { error: /Te veel/.test(error.message) ? 'Er zijn al meerdere aanmeldingen met dit adres verstuurd. Probeer het later opnieuw.' : 'Aanmelden is niet gelukt. Controleer je gegevens en probeer het opnieuw.' };
+  const to = process.env.NEXT_PUBLIC_CONTACT_EMAIL;
+  if (to) await sendMail({ to, replyTo: b.email, key: `aanmelding:${b.email}:${new Date().toISOString().slice(0, 10)}`, subject: `Nieuwe aanmelding makelaar: ${b.officeName}, ${b.city}`, text: `${b.contactName} (${b.email}${b.phone ? `, ${b.phone}` : ''}) meldt ${b.officeName} aan.\n\nBekijk de aanmelding: ${siteUrl()}/beheer/aanmeldingen` });
+  return done;
 }
 
 // ───────────────────────── Bezichtigingen ─────────────────────────

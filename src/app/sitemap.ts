@@ -2,6 +2,7 @@ import type { MetadataRoute } from 'next';
 import { listOffices, publicSlugs } from '@/lib/data';
 import { siteUrl } from '@/lib/env';
 import { PROVINCES } from '@/lib/types';
+import { ARTICLES } from '@/lib/articles';
 
 export const revalidate = 3600;
 
@@ -18,6 +19,10 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     ...PROVINCES.map((p) => ({ url: `${base}/${p}`, changeFrequency: 'daily' as const, priority: 0.8 })),
     { url: `${base}/makelaars`, changeFrequency: 'weekly', priority: 0.6 },
     { url: `${base}/voor-makelaars`, changeFrequency: 'monthly', priority: 0.5 },
+    { url: `${base}/voor-makelaars/aanmelden`, changeFrequency: 'monthly', priority: 0.5 },
+    { url: `${base}/artikelen`, changeFrequency: 'weekly', priority: 0.5 },
+    ...ARTICLES.map((a) => ({ url: `${base}/artikelen/${a.slug}`, lastModified: a.date, changeFrequency: 'monthly' as const, priority: 0.4 })),
+    ...['over-ons', 'contact', 'veelgestelde-vragen'].map((p) => ({ url: `${base}/${p}`, changeFrequency: 'monthly' as const, priority: 0.3 })),
     ...offices.map((o) => ({ url: `${base}/makelaars/${o.slug}`, changeFrequency: 'weekly' as const, priority: 0.5 })),
     ...slugs.map((s) => ({ url: `${base}/woning/${s.slug}`, lastModified: s.updatedAt, changeFrequency: 'daily' as const, priority: 0.7 })),
   ];

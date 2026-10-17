@@ -244,3 +244,14 @@ export async function markOfficeRead(conversationId: string) {
   await (await createClient()).from('messages').update({ read_at: new Date().toISOString() }).eq('conversation_id', conversationId).eq('sender', 'zoeker').is('read_at', null);
   revalidatePath('/beheer', 'layout');
 }
+
+const REQUEST_STATUS = ['nieuw', 'in_behandeling', 'aangesloten', 'afgewezen'];
+/** Status van een aanmelding van een makelaar. Alleen eigenaar en beheerder; RLS dwingt dat ook in de database af. */
+export async function setBrokerRequestStatus(form: FormData): Promise<void> {
+  const staff = await requireStaff();
+  if (!isManager(staff.role)) return;
+  const id = uuid(form.get('id')), status = String(form.get('status') ?? '');
+  if (!id || !REQUEST_STATUS.includes(status)) return;
+  await (await createClient()).from('broker_requests').update({ status }).eq('id', id);
+  revalidatePath('/beheer/aanmeldingen');
+}

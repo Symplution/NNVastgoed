@@ -1,6 +1,9 @@
 import Link from 'next/link';
 import { ArrowRight, BarChart3, BellRing, Briefcase, Building2, CalendarCheck, KeyRound, MapPin, Network, ShieldCheck } from 'lucide-react';
 import { latestListings, provinceCounts } from '@/lib/data';
+import { ARTICLES } from '@/lib/articles';
+import { ArticleTile } from '@/components/article-tile';
+import { POPULAR_PLACES, placeHref } from '@/lib/places';
 import { PROVINCES } from '@/lib/types';
 import { PROVINCE_INFO } from '@/lib/regions';
 import { HeroSearch } from '@/components/hero-search';
@@ -10,7 +13,7 @@ import { ListingCard } from '@/components/listing-card';
 export const revalidate = 300;
 
 export default async function Home() {
-  const [counts, latest, rentals, newBuild] = await Promise.all([provinceCounts(), latestListings(9), latestListings(6, undefined, 'huur'), latestListings(6, undefined, 'nieuwbouw')]);
+  const [counts, latest] = await Promise.all([provinceCounts(), latestListings(4)]);
   const total = PROVINCES.reduce((n, p) => n + counts[p], 0);
   return (
     <>
@@ -62,30 +65,19 @@ export default async function Home() {
           <Link href="/koop" className="text-sm font-semibold text-brand hover:underline">Alle woningen →</Link>
         </div>
         {latest.length ? (
-          <div className="mt-6 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">{latest.map((l, i) => <ListingCard key={l.id} l={l} priority={i < 3} />)}</div>
+          <div className="mt-6 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">{latest.map((l, i) => <ListingCard key={l.id} l={l} priority={i < 4} />)}</div>
         ) : (
           <p className="mt-6 rounded-2xl bg-sand p-8 text-center text-muted">Er staan nog geen woningen online. Kom snel terug.</p>
         )}
       </section>
 
-      {rentals.length > 0 && (
-        <section className="container-x mt-16" aria-labelledby="huur">
-          <div className="flex items-end justify-between gap-4">
-            <h2 id="huur" className="text-2xl font-extrabold tracking-tight">Nieuw te huur</h2>
-            <Link href="/huur" className="text-sm font-semibold text-brand hover:underline">Alle huurwoningen →</Link>
-          </div>
-          <div className="mt-6 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">{rentals.map((l) => <ListingCard key={l.id} l={l} />)}</div>
-        </section>
-      )}
-      {newBuild.length > 0 && (
-        <section className="container-x mt-16" aria-labelledby="nieuwbouw">
-          <div className="flex items-end justify-between gap-4">
-            <h2 id="nieuwbouw" className="text-2xl font-extrabold tracking-tight">Nieuwbouw</h2>
-            <Link href="/nieuwbouw" className="text-sm font-semibold text-brand hover:underline">Alle nieuwbouw →</Link>
-          </div>
-          <div className="mt-6 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">{newBuild.map((l) => <ListingCard key={l.id} l={l} />)}</div>
-        </section>
-      )}
+      <section className="container-x mt-16" aria-labelledby="artikelen">
+        <div className="flex items-end justify-between gap-4">
+          <h2 id="artikelen" className="text-2xl font-extrabold tracking-tight">Verdiep je verder</h2>
+          <Link href="/artikelen" className="text-sm font-semibold text-brand hover:underline">Meer artikelen →</Link>
+        </div>
+        <div className="mt-6 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">{ARTICLES.slice(0, 4).map((a) => <ArticleTile key={a.slug} a={a} />)}</div>
+      </section>
 
       <section className="container-x mt-20 grid gap-6 sm:grid-cols-3" aria-label="Waarom NNvastgoed">
         {[
@@ -104,7 +96,22 @@ export default async function Home() {
             <h2 className="mt-2 text-2xl font-extrabold tracking-tight">Laat je aanbod hier zien</h2>
             <p className="mt-2 max-w-xl text-muted">Koppel je kantoorsoftware of beheer je woningen zelf. Je krijgt leads rechtstreeks in je beheer en in je inbox.</p>
           </div>
-          <Link href="/voor-makelaars" className="btn-primary shrink-0">Aansluiten</Link>
+          <div className="flex shrink-0 flex-wrap gap-3"><Link href="/voor-makelaars/aanmelden" className="btn-primary">Aanmelden</Link><Link href="/login" className="btn-ghost bg-white">Inloggen</Link></div>
+        </div>
+      </section>
+
+      <section className="container-x mt-16" aria-labelledby="plaatsen">
+        <h2 id="plaatsen" className="text-2xl font-extrabold tracking-tight">Populaire plaatsen</h2>
+        <p className="mt-1 text-muted">Steden en dorpen in Groningen, Friesland en Drenthe.</p>
+        <div className="mt-6 grid gap-8 sm:grid-cols-3">
+          {PROVINCES.map((p) => (
+            <div key={p}>
+              <h3 className="border-b border-line pb-2 text-sm font-bold uppercase tracking-wider" style={{ color: PROVINCE_INFO[p].hue }}>{PROVINCE_INFO[p].name}</h3>
+              <ul className="mt-3 grid grid-cols-2 gap-x-4 gap-y-1.5 text-[15px]">
+                {[...POPULAR_PLACES[p].cities, ...POPULAR_PLACES[p].villages].map((t) => <li key={t}><Link href={placeHref(t)} className="focus-ring rounded text-brand hover:underline">{t}</Link></li>)}
+              </ul>
+            </div>
+          ))}
         </div>
       </section>
     </>

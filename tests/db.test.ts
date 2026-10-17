@@ -499,3 +499,27 @@ describe('kaartlocaties', () => {
   });
 });
 
+
+describe('aanmeldingen van makelaars', () => {
+  const req = (email = 'info@nieuwkantoor.nl', consent = true) => `insert into broker_requests (office_name, city, province, contact_name, email, consent) values ('Nieuw Kantoor', 'Emmen', 'drenthe', 'Eva', '${email}', ${consent})`;
+  it('iedereen kan zich aanmelden, maar niemand buiten het beheer leest mee', async () => {
+    await as(null, req());
+    await expect(as(null, `select 1 from broker_requests`)).rejects.toThrow(/permission denied/);
+    expect(await as(ids.zoekerA, `select 1 from broker_requests`)).toHaveLength(0);
+    expect(await as(ids.agentA, `select 1 from broker_requests`)).toHaveLength(0);   // een makelaar is geen beheerder
+    expect(await as(ids.owner, `select 1 from broker_requests`, 'aal1')).toHaveLength(0);
+    expect((await as(ids.owner, `select 1 from broker_requests`)).length).toBeGreaterThan(0);
+  });
+  it('alleen een beheerder wijzigt de status; de status bij aanmelden is altijd "nieuw"', async () => {
+    await as(null, `insert into broker_requests (office_name, city, province, contact_name, email, consent, status) values ('X Makelaars', 'Assen', 'drenthe', 'Jan', 'jan@x.nl', true, 'aangesloten')`);
+    expect((await as(ids.owner, `select status from broker_requests where email = 'jan@x.nl'`))[0].status).toBe('nieuw');
+    expect(await as(ids.agentA, `update broker_requests set status = 'afgewezen' returning 1`)).toHaveLength(0);
+    expect(await as(ids.owner, `update broker_requests set status = 'in_behandeling' where email = 'jan@x.nl' returning 1`)).toHaveLength(1);
+    await expect(as(ids.owner, `update broker_requests set email = 'ander@x.nl' returning 1`)).rejects.toThrow(/permission denied/);
+  });
+  it('akkoord is verplicht en er geldt een rem per e-mailadres', async () => {
+    await expect(as(null, req('zonder@x.nl', false))).rejects.toThrow();
+    await as(null, req('spam@x.nl')); await as(null, req('spam@x.nl')); await as(null, req('spam@x.nl'));
+    await expect(as(null, req('spam@x.nl'))).rejects.toThrow(/Te veel/);
+  });
+});

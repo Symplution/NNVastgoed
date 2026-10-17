@@ -1,6 +1,6 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
-import { Building2, CalendarCheck, Contact, Inbox, LayoutDashboard, MessageSquare, Network, Home, Sparkles, Users, Store } from 'lucide-react';
+import { Building2, CalendarCheck, Contact, Inbox, LayoutDashboard, MessageSquare, Network, Home, Sparkles, Users, Store, UserPlus } from 'lucide-react';
 import { isManager, requireStaff } from '@/lib/auth';
 import { logout } from '@/app/login/actions';
 import { staffUnread } from '@/lib/staff-data';
@@ -25,6 +25,7 @@ export default async function BeheerLayout({ children }: { children: React.React
           <Link href="/beheer/contacten" className={item}><Contact size={17} aria-hidden /> Contacten</Link>
           <Link href="/beheer/koppelingen" className={item}><Network size={17} aria-hidden /> Koppelingen</Link>
           <Link href="/beheer/kantoor" className={item}><Building2 size={17} aria-hidden /> Mijn kantoor</Link>
+          {isManager(staff.role) && <Link href="/beheer/aanmeldingen" className={item}><UserPlus size={17} aria-hidden /> Aanmeldingen</Link>}
           {isManager(staff.role) && <Link href="/beheer/kantoren" className={item}><Store size={17} aria-hidden /> Alle kantoren</Link>}
           {staff.role === 'owner' && <Link href="/beheer/gebruikers" className={item}><Users size={17} aria-hidden /> Gebruikers</Link>}
           <Link href="/beheer/ai" className={item}><Sparkles size={17} aria-hidden /> AI-departments</Link>

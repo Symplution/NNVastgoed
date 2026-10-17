@@ -146,3 +146,9 @@ export function buildContacts(input: { leads: LeadRow[]; viewings: ViewingRow[];
   }
   return [...map.values()].sort((a, b) => b.lastAt.localeCompare(a.lastAt));
 }
+
+export interface BrokerRequestRow { id: string; officeName: string; city: string; province: string; kvk: string | null; nvm: boolean; contactName: string; email: string; phone: string | null; software: string | null; listingCount: number | null; message: string | null; status: string; createdAt: string }
+export async function brokerRequests(): Promise<BrokerRequestRow[]> {
+  const { data } = await (await createClient()).from('broker_requests').select('*').order('created_at', { ascending: false }).limit(300);
+  return (data ?? []).map((r: Row) => ({ id: r.id, officeName: r.office_name, city: r.city, province: r.province, kvk: r.kvk, nvm: r.nvm_member, contactName: r.contact_name, email: r.email, phone: r.phone, software: r.software, listingCount: r.listing_count, message: r.message, status: r.status, createdAt: r.created_at }));
+}
