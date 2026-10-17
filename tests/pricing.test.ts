@@ -19,9 +19,9 @@ describe('tarieven voor makelaars', () => {
     expect(OFFICE_PRICES.every((o) => o.price > 0)).toBe(true);
     expect(CUSTOM_CAMPAIGNS.every((c) => c.from > 0)).toBe(true);
   });
-  it('een woning plaatsen is een klein eenmalig bedrag en het maatwerkpakket kost rond de 3000', () => {
+  it('een woning plaatsen is een klein eenmalig bedrag en het maatwerkpakket kost vanaf 5000', () => {
     expect(LISTING_FEE.amount).toBeGreaterThan(0);
-    expect(BESPOKE.approx).toBe(3000);
+    expect(BESPOKE.from).toBe(5000);
     expect(BESPOKE.includes.length).toBeGreaterThanOrEqual(4);
   });
   it('schrijft bedragen in het Nederlands', () => { expect(euro(1750)).toMatch(/^€ 1\.750$/); });

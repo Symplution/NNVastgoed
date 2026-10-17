@@ -29,7 +29,7 @@ export default function Prijzen() {
         <div className="card flex flex-col border-2 border-accent/40 p-7">
           <p className="text-sm font-semibold uppercase tracking-wider text-accent">Website en CRM</p>
           <h2 className="mt-1 text-2xl font-extrabold tracking-tight">{BESPOKE.name}</h2>
-          <p className="mt-4 text-4xl font-extrabold tabular-nums text-brand"><span className="text-base font-semibold text-muted">circa</span> {euro(BESPOKE.approx)} <span className="text-base font-semibold text-muted">eenmalig, excl. btw</span></p>
+          <p className="mt-4 text-4xl font-extrabold tabular-nums text-brand"><span className="text-base font-semibold text-muted">vanaf</span> {euro(BESPOKE.from)} <span className="text-base font-semibold text-muted">eenmalig, excl. btw</span></p>
           <p className="mt-3 text-sm text-muted">{BESPOKE.note}</p>
           <ul className="mt-5 space-y-2 text-sm">{BESPOKE.includes.map((x) => <li key={x} className="flex gap-2"><Check size={17} className="mt-0.5 shrink-0 text-green-600" aria-hidden />{x}</li>)}</ul>
           <Link href="/contact" className="btn-accent mt-6 self-start">Vraag een voorstel</Link>

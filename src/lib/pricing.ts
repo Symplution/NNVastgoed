@@ -38,8 +38,8 @@ export const LISTING_FEE = { name: 'Woning plaatsen', amount: 29, note: 'Eenmali
 /** Website, CRM en koppelingen volledig op maat ingericht voor één kantoor. */
 export const BESPOKE = {
   name: 'Volledig maatwerkpakket',
-  approx: 3000,
-  note: 'Eenmalig, circa. Je exacte prijs hangt af van de wensen.',
+  from: 5000,
+  note: 'Eenmalig. Je exacte prijs hangt af van je wensen en de omvang van je kantoor.',
   includes: ['Eigen website in je huisstijl en op je eigen domein', 'CRM voor je kantoor, ingericht op jouw werkwijze', 'Koppeling met je kantoorsoftware', 'Je woningen, collega’s en bezichtigingen volledig ingesteld', 'Uitleg en training voor je team'],
 };
 
