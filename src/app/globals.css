@@ -1,0 +1,20 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+html { color-scheme: light; scroll-behavior: smooth; }
+body { @apply bg-white font-sans text-ink antialiased; }
+input[type='checkbox'], input[type='radio'] { accent-color: #0e4a6e; }
+
+@layer components {
+  .focus-ring { @apply focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand; }
+  .btn { @apply focus-ring inline-flex items-center justify-center gap-2 rounded-lg px-4 py-2.5 text-sm font-semibold transition disabled:opacity-60; }
+  .btn-primary { @apply btn bg-brand text-white hover:bg-brand-dark; }
+  .btn-accent { @apply btn bg-accent text-white hover:bg-accent-dark; }
+  .btn-ghost { @apply btn border border-line bg-white text-ink hover:bg-sand; }
+  .field { @apply focus-ring w-full rounded-lg border border-line bg-white px-3 py-2.5 text-sm placeholder:text-muted/70; }
+  .label { @apply mb-1 block text-xs font-semibold uppercase tracking-wide text-muted; }
+  .card { @apply rounded-2xl border border-line bg-white shadow-card; }
+  .pill { @apply inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-semibold; }
+  .container-x { @apply mx-auto w-full max-w-6xl px-4 sm:px-6; }
+}
