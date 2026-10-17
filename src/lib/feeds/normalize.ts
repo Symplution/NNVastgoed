@@ -1,5 +1,5 @@
 import { createHash } from 'node:crypto';
-import { ENERGY_LABELS, PROPERTY_TYPES } from '../types';
+import { COMMERCIAL_TYPES, ENERGY_LABELS, PROPERTY_TYPES } from '../types';
 import { normalizePostcode, slugify } from '../format';
 import { resolveProvince } from '../regions';
 import type { IngestItem, Parsed } from './types';
@@ -14,6 +14,7 @@ const TYPE_ALIAS: Record<string, string> = {
   '2-onder-1-kap': 'twee-onder-een-kap', 'twee onder een kap': 'twee-onder-een-kap', geschakeld: 'twee-onder-een-kap', 'vrijstaande woning': 'vrijstaand', villa: 'vrijstaand',
   boerderij: 'woonboerderij', 'woon-boerderij': 'woonboerderij', rijtjeshuis: 'tussenwoning', 'rijwoning': 'tussenwoning', hoekhuis: 'hoekwoning', 'eindwoning': 'hoekwoning', grachtenpand: 'herenhuis',
   grond: 'bouwgrond', kavel: 'bouwgrond', woonschip: 'woonboot',
+  kantoor: 'kantoorruimte', kantoorpand: 'kantoorruimte', bedrijfsruimte: 'bedrijfshal', bedrijfspand: 'bedrijfshal', hal: 'bedrijfshal', winkel: 'winkelruimte', winkelpand: 'winkelruimte', horeca: 'horecapand', restaurant: 'horecapand', cafe: 'horecapand',
 };
 const STATUS_ALIAS: Record<string, string> = {
   beschikbaar: 'beschikbaar', 'te koop': 'beschikbaar', 'onder bod': 'onder_bod', onder_bod: 'onder_bod', 'onder voorbehoud': 'onder_voorbehoud', onder_voorbehoud: 'onder_voorbehoud',
@@ -67,7 +68,14 @@ export function normalizeRecord(raw: Raw, scope: string): IngestItem {
 
   const label = str(raw.energielabel, 6)?.toUpperCase();
   const lat = num(raw.lat), lng = num(raw.lng);
-  const priceType = str(raw.prijs_type)?.toLowerCase() === 'v.o.n.' ? 'v.o.n.' : 'k.k.';
+  const offerIn = (str(raw.aanbod) ?? 'koop').toLowerCase();
+  if (!['koop', 'huur', 'te koop', 'te huur'].includes(offerIn)) throw new RecordError(`Onbekend aanbod "${offerIn}" (koop of huur).`);
+  const offer = offerIn.endsWith('huur') ? 'huur' : 'koop';
+  if (offer === 'huur' && price > 100_000) throw new RecordError('De huurprijs is per maand; een bedrag boven € 100.000 klopt niet.');
+  const category = (COMMERCIAL_TYPES as readonly string[]).includes(propertyType) ? 'bedrijfsruimte' : 'woning';
+  // Bij huur is de prijs per maand; bij koop kosten koper of vrij op naam.
+  const priceType = offer === 'huur' ? 'p.m.' : str(raw.prijs_type)?.toLowerCase() === 'v.o.n.' ? 'v.o.n.' : 'k.k.';
+  const newBuild = raw.nieuwbouw === true || ['ja', 'true', '1'].includes(String(raw.nieuwbouw ?? '').toLowerCase());
 
   const photos: IngestItem['photos'] = [];
   for (const p of Array.isArray(raw.fotos) ? raw.fotos : []) {
@@ -83,7 +91,7 @@ export function normalizeRecord(raw: Raw, scope: string): IngestItem {
   return {
     slug: `${slugify(`${street} ${houseNumber}${suffix ?? ''} ${city}`)}-${hash}`,
     external_id: externalId,
-    status: status as IngestItem['status'],
+    status: status as IngestItem['status'], offer, category, new_build: newBuild,
     street, house_number: houseNumber, house_suffix: suffix, postcode, city, province, neighbourhood: str(raw.wijk, 80) ?? null,
     lat: lat !== undefined && lat >= 50 && lat <= 54 ? lat : null,
     lng: lng !== undefined && lng >= 3 && lng <= 8 ? lng : null,

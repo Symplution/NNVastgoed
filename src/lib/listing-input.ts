@@ -1,10 +1,11 @@
-import { ENERGY_LABELS, PROPERTY_TYPES, STATUSES, type Photo } from './types';
+import { COMMERCIAL_TYPES, ENERGY_LABELS, PROPERTY_TYPES, STATUSES, type Photo } from './types';
 import { normalizePostcode } from './format';
 import { isProvince } from './regions';
 
 export interface ListingInput {
+  offer: 'koop' | 'huur'; category: 'woning' | 'bedrijfsruimte'; new_build: boolean;
   status: string; street: string; house_number: string; house_suffix: string | null; postcode: string; city: string; province: string; neighbourhood: string | null;
-  lat: number | null; lng: number | null; asking_price: number; price_type: 'k.k.' | 'v.o.n.'; living_area: number; plot_area: number | null;
+  lat: number | null; lng: number | null; asking_price: number; price_type: 'k.k.' | 'v.o.n.' | 'p.m.'; living_area: number; plot_area: number | null;
   rooms: number; bedrooms: number; bathrooms: number; build_year: number | null; property_type: string; energy_label: string | null;
   description: string; features: string[]; photos: Photo[];
 }
@@ -24,7 +25,12 @@ export function validateListing(f: FormData): ListingResult {
   const price = optNum(f, 'asking_price'), area = optNum(f, 'living_area'), rooms = optNum(f, 'rooms');
   const bedrooms = optNum(f, 'bedrooms') ?? 0, bathrooms = optNum(f, 'bathrooms') ?? 1;
   const plot = optNum(f, 'plot_area'), year = optNum(f, 'build_year'), lat = optNum(f, 'lat'), lng = optNum(f, 'lng');
-  const type = text(f, 'property_type'), label = text(f, 'energy_label'), priceType = text(f, 'price_type') === 'v.o.n.' ? 'v.o.n.' : 'k.k.';
+  const type = text(f, 'property_type'), label = text(f, 'energy_label');
+  const offer = text(f, 'offer') === 'huur' ? 'huur' : 'koop';
+  const category = (COMMERCIAL_TYPES as readonly string[]).includes(type) ? 'bedrijfsruimte' : 'woning';   // volgt uit de soort
+  // Bij huur is de prijs per maand; bij koop kosten koper of vrij op naam.
+  const priceType = offer === 'huur' ? 'p.m.' : text(f, 'price_type') === 'v.o.n.' ? 'v.o.n.' : 'k.k.';
+  const newBuild = f.get('new_build') === 'on';
 
   need((STATUSES as readonly string[]).includes(status), 'Kies een geldige status.');
   need(street.length > 0 && street.length <= 120, 'Vul de straat in.');
@@ -32,9 +38,10 @@ export function validateListing(f: FormData): ListingResult {
   need(/^[1-9]\d{3} [A-Z]{2}$/.test(postcode), 'Vul een geldige postcode in, bijvoorbeeld 9711 AB.');
   need(city.length > 0 && city.length <= 80, 'Vul de plaats in.');
   need(isProvince(province), 'Kies Groningen, Friesland of Drenthe. NNvastgoed toont alleen woningen in het noorden.');
-  need(price !== null && Number.isInteger(price) && price >= 0 && price <= 100_000_000, 'Vul een vraagprijs in (hele euro’s).');
+  need(price !== null && Number.isInteger(price) && price >= 0 && price <= 100_000_000, offer === 'huur' ? 'Vul de huurprijs per maand in (hele euro’s).' : 'Vul een vraagprijs in (hele euro’s).');
+  need(offer === 'koop' || (price !== null && price <= 100_000), 'Een huurprijs per maand van meer dan € 100.000 klopt niet.');
   need(area !== null && Number.isInteger(area) && area > 0 && area <= 10_000, 'Vul de woonoppervlakte in (hele m²).');
-  need(rooms !== null && Number.isInteger(rooms) && rooms >= 0 && rooms <= 100, 'Vul het aantal kamers in.');
+  need(rooms !== null && Number.isInteger(rooms) && rooms >= 0 && rooms <= 100, 'Vul het aantal kamers in (bij bedrijfsruimte 0).');
   need(Number.isInteger(bedrooms) && bedrooms >= 0 && bedrooms <= 50, 'Het aantal slaapkamers klopt niet.');
   need(Number.isInteger(bathrooms) && bathrooms >= 0 && bathrooms <= 50, 'Het aantal badkamers klopt niet.');
   need(plot === null || (Number.isInteger(plot) && plot >= 0), 'De perceeloppervlakte klopt niet.');
@@ -61,7 +68,7 @@ export function validateListing(f: FormData): ListingResult {
   return {
     ok: true,
     value: {
-      status, street, house_number: houseNumber, house_suffix: text(f, 'house_suffix') || null, postcode, city, province, neighbourhood: text(f, 'neighbourhood') || null,
+      offer, category, new_build: newBuild, status, street, house_number: houseNumber, house_suffix: text(f, 'house_suffix') || null, postcode, city, province, neighbourhood: text(f, 'neighbourhood') || null,
       lat, lng, asking_price: price!, price_type: priceType, living_area: area!, plot_area: plot, rooms: rooms!, bedrooms, bathrooms, build_year: year,
       property_type: type, energy_label: label || null, description, features, photos,
     },

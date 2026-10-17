@@ -98,6 +98,8 @@ export async function saveOffice(id: string | null, _: SaveState, form: FormData
   const data = {
     name: clean(form, 'name', 120), city: clean(form, 'city', 80), province, street: clean(form, 'street', 120) || null, postcode: clean(form, 'postcode', 10) || null,
     phone: clean(form, 'phone', 40) || null, email: clean(form, 'email', 200), website: clean(form, 'website', 200) || null, description: clean(form, 'description', 2000),
+    // Het NVM-lidmaatschap zet alleen NNV-beheer; voor anderen blijft het veld buiten de wijziging (en de database weigert het ook).
+    ...(isManager(staff.role) ? { nvm_member: form.get('nvm_member') === 'on' } : {}),
   };
   const errors: string[] = [];
   if (data.name.length < 2) errors.push('Vul de naam van het kantoor in.');
@@ -128,4 +130,111 @@ export async function setProfile(form: FormData) {
   if (staff.role !== 'owner' || !id || !['owner', 'admin', 'agent', 'readonly'].includes(role)) return;
   await (await createClient()).from('profiles').update({ role, office_id: uuid(form.get('office_id')), active: form.get('active') === '1' }).eq('id', id);
   revalidatePath('/beheer/gebruikers');
+}
+
+// ───────────────────────── Bezichtigingen en berichten ─────────────────────────
+import { zonedToUtc } from '@/lib/viewings';
+import { getListingById } from '@/lib/data';
+import { formatDateTime, address as fmtAddress } from '@/lib/format';
+import { siteUrl } from '@/lib/env';
+import { sendMail } from '@/lib/usage';
+import { createServiceClient } from '@/lib/supabase/service';
+
+export async function setViewingStatus(form: FormData) {
+  const staff = await requireStaff();
+  const id = uuid(form.get('id')), status = String(form.get('status'));
+  if (!canWrite(staff) || !id || !['bevestigd', 'geannuleerd', 'afgerond', 'niet_verschenen'].includes(status)) return;
+  await (await createClient()).from('viewings').update({ status }).eq('id', id);
+  revalidatePath('/beheer/bezichtigingen');
+}
+
+/** De makelaar plant zelf een bezichtiging in, bijvoorbeeld na een telefoontje. */
+export async function addViewing(_: SaveState, form: FormData): Promise<SaveState> {
+  const staff = await requireStaff();
+  if (!canWrite(staff)) return { errors: ['Je hebt alleen leesrechten.'] };
+  const listingId = uuid(form.get('listing_id'));
+  const start = zonedToUtc(String(form.get('start') ?? ''));
+  const minutes = Math.min(180, Math.max(10, Number(form.get('minutes')) || 30));
+  const name = String(form.get('name') ?? '').trim(), email = String(form.get('email') ?? '').trim(), phone = String(form.get('phone') ?? '').trim(), note = String(form.get('note') ?? '').trim();
+  const errors: string[] = [];
+  if (!listingId) errors.push('Kies een woning.');
+  if (!start) errors.push('Kies een datum en tijd.');
+  if (name.length < 2) errors.push('Vul de naam in.');
+  if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) errors.push('Vul een geldig e-mailadres in.');
+  if (errors.length) return { errors };
+  const end = new Date(start!.getTime() + minutes * 60_000);
+  const { data: l } = await (await createClient()).from('listings').select('office_id').eq('id', listingId!).maybeSingle();
+  if (!l) return { errors: ['Deze woning is niet gevonden.'] };
+  const { data, error } = await (await createClient()).from('viewings').insert({
+    listing_id: listingId, office_id: l.office_id, name, email: email.toLowerCase(), phone: phone || null, note: note || null,
+    starts_at: start!.toISOString(), ends_at: end.toISOString(), source: 'makelaar', status: 'bevestigd',
+  }).select('id, token').single();
+  if (error) return { errors: [/duplicate|unique/i.test(error.message) ? 'Voor deze woning staat op dat moment al een bezichtiging.' : 'De bezichtiging kon niet worden ingepland.'] };
+  const lst = await getListingById(listingId!);
+  if (lst) await sendMail({ to: email, key: `bez-zoeker:${data.id}`, officeId: l.office_id, subject: `Bezichtiging bevestigd: ${fmtAddress(lst)}, ${lst.city}`,
+    text: `Hallo ${name},\n\nje bezichtiging is bevestigd.\n\nWat: ${fmtAddress(lst)}, ${lst.postcode} ${lst.city}\nWanneer: ${formatDateTime(start!.toISOString())}\n\nAgenda, verzetten of annuleren: ${siteUrl()}/bezichtiging/${data.token}` });
+  revalidatePath('/beheer/bezichtigingen');
+  return { ok: 'Ingepland.' };
+}
+
+export async function addRule(form: FormData) {
+  const staff = await requireStaff();
+  const officeId = isManager(staff.role) ? uuid(form.get('office_id')) : staff.officeId;
+  const weekday = Number(form.get('weekday')), slot = Number(form.get('slot_minutes')), cap = Number(form.get('capacity'));
+  const start = String(form.get('start_time') ?? ''), end = String(form.get('end_time') ?? '');
+  if (!canWrite(staff) || !officeId || !(weekday >= 1 && weekday <= 7) || !/^\d{2}:\d{2}$/.test(start) || !/^\d{2}:\d{2}$/.test(end) || end <= start) return;
+  await (await createClient()).from('viewing_rules').insert({ office_id: officeId, weekday, start_time: start, end_time: end, slot_minutes: Math.min(180, Math.max(10, slot || 30)), capacity: Math.min(20, Math.max(1, cap || 1)) });
+  revalidatePath('/beheer/bezichtigingen/beschikbaarheid');
+}
+export async function deleteRule(form: FormData) {
+  const staff = await requireStaff(); const id = uuid(form.get('id'));
+  if (!canWrite(staff) || !id) return;
+  await (await createClient()).from('viewing_rules').delete().eq('id', id);
+  revalidatePath('/beheer/bezichtigingen/beschikbaarheid');
+}
+export async function addBlock(form: FormData) {
+  const staff = await requireStaff();
+  const officeId = isManager(staff.role) ? uuid(form.get('office_id')) : staff.officeId;
+  const from = zonedToUtc(String(form.get('from') ?? '')), to = zonedToUtc(String(form.get('to') ?? ''));
+  if (!canWrite(staff) || !officeId || !from || !to || to <= from) return;
+  await (await createClient()).from('viewing_blocks').insert({ office_id: officeId, starts_at: from.toISOString(), ends_at: to.toISOString(), reason: String(form.get('reason') ?? '').trim().slice(0, 200) || null });
+  revalidatePath('/beheer/bezichtigingen/beschikbaarheid');
+}
+export async function deleteBlock(form: FormData) {
+  const staff = await requireStaff(); const id = uuid(form.get('id'));
+  if (!canWrite(staff) || !id) return;
+  await (await createClient()).from('viewing_blocks').delete().eq('id', id);
+  revalidatePath('/beheer/bezichtigingen/beschikbaarheid');
+}
+
+type ReplyState = { ok?: boolean; error?: string } | undefined;
+
+/** Het kantoor antwoordt in een gesprek; de zoeker krijgt een mail (hoogstens één per gesprek per uur). */
+export async function officeReply(_: ReplyState, form: FormData): Promise<ReplyState> {
+  const staff = await requireStaff();
+  if (!canWrite(staff)) return { error: 'Je hebt alleen leesrechten.' };
+  const id = uuid(form.get('conversationId')), body = String(form.get('body') ?? '').trim();
+  if (!id) return { error: 'Dit gesprek bestaat niet.' };
+  if (!body || body.length > 4000) return { error: 'Schrijf een bericht (maximaal 4000 tekens).' };
+  const supabase = await createClient();
+  const { data: conv } = await supabase.from('conversations').select('id, seeker_id, listing_id').eq('id', id).maybeSingle();
+  if (!conv) return { error: 'Dit gesprek bestaat niet.' };
+  const { error } = await supabase.from('messages').insert({ conversation_id: id, sender: 'makelaar', body });
+  if (error) return { error: 'Het bericht kon niet worden verstuurd.' };
+  // Het e-mailadres van de zoeker staat in het account; alleen de server (met de service key) leest het, uitsluitend voor deze mail.
+  try {
+    const { data: u } = await createServiceClient().auth.admin.getUserById(conv.seeker_id);
+    const l = await getListingById(conv.listing_id);
+    if (u.user?.email && l) await sendMail({ to: u.user.email, key: `antwoord:${id}:${new Date().toISOString().slice(0, 13)}`, subject: `Antwoord van de makelaar over ${fmtAddress(l)}, ${l.city}`,
+      text: `Je hebt een nieuw bericht over ${fmtAddress(l)}, ${l.city}:\n\n${body}\n\nAntwoorden kan in Mijn NNV: ${siteUrl()}/mijn/berichten/${id}` });
+  } catch { /* zonder service key geen mail; het bericht staat er wel */ }
+  revalidatePath(`/beheer/berichten/${id}`);
+  return { ok: true };
+}
+
+export async function markOfficeRead(conversationId: string) {
+  const staff = await requireStaff();
+  if (!canWrite(staff) || !uuid(conversationId)) return;
+  await (await createClient()).from('messages').update({ read_at: new Date().toISOString() }).eq('conversation_id', conversationId).eq('sender', 'zoeker').is('read_at', null);
+  revalidatePath('/beheer', 'layout');
 }

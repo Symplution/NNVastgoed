@@ -1,6 +1,6 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
-import { BellRing, Inbox, Network, Sparkles } from 'lucide-react';
+import { BellRing, CalendarCheck, Inbox, Network, Sparkles } from 'lucide-react';
 
 export const metadata: Metadata = { title: 'Voor makelaars', description: 'Toon je woningaanbod aan woningzoekers in Groningen, Friesland en Drenthe. Koppel je kantoorsoftware of beheer je woningen zelf.' };
 
@@ -9,6 +9,8 @@ const EXAMPLE = `{
   "woningen": [{
     "id": "RW-10234",
     "status": "beschikbaar",
+    "aanbod": "koop",              // of "huur": dan is vraagprijs de huur per maand
+    "nieuwbouw": false,
     "straat": "Hoofdstraat", "huisnummer": "12", "postcode": "9981 AB", "plaats": "Uithuizen",
     "vraagprijs": 289000, "prijs_type": "k.k.",
     "woonoppervlakte": 140, "perceeloppervlakte": 600, "kamers": 5, "slaapkamers": 3,
@@ -31,6 +33,7 @@ export default function VoorMakelaars() {
           { Icon: Network, t: 'Koppel je systeem', d: 'Stuur je aanbod automatisch vanuit je kantoorsoftware of via je ICT-partner. Wijzigingen, prijsverlagingen en verkoop staan er direct.' },
           { Icon: Inbox, t: 'Leads in je beheer', d: 'Elk contactverzoek komt in je beheer én in je inbox, met de woning erbij. Je ziet wie al is opgepakt.' },
           { Icon: BellRing, t: 'Zoekers die wachten', d: 'Woningzoekers laten zich mailen bij nieuw aanbod. Jouw nieuwe woning bereikt ze op de dag zelf.' },
+          { Icon: CalendarCheck, t: 'Bezichtigingen zonder bellen', d: 'Stel in wanneer je beschikbaar bent. Zoekers plannen zelf een moment, het staat meteen in je agenda en overzicht, met hun gegevens erbij.' },
           { Icon: Sparkles, t: 'Straks met AI-assistentie', d: 'Departments voor teksten, opvolging en marketing nemen je routinewerk uit handen. Jij keurt goed, zij doen het werk.' },
         ].map(({ Icon, t, d }) => (
           <div key={t} className="card flex gap-4 p-6"><span className="inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-brand-soft text-brand"><Icon size={22} aria-hidden /></span><div><h2 className="font-bold">{t}</h2><p className="mt-1 text-sm text-muted">{d}</p></div></div>
@@ -50,7 +53,7 @@ Authorization: Bearer <geheime sleutel>
 Content-Type: application/json
 
 ${EXAMPLE}`}</code></pre>
-        <p className="mt-4 max-w-2xl text-sm text-muted">Zet <code>"volledig": true</code> als je altijd je complete aanbod stuurt: woningen die je dan niet meer meestuurt gaan offline. Er geldt een maximum van 500 woningen per aanroep. Alleen woningen in Groningen, Friesland en Drenthe worden geaccepteerd.</p>
+        <p className="mt-4 max-w-2xl text-sm text-muted">Zet <code>"volledig": true</code> als je altijd je complete aanbod stuurt: woningen die je dan niet meer meestuurt gaan offline. Er geldt een maximum van 500 woningen per aanroep. Alleen aanbod in Groningen, Friesland en Drenthe wordt geaccepteerd. Naast woningen kun je ook huur, nieuwbouw en bedrijfsruimte (type kantoorruimte, bedrijfshal, winkelruimte of horecapand) sturen.</p>
       </section>
 
       <div className="mt-12 flex flex-wrap gap-3">

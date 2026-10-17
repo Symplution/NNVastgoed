@@ -14,9 +14,9 @@ export default async function Kantoren() {
   return (
     <div className="space-y-8">
       <h1 className="text-2xl font-extrabold tracking-tight">Alle kantoren</h1>
-      <section aria-labelledby="nieuw"><h2 id="nieuw" className="mb-3 text-lg font-bold">Kantoor toevoegen</h2><OfficeForm /></section>
+      <section aria-labelledby="nieuw"><h2 id="nieuw" className="mb-3 text-lg font-bold">Kantoor toevoegen</h2><OfficeForm canSetNvm /></section>
       <section aria-labelledby="lijst"><h2 id="lijst" className="mb-3 text-lg font-bold">Aangesloten ({offices.length})</h2>
-        <ul className="divide-y divide-line rounded-xl border border-line">{offices.map((o) => <li key={o.id} className="px-4 py-3 text-sm"><span className="font-semibold">{o.name}</span> <span className="text-muted">· {o.city}, {provinceName(o.province)} · {o.email}</span></li>)}</ul>
+        <ul className="divide-y divide-line rounded-xl border border-line">{offices.map((o) => <li key={o.id} className="px-4 py-3 text-sm"><span className="font-semibold">{o.name}</span>{o.nvmMember && <span className="pill ml-2 bg-brand-soft text-brand">NVM</span>} <span className="text-muted">· {o.city}, {provinceName(o.province)} · {o.email}</span></li>)}</ul>
       </section>
     </div>
   );

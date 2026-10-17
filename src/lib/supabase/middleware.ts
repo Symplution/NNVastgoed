@@ -2,6 +2,8 @@ import { createServerClient } from '@supabase/ssr';
 import { NextResponse, type NextRequest } from 'next/server';
 
 const OPEN = ['/login'];
+/** Pagina's voor zoekers sturen naar het zoekerslogin, pagina's voor makelaars naar het makelaarslogin. */
+const SEEKER_PREFIX = '/mijn';
 
 /** Ververst de sessie en stuurt niet-ingelogde bezoekers van de makelaarskant naar /login. */
 export async function updateSession(request: NextRequest) {
@@ -21,8 +23,9 @@ export async function updateSession(request: NextRequest) {
   const path = request.nextUrl.pathname;
   if (!user && !OPEN.includes(path)) {
     const url = request.nextUrl.clone();
-    url.pathname = '/login';
-    url.search = '';
+    const seeker = path === SEEKER_PREFIX || path.startsWith(`${SEEKER_PREFIX}/`);
+    url.pathname = seeker ? '/inloggen' : '/login';
+    url.search = seeker ? `?next=${encodeURIComponent(path)}` : '';
     return NextResponse.redirect(url);
   }
   if (user && path === '/login') {

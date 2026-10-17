@@ -4,7 +4,7 @@ import { randomUUID } from 'node:crypto';
 import { hasSupabase, isDemo, siteUrl } from '@/lib/env';
 import { createAnonClient } from '@/lib/supabase/anon';
 import { validateLead } from '@/lib/lead-input';
-import { filtersToParams, parseFilters } from '@/lib/search';
+import { filtersToParams, modeFromParams, parseFilters } from '@/lib/search';
 import { getOffice } from '@/lib/data';
 import { sendMail } from '@/lib/usage';
 
@@ -50,7 +50,8 @@ export async function saveSearch(_: FormState, form: FormData): Promise<FormStat
   if (form.get('consent') !== 'on') return { error: 'Ga akkoord met de privacyverklaring om meldingen te ontvangen.' };
   if (String(form.get('website') ?? '').trim()) return { ok: true, message: 'Check je mail om te bevestigen.' };
   // Opnieuw opgebouwd uit de gevalideerde filters, dus nooit zomaar wat de browser stuurde.
-  const qs = filtersToParams({ ...parseFilters(new URLSearchParams(String(form.get('qs') ?? ''))), page: 1, sort: 'nieuw' }).toString();
+  const raw = new URLSearchParams(String(form.get('qs') ?? ''));
+  const qs = filtersToParams({ ...parseFilters(raw, modeFromParams(raw)), page: 1, sort: 'nieuw' }).toString();
 
   if (isDemo()) return { ok: true, message: 'Demo: er is geen mail verstuurd.' };
   if (!hasSupabase()) return { error: 'Opslaan is nu niet mogelijk. Probeer het later opnieuw.' };
@@ -63,4 +64,68 @@ export async function saveSearch(_: FormState, form: FormData): Promise<FormStat
     text: `Je krijgt een mail zodra er nieuwe woningen zijn die bij je zoekopdracht passen.\n\nBevestig je e-mailadres: ${siteUrl()}/zoekopdracht/bevestig?token=${token}\n\nAfmelden kan altijd: ${siteUrl()}/zoekopdracht/stop?token=${token}\n\nHeb je dit niet aangevraagd? Dan hoef je niets te doen.`,
   });
   return { ok: true, message: 'Check je mail en bevestig je e-mailadres om meldingen te ontvangen.' };
+}
+
+// ───────────────────────── Bezichtigingen ─────────────────────────
+import { getSeeker } from '@/lib/seeker';
+import { createClient } from '@/lib/supabase/server';
+import { demoSlots, type Slot } from '@/lib/viewings';
+import { address, formatDateTime } from '@/lib/format';
+import { getListingById } from '@/lib/data';
+
+/** Vrije momenten voor een woning. De pagina zelf is gecachet, dus dit wordt per bezoek opgehaald. */
+export async function getViewingSlots(listingId: string): Promise<{ slots: Slot[]; error?: string }> {
+  if (!/^[A-Za-z0-9-]{1,40}$/.test(listingId)) return { slots: [] };
+  if (isDemo()) return { slots: demoSlots() };
+  if (!hasSupabase()) return { slots: [] };
+  const { data, error } = await createAnonClient().rpc('viewing_slots', { p_listing: listingId, p_days: 21 });
+  if (error) return { slots: [], error: 'De momenten konden niet worden opgehaald.' };
+  return { slots: (data ?? []).map((r: { slot_start: string; slot_end: string }) => ({ start: r.slot_start, end: r.slot_end })) };
+}
+
+/** Naam, e-mail en telefoon van de ingelogde zoeker, om het formulier in te vullen. */
+export async function getMyContact(): Promise<{ name: string; email: string; phone: string } | null> {
+  const me = await getSeeker();
+  return me ? { name: me.name, email: me.email, phone: me.phone ?? '' } : null;
+}
+
+export type BookState = { ok?: boolean; error?: string; token?: string; label?: string; start?: string } | undefined;
+
+export async function bookViewing(_: BookState, form: FormData): Promise<BookState> {
+  if (String(form.get('website') ?? '').trim()) return { ok: true, label: 'Je bezichtiging is bevestigd.' };   // bot
+  const listingId = String(form.get('listingId') ?? '');
+  const start = String(form.get('start') ?? '');
+  const name = String(form.get('name') ?? '').trim();
+  const email = String(form.get('email') ?? '').trim();
+  const phone = String(form.get('phone') ?? '').trim();
+  const note = String(form.get('note') ?? '').trim();
+  if (!/^[A-Za-z0-9-]{1,40}$/.test(listingId) || Number.isNaN(Date.parse(start))) return { error: 'Kies eerst een moment.' };
+  if (name.length < 2 || name.length > 120) return { error: 'Vul je naam in.' };
+  if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email) || email.length > 200) return { error: 'Vul een geldig e-mailadres in.' };
+  if (phone.length > 40 || note.length > 1000) return { error: 'Het telefoonnummer of de opmerking is te lang.' };
+  if (form.get('consent') !== 'on') return { error: 'Ga akkoord met de privacyverklaring om te boeken.' };
+
+  if (isDemo()) return { ok: true, token: 'demo', start, label: `Demo: ${formatDateTime(start)}. Er is niets ingepland en er is geen mail verstuurd.` };
+  if (!hasSupabase()) return { error: 'Inplannen is nu niet mogelijk. Probeer het later opnieuw.' };
+
+  // Met de sessie van de bezoeker: een ingelogde zoeker krijgt de bezichtiging in Mijn NNV, een gast niet.
+  const { data, error } = await (await createClient()).rpc('book_viewing', { p_listing: listingId, p_starts_at: start, p_name: name, p_email: email, p_phone: phone || null, p_note: note || null });
+  if (error) {
+    if (/niet meer beschikbaar/.test(error.message)) return { error: 'Dit moment is net door iemand anders gekozen. Kies een ander moment.' };
+    if (/Te veel|zes bezichtigingen/.test(error.message)) return { error: error.message.replace(/^.*?(Te veel|Je hebt)/, '$1') };
+    return { error: 'Inplannen is niet gelukt. Probeer het opnieuw.' };
+  }
+  const row = Array.isArray(data) ? data[0] : data;
+  const l = await getListingById(listingId);
+  const office = l ? await getOffice({ id: l.officeId }) : null;
+  const when = formatDateTime(row.out_start);
+  const where = l ? `${address(l)}, ${l.postcode} ${l.city}` : 'de woning';
+  const link = `${siteUrl()}/bezichtiging/${row.out_token}`;
+  await Promise.all([
+    sendMail({ to: email, key: `bez-zoeker:${row.out_id}`, officeId: office?.id, replyTo: office?.email, subject: `Bezichtiging bevestigd: ${where}`,
+      text: `Hallo ${name},\n\nje bezichtiging is bevestigd.\n\nWat: ${where}\nWanneer: ${when}\nMakelaar: ${office?.name ?? ''}${office?.phone ? ` (${office.phone})` : ''}\n\nToevoegen aan je agenda, verzetten of annuleren: ${link}\n\nTot dan!` }),
+    office && sendMail({ to: office.email, replyTo: email, key: `bez-kantoor:${row.out_id}`, officeId: office.id, subject: `Nieuwe bezichtiging: ${where}, ${when}`,
+      text: `${name} (${email}${phone ? `, ${phone}` : ''}) heeft een bezichtiging ingepland.\n\nWoning: ${where}\nWanneer: ${when}${note ? `\nOpmerking: ${note}` : ''}\n\nBekijk alle bezichtigingen: ${siteUrl()}/beheer/bezichtigingen` }),
+  ]);
+  return { ok: true, token: row.out_token, start: row.out_start, label: `Je bezichtiging is bevestigd: ${when}.` };
 }

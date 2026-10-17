@@ -3,12 +3,12 @@ import type { Listing, Office, Province, PropertyType, EnergyLabel, ListingStatu
 
 // Voorbeeldgegevens voor de demomodus (DEMO_MODE=1, alleen buiten productie). Alle kantoren en woningen zijn verzonnen.
 export const DEMO_OFFICES: Office[] = [
-  { id: 'o1', slug: 'martinihof-makelaars', name: 'Martinihof Makelaars', city: 'Groningen', province: 'groningen', street: 'Oude Ebbingestraat 12', postcode: '9712 HA', phone: '050 123 45 67', email: 'info@martinihof.example', website: 'https://martinihof.example', description: 'Al veertig jaar dé makelaar voor de stad Groningen en de Ommelanden. Van studio tot herenhuis.' },
-  { id: 'o2', slug: 'hogeland-wonen', name: 'Hogeland Wonen', city: 'Uithuizen', province: 'groningen', street: 'Hoofdstraat 8', postcode: '9981 AA', phone: '0595 12 34 56', email: 'contact@hogelandwonen.example', website: 'https://hogelandwonen.example', description: 'Specialist in woonboerderijen, terpwoningen en dorpshuizen aan de Waddenkust.' },
-  { id: 'o3', slug: 'elfsteden-makelaardij', name: 'Elfsteden Makelaardij', city: 'Leeuwarden', province: 'friesland', street: 'Nieuwestad 41', postcode: '8911 CJ', phone: '058 123 45 67', email: 'info@elfstedenmakelaardij.example', website: 'https://elfstedenmakelaardij.example', description: 'Makelaar in Leeuwarden en omstreken, met een eigen vestiging aan de Friese meren.' },
-  { id: 'o4', slug: 'meerwaarde-friesland', name: 'Meerwaarde Friesland', city: 'Sneek', province: 'friesland', street: 'Marktstraat 3', postcode: '8601 CV', phone: '0515 12 34 56', email: 'sneek@meerwaarde.example', website: 'https://meerwaarde.example', description: 'Woningen, woonboten en recreatiewoningen rond Sneek, Joure en Heerenveen.' },
-  { id: 'o5', slug: 'brink-en-es-makelaars', name: 'Brink & Es Makelaars', city: 'Assen', province: 'drenthe', street: 'Brinkstraat 20', postcode: '9401 HT', phone: '0592 12 34 56', email: 'info@brinkenes.example', website: 'https://brinkenes.example', description: 'Persoonlijke makelaardij in midden-Drenthe: Assen, Roden, Zuidlaren en de Drentsche Aa.' },
-  { id: 'o6', slug: 'veenhuizen-vastgoed', name: 'Veenhuizen Vastgoed', city: 'Emmen', province: 'drenthe', street: 'Marktplein 5', postcode: '7811 AB', phone: '0591 12 34 56', email: 'info@veenhuizenvastgoed.example', website: 'https://veenhuizenvastgoed.example', description: 'Woningen in Zuidoost-Drenthe: Emmen, Coevorden, Hoogeveen en de Veenkoloniën.' },
+  { id: 'o1', slug: 'martinihof-makelaars', name: 'Martinihof Makelaars', city: 'Groningen', province: 'groningen', street: 'Oude Ebbingestraat 12', postcode: '9712 HA', phone: '050 123 45 67', email: 'info@martinihof.example', website: 'https://martinihof.example', description: 'Al veertig jaar dé makelaar voor de stad Groningen en de Ommelanden. Van studio tot herenhuis.', nvmMember: true },
+  { id: 'o2', slug: 'hogeland-wonen', name: 'Hogeland Wonen', city: 'Uithuizen', province: 'groningen', street: 'Hoofdstraat 8', postcode: '9981 AA', phone: '0595 12 34 56', email: 'contact@hogelandwonen.example', website: 'https://hogelandwonen.example', description: 'Specialist in woonboerderijen, terpwoningen en dorpshuizen aan de Waddenkust.', nvmMember: false },
+  { id: 'o3', slug: 'elfsteden-makelaardij', name: 'Elfsteden Makelaardij', city: 'Leeuwarden', province: 'friesland', street: 'Nieuwestad 41', postcode: '8911 CJ', phone: '058 123 45 67', email: 'info@elfstedenmakelaardij.example', website: 'https://elfstedenmakelaardij.example', description: 'Makelaar in Leeuwarden en omstreken, met een eigen vestiging aan de Friese meren.', nvmMember: true },
+  { id: 'o4', slug: 'meerwaarde-friesland', name: 'Meerwaarde Friesland', city: 'Sneek', province: 'friesland', street: 'Marktstraat 3', postcode: '8601 CV', phone: '0515 12 34 56', email: 'sneek@meerwaarde.example', website: 'https://meerwaarde.example', description: 'Woningen, woonboten en recreatiewoningen rond Sneek, Joure en Heerenveen.', nvmMember: false },
+  { id: 'o5', slug: 'brink-en-es-makelaars', name: 'Brink & Es Makelaars', city: 'Assen', province: 'drenthe', street: 'Brinkstraat 20', postcode: '9401 HT', phone: '0592 12 34 56', email: 'info@brinkenes.example', website: 'https://brinkenes.example', description: 'Persoonlijke makelaardij in midden-Drenthe: Assen, Roden, Zuidlaren en de Drentsche Aa.', nvmMember: true },
+  { id: 'o6', slug: 'veenhuizen-vastgoed', name: 'Veenhuizen Vastgoed', city: 'Emmen', province: 'drenthe', street: 'Marktplein 5', postcode: '7811 AB', phone: '0591 12 34 56', email: 'info@veenhuizenvastgoed.example', website: 'https://veenhuizenvastgoed.example', description: 'Woningen in Zuidoost-Drenthe: Emmen, Coevorden, Hoogeveen en de Veenkoloniën.', nvmMember: false },
 ];
 
 type Row = [office: string, street: string, nr: string, postcode: string, city: string, province: Province, wijk: string, price: number, area: number, plot: number | null, rooms: number, bed: number, year: number, type: PropertyType, label: EnergyLabel, status: ListingStatus, days: number, lat: number, lng: number, headline: string];
@@ -48,8 +48,8 @@ const ROWS: Row[] = [
 const stock = (type: PropertyType) => ['appartement', 'woonboot'].includes(type) ? ['Lift of vaste ligplaats', 'Berging', 'Dubbele beglazing'] : ['Tuin', 'Berging', 'Dubbele beglazing', 'Zonnepanelen'];
 const NOW = new Date('2026-10-01T09:00:00Z').getTime();
 
-export const DEMO_LISTINGS: Listing[] = ROWS.map(([office, street, nr, postcode, city, province, wijk, price, area, plot, rooms, bed, year, type, label, status, days, lat, lng, headline], i) => ({
-  id: `l${i + 1}`, officeId: office, slug: slugify(`${street} ${nr} ${city}`), externalId: null, source: 'handmatig', status,
+const BASE_LISTINGS: Listing[] = ROWS.map(([office, street, nr, postcode, city, province, wijk, price, area, plot, rooms, bed, year, type, label, status, days, lat, lng, headline], i) => ({
+  id: `l${i + 1}`, officeId: office, slug: slugify(`${street} ${nr} ${city}`), externalId: null, source: 'handmatig', status, offer: 'koop', category: 'woning', newBuild: false,
   street, houseNumber: nr, postcode, city, province, neighbourhood: wijk, lat, lng,
   askingPrice: price, priceType: 'k.k.', livingArea: area, plotArea: plot, rooms, bedrooms: bed, bathrooms: bed > 3 ? 2 : 1, buildYear: year,
   propertyType: type, energyLabel: label,
@@ -57,3 +57,42 @@ export const DEMO_LISTINGS: Listing[] = ROWS.map(([office, street, nr, postcode,
   features: stock(type), photos: Array.from({ length: 4 }, (_, k) => ({ url: `/api/foto/${slugify(`${street} ${nr} ${city}`)}-${k + 1}`, alt: `${street} ${nr} ${city}, foto ${k + 1}` })),
   publishedAt: new Date(NOW - days * 86_400_000).toISOString(), updatedAt: new Date(NOW - days * 86_400_000).toISOString(),
 }));
+
+// Huur, nieuwbouw en bedrijfsruimte: [kantoor, straat, nr, postcode, plaats, provincie, wijk, prijs (huur per maand), m², kamers, slaapkamers, jaar, type, label, aanbod, nieuwbouw, dagen geleden, lat, lng, kop]
+type Extra = [string, string, string, string, string, Province, string, number, number, number, number, number, PropertyType, EnergyLabel, 'koop' | 'huur', boolean, number, number, number, string];
+const EXTRA: Extra[] = [
+  ['o1', 'Oosterstraat', '88', '9711 NV', 'Groningen', 'groningen', 'Binnenstad', 1195, 62, 3, 2, 1998, 'appartement', 'B', 'huur', false, 3, 53.2178, 6.5719, 'Lichte tweekamerwoning bij de Grote Markt'],
+  ['o1', 'Paterswoldseweg', '45', '9727 BA', 'Groningen', 'groningen', 'Helpman', 1650, 110, 5, 3, 1965, 'tussenwoning', 'C', 'huur', false, 8, 53.1998, 6.5392, 'Gezinswoning met tuin in Helpman'],
+  ['o3', 'Gedempte Zuiderdiep', '9', '8911 AA', 'Leeuwarden', 'friesland', 'Binnenstad', 975, 55, 2, 1, 1932, 'appartement', 'D', 'huur', false, 5, 53.1996, 5.7872, 'Sfeervol bovenhuis in het centrum van Leeuwarden'],
+  ['o4', 'Havenstraat', '14', '8501 AB', 'Joure', 'friesland', 'Centrum', 1350, 95, 4, 3, 2012, 'hoekwoning', 'A', 'huur', false, 11, 52.9661, 5.7942, 'Moderne hoekwoning bij het water'],
+  ['o5', 'Torenlaan', '3', '9401 BX', 'Assen', 'drenthe', 'Centrum', 1095, 70, 3, 2, 2005, 'appartement', 'B', 'huur', false, 2, 52.9964, 6.5628, 'Appartement met lift en parkeerplaats'],
+  ['o6', 'Marktstraat', '31', '7811 CL', 'Emmen', 'drenthe', 'Centrum', 895, 85, 4, 2, 1985, 'tussenwoning', 'C', 'huur', false, 16, 52.7788, 6.8921, 'Betaalbare gezinswoning dicht bij het centrum'],
+  ['o1', 'Meerstad-Zuid', 'Kavel 12', '9746 TA', 'Groningen', 'groningen', 'Meerstad', 449000, 128, 5, 3, 2027, 'vrijstaand', 'A++++', 'koop', true, 6, 53.2088, 6.6811, 'Nieuwbouw aan het Woldmeer, energieneutraal en aardgasvrij'],
+  ['o1', 'Meerstad-Zuid', 'Kavel 14', '9746 TB', 'Groningen', 'groningen', 'Meerstad', 389000, 112, 4, 3, 2027, 'twee-onder-een-kap', 'A++++', 'koop', true, 6, 53.2091, 6.6820, 'Twee-onder-een-kapwoning in nieuwbouwwijk Meerstad'],
+  ['o3', 'Zuiderburen', '5', '8921 AD', 'Leeuwarden', 'friesland', 'Zuiderburen', 329000, 105, 4, 3, 2026, 'hoekwoning', 'A+++', 'koop', true, 9, 53.1856, 5.8014, 'Nieuwbouw in Leeuwarden met zonnepanelen en warmtepomp'],
+  ['o5', 'Kloosterveen', 'Fase 4 nr 6', '9406 AA', 'Assen', 'drenthe', 'Kloosterveen', 299000, 110, 4, 3, 2026, 'tussenwoning', 'A++', 'koop', true, 4, 52.9811, 6.5433, 'Nieuwbouwwoning in Kloosterveen, oplevering voorjaar 2027'],
+  ['o6', 'Nieuw-Weerdinge', '8', '7826 AB', 'Emmen', 'drenthe', 'Nieuw-Weerdinge', 1250, 100, 4, 3, 2026, 'tussenwoning', 'A+++', 'huur', true, 12, 52.8325, 7.0021, 'Nieuwbouw huurwoning, direct beschikbaar'],
+  ['o1', 'Eemskade', '2', '9713 BA', 'Groningen', 'groningen', 'Oosterpoort', 2400, 180, 0, 0, 1998, 'kantoorruimte', 'B', 'huur', false, 7, 53.2128, 6.5804, 'Representatieve kantoorruimte nabij het station'],
+  ['o4', 'Industrieweg', '41', '8601 WK', 'Sneek', 'friesland', 'Bedrijventerrein', 185000, 450, 0, 0, 2004, 'bedrijfshal', 'C', 'koop', false, 14, 53.0409, 5.6771, 'Bedrijfshal met kantoorgedeelte en ruime opslag'],
+  ['o2', 'Hoofdstraat', '70', '9981 AD', 'Uithuizen', 'groningen', 'Centrum', 850, 75, 0, 0, 1950, 'winkelruimte', 'D', 'huur', false, 20, 53.4059, 6.6648, 'Winkelruimte op een A1-locatie in het dorp'],
+  ['o6', 'Weiersstraat', '6', '7741 AB', 'Coevorden', 'drenthe', 'Binnenstad', 3200, 220, 0, 0, 1980, 'horecapand', 'C', 'huur', false, 10, 52.6611, 6.7399, 'Horecapand met terras bij de vesting'],
+  ['o5', 'Marsdijk', '12', '9403 AB', 'Assen', 'drenthe', 'Bedrijventerrein', 1950, 140, 0, 0, 2008, 'kantoorruimte', 'A', 'huur', false, 3, 52.9877, 6.5591, 'Moderne kantoorruimte met eigen parkeerplaatsen'],
+];
+
+const EXTRA_LISTINGS: Listing[] = EXTRA.map(([office, street, nr, postcode, city, province, wijk, price, area, rooms, bed, year, type, label, offer, newBuild, days, lat, lng, headline], i) => {
+  const commercial = ['kantoorruimte', 'bedrijfshal', 'winkelruimte', 'horecapand'].includes(type);
+  const name = DEMO_OFFICES.find((o) => o.id === office)!.name;
+  return {
+    id: `x${i + 1}`, officeId: office, slug: slugify(`${street} ${nr} ${city}`), externalId: null, source: 'handmatig', status: 'beschikbaar',
+    offer, category: commercial ? 'bedrijfsruimte' : 'woning', newBuild,
+    street, houseNumber: nr, postcode, city, province, neighbourhood: wijk, lat, lng,
+    askingPrice: price, priceType: offer === 'huur' ? 'p.m.' : newBuild ? 'v.o.n.' : 'k.k.', livingArea: area, plotArea: null, rooms, bedrooms: bed, bathrooms: bed > 2 ? 2 : 1, buildYear: year,
+    propertyType: type, energyLabel: label,
+    description: `${headline}.\n\nDit is een voorbeeld uit de demo van NNvastgoed. ${commercial ? 'Het pand' : 'De woning'} ligt in ${wijk}, ${city} en heeft ${area} m²${rooms ? ` met ${rooms} kamers` : ''}. Neem contact op met ${name} voor een bezichtiging.`,
+    features: commercial ? ['Parkeren op eigen terrein', 'Glasvezel', 'Toegankelijk voor mindervaliden'] : stock(type),
+    photos: Array.from({ length: 3 }, (_, k) => ({ url: `/api/foto/${slugify(`${street} ${nr} ${city}`)}-${k + 1}`, alt: `${street} ${nr} ${city}, foto ${k + 1}` })),
+    publishedAt: new Date(NOW - days * 86_400_000).toISOString(), updatedAt: new Date(NOW - days * 86_400_000).toISOString(),
+  };
+});
+
+export const DEMO_LISTINGS: Listing[] = [...BASE_LISTINGS, ...EXTRA_LISTINGS];

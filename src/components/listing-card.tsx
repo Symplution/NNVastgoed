@@ -18,6 +18,10 @@ export function ListingCard({ l, priority = false }: { l: Listing; priority?: bo
           {photo && /* eslint-disable-next-line @next/next/no-img-element */ <img src={photo.url} alt={photo.alt ?? `${address(l)}, ${l.city}`} loading={priority ? 'eager' : 'lazy'} className="h-full w-full object-cover transition duration-500 group-hover:scale-105" />}
           {!BADGE[l.status] && l.publishedAt && Date.now() - new Date(l.publishedAt).getTime() < 7 * 86_400_000 && <span className="pill absolute left-3 top-3 bg-accent text-white">Nieuw</span>}
           {BADGE[l.status] && <span className={`pill absolute left-3 top-3 ${BADGE[l.status]}`}>{STATUS_LABEL[l.status]}</span>}
+          <span className="absolute bottom-3 left-3 flex gap-1.5">
+            {l.offer === 'huur' && <span className="pill bg-white/95 text-brand shadow">Te huur</span>}
+            {l.newBuild && <span className="pill bg-green-600 text-white shadow">Nieuwbouw</span>}
+          </span>
         </div>
         <div className="space-y-1.5 p-4">
           <p className="text-lg font-bold text-brand">{formatPrice(l)}</p>
@@ -25,7 +29,7 @@ export function ListingCard({ l, priority = false }: { l: Listing; priority?: bo
           <p className="text-sm text-muted">{l.postcode} {l.city} · {provinceName(l.province)}</p>
           <ul className="flex flex-wrap gap-x-4 gap-y-1 pt-1.5 text-sm text-ink/80">
             <li className="inline-flex items-center gap-1.5"><Ruler size={15} aria-hidden /> {l.livingArea} m²</li>
-            <li className="inline-flex items-center gap-1.5"><Bed size={15} aria-hidden /> {l.bedrooms} slaapk.</li>
+            {l.category === 'woning' && <li className="inline-flex items-center gap-1.5"><Bed size={15} aria-hidden /> {l.bedrooms} slaapk.</li>}
             <li className="inline-flex items-center gap-1.5"><Home size={15} aria-hidden /> {TYPE_LABEL[l.propertyType]}</li>
             {l.energyLabel && <li className="rounded bg-brand-soft px-1.5 text-xs font-bold leading-5 text-brand" title="Energielabel">{l.energyLabel}</li>}
           </ul>

@@ -41,3 +41,108 @@ export async function allProfiles(): Promise<ProfileRow[]> {
   const { data } = await (await createClient()).from('profiles').select('id, full_name, role, office_id, active').order('created_at');
   return (data ?? []).map((r: Row) => ({ id: r.id, name: r.full_name, role: r.role, officeId: r.office_id, active: r.active }));
 }
+
+// ───────────────────────── Bezichtigingen, berichten, contacten ─────────────────────────
+export interface ViewingRow {
+  id: string; listingId: string; listingSlug: string; listing: string; city: string; name: string; email: string; phone: string | null; note: string | null;
+  startsAt: string; endsAt: string; status: string; source: string; byAccount: boolean; cancelledBy: string | null;
+}
+const mapViewing = (r: Row): ViewingRow => ({
+  id: r.id, listingId: r.listing_id, listingSlug: r.listings?.slug ?? '', listing: r.listings ? `${r.listings.street} ${r.listings.house_number}${r.listings.house_suffix ?? ''}` : 'Woning', city: r.listings?.city ?? '',
+  name: r.name, email: r.email, phone: r.phone, note: r.note, startsAt: r.starts_at, endsAt: r.ends_at, status: r.status, source: r.source, byAccount: Boolean(r.seeker_id), cancelledBy: r.cancelled_by,
+});
+
+export async function officeViewings(fromIso?: string, toIso?: string): Promise<ViewingRow[]> {
+  let q = (await createClient()).from('viewings').select('*, listings(slug, street, house_number, house_suffix, city)').order('starts_at', { ascending: true }).limit(1000);
+  if (fromIso) q = q.gte('starts_at', fromIso);
+  if (toIso) q = q.lt('starts_at', toIso);
+  const { data } = await q;
+  return (data ?? []).map(mapViewing);
+}
+
+export interface RuleRow { id: string; officeId: string; weekday: number; start: string; end: string; slotMinutes: number; capacity: number }
+export async function viewingRules(): Promise<RuleRow[]> {
+  const { data } = await (await createClient()).from('viewing_rules').select('*').order('weekday').order('start_time');
+  return (data ?? []).map((r: Row) => ({ id: r.id, officeId: r.office_id, weekday: r.weekday, start: String(r.start_time).slice(0, 5), end: String(r.end_time).slice(0, 5), slotMinutes: r.slot_minutes, capacity: r.capacity }));
+}
+export interface BlockRow { id: string; officeId: string; startsAt: string; endsAt: string; reason: string | null }
+export async function viewingBlocks(): Promise<BlockRow[]> {
+  const { data } = await (await createClient()).from('viewing_blocks').select('*').gte('ends_at', new Date().toISOString()).order('starts_at');
+  return (data ?? []).map((r: Row) => ({ id: r.id, officeId: r.office_id, startsAt: r.starts_at, endsAt: r.ends_at, reason: r.reason }));
+}
+
+export interface StaffThread { id: string; listingSlug: string; address: string; city: string; name: string; email: string; phone: string | null; last: string; lastAt: string; lastFrom: 'zoeker' | 'makelaar'; unread: number; office: string }
+export async function staffThreads(): Promise<StaffThread[]> {
+  const supabase = await createClient();
+  const [{ data }, { data: contacts }] = await Promise.all([
+    supabase.from('conversations').select('id, last_message_at, listings(slug, street, house_number, city), offices(name), messages(body, sender, read_at, created_at)').order('last_message_at', { ascending: false }).limit(300),
+    supabase.rpc('conversation_contacts'),
+  ]);
+  const who = new Map((contacts ?? []).map((c: Row) => [c.conversation_id, c]));
+  return (data ?? []).map((c: Row) => {
+    const msgs = [...(c.messages ?? [])].sort((a: Row, b: Row) => a.created_at.localeCompare(b.created_at));
+    const last = msgs.at(-1);
+    const p = who.get(c.id) as Row | undefined;
+    return {
+      id: c.id, listingSlug: c.listings?.slug ?? '', address: c.listings ? `${c.listings.street} ${c.listings.house_number}` : 'Woning', city: c.listings?.city ?? '',
+      name: p?.full_name ?? 'Zoeker', email: p?.email ?? '', phone: p?.phone ?? null, last: last?.body ?? '', lastAt: c.last_message_at, lastFrom: last?.sender ?? 'zoeker',
+      unread: msgs.filter((m: Row) => m.sender === 'zoeker' && !m.read_at).length, office: c.offices?.name ?? '',
+    };
+  });
+}
+
+export async function staffThread(id: string) {
+  if (!/^[0-9a-f-]{36}$/i.test(id)) return null;
+  const supabase = await createClient();
+  const { data: c } = await supabase.from('conversations').select('id, listings(slug, street, house_number, city), messages(id, body, sender, read_at, created_at)').eq('id', id).maybeSingle();
+  if (!c) return null;
+  const { data: contacts } = await supabase.rpc('conversation_contacts');
+  const p = (contacts ?? []).find((x: Row) => x.conversation_id === id) as Row | undefined;
+  const messages = [...((c as Row).messages ?? [])].sort((a: Row, b: Row) => a.created_at.localeCompare(b.created_at));
+  const l = (c as Row).listings;
+  return {
+    id: c.id, slug: l?.slug ?? '', address: l ? `${l.street} ${l.house_number}` : 'Woning', city: l?.city ?? '',
+    name: p?.full_name ?? 'Zoeker', email: p?.email ?? '', phone: p?.phone ?? null,
+    messages: messages.map((m: Row) => ({ id: m.id, sender: m.sender as 'zoeker' | 'makelaar', body: m.body as string, createdAt: m.created_at as string })),
+    unread: messages.filter((m: Row) => m.sender === 'zoeker' && !m.read_at).length,
+  };
+}
+
+export async function staffUnread(): Promise<number> {
+  const { count } = await (await createClient()).from('messages').select('id', { count: 'exact', head: true }).eq('sender', 'zoeker').is('read_at', null);
+  return count ?? 0;
+}
+
+// Eén persoon, uit alle plekken waar hij contact opnam: contactformulier, bezichtigingen en gesprekken.
+export interface ContactEvent { at: string; kind: 'lead' | 'bezichtiging' | 'bericht'; title: string; detail: string; href?: string }
+export interface Contact { email: string; name: string; phone: string | null; hasAccount: boolean; lastAt: string; leads: number; viewings: number; conversations: number; events: ContactEvent[] }
+
+export function buildContacts(input: { leads: LeadRow[]; viewings: ViewingRow[]; threads: StaffThread[] }): Contact[] {
+  const map = new Map<string, Contact>();
+  const get = (email: string, name: string, phone: string | null) => {
+    const key = email.toLowerCase();
+    let c = map.get(key);
+    if (!c) { c = { email: key, name, phone, hasAccount: false, lastAt: '', leads: 0, viewings: 0, conversations: 0, events: [] }; map.set(key, c); }
+    if (!c.phone && phone) c.phone = phone;
+    if (c.name.length < name.length && name !== 'Zoeker') c.name = name;
+    return c;
+  };
+  for (const l of input.leads) {
+    const c = get(l.email, l.name, l.phone); c.leads++;
+    c.events.push({ at: l.createdAt, kind: 'lead', title: `${l.kind === 'bezichtiging' ? 'Bezichtiging gevraagd' : 'Vraag'} over ${l.listing}`, detail: l.message });
+  }
+  for (const v of input.viewings) {
+    const c = get(v.email, v.name, v.phone); c.viewings++; if (v.byAccount) c.hasAccount = true;
+    c.events.push({ at: v.startsAt, kind: 'bezichtiging', title: `Bezichtiging ${v.listing}, ${v.city}`, detail: v.status.replace('_', ' ') + (v.note ? ` · ${v.note}` : '') });
+  }
+  for (const t of input.threads) {
+    if (!t.email) continue;
+    const c = get(t.email, t.name, t.phone); c.conversations++; c.hasAccount = true;
+    c.events.push({ at: t.lastAt, kind: 'bericht', title: `Gesprek over ${t.address}, ${t.city}`, detail: t.last, href: `/beheer/berichten/${t.id}` });
+  }
+  for (const c of map.values()) {
+    c.events.sort((a, b) => b.at.localeCompare(a.at));
+    c.lastAt = c.events[0]?.at ?? '';
+  }
+  return [...map.values()].sort((a, b) => b.lastAt.localeCompare(a.lastAt));
+}

@@ -11,6 +11,10 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   return [
     { url: base, changeFrequency: 'daily', priority: 1 },
     { url: `${base}/koop`, changeFrequency: 'hourly', priority: 0.9 },
+    { url: `${base}/huur`, changeFrequency: 'hourly', priority: 0.9 },
+    { url: `${base}/nieuwbouw`, changeFrequency: 'daily', priority: 0.8 },
+    { url: `${base}/bedrijfsruimte`, changeFrequency: 'daily', priority: 0.8 },
+    { url: `${base}/woningmarkt`, changeFrequency: 'daily', priority: 0.6 },
     ...PROVINCES.map((p) => ({ url: `${base}/${p}`, changeFrequency: 'daily' as const, priority: 0.8 })),
     { url: `${base}/makelaars`, changeFrequency: 'weekly', priority: 0.6 },
     { url: `${base}/voor-makelaars`, changeFrequency: 'monthly', priority: 0.5 },

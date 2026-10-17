@@ -11,11 +11,7 @@ export function ContactForm({ listingId, officeName }: { listingId: string; offi
     <form action={action} className="space-y-3">
       <input type="hidden" name="listingId" value={listingId} />
       <input name="website" tabIndex={-1} autoComplete="off" aria-hidden className="hidden" />
-      <fieldset className="grid grid-cols-2 gap-2 text-sm">
-        <legend className="sr-only">Waarvoor neem je contact op?</legend>
-        <label className="flex cursor-pointer items-center justify-center rounded-lg border border-line px-3 py-2 has-[:checked]:border-brand has-[:checked]:bg-brand-soft has-[:checked]:font-semibold"><input type="radio" name="kind" value="bezichtiging" defaultChecked className="sr-only" /> Bezichtiging</label>
-        <label className="flex cursor-pointer items-center justify-center rounded-lg border border-line px-3 py-2 has-[:checked]:border-brand has-[:checked]:bg-brand-soft has-[:checked]:font-semibold"><input type="radio" name="kind" value="info" className="sr-only" /> Vraag stellen</label>
-      </fieldset>
+      <input type="hidden" name="kind" value="info" />
       <div><label htmlFor="c-name" className="label">Naam</label><input id="c-name" name="name" required minLength={2} maxLength={120} autoComplete="name" className="field" /></div>
       <div><label htmlFor="c-email" className="label">E-mailadres</label><input id="c-email" name="email" type="email" required autoComplete="email" className="field" /></div>
       <div><label htmlFor="c-phone" className="label">Telefoon (optioneel)</label><input id="c-phone" name="phone" type="tel" maxLength={40} autoComplete="tel" className="field" /></div>

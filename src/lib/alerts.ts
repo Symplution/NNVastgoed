@@ -2,7 +2,7 @@ import 'server-only';
 import { mapListing } from './data';
 import { siteUrl } from './env';
 import { formatPrice, address, TYPE_LABEL, formatEuro } from './format';
-import { parseFilters, describeFilters } from './search';
+import { parseFilters, describeFilters, modeFromParams, MODE_INFO } from './search';
 import { newMatches } from './alert-match';
 import { provinceName } from './regions';
 import { createServiceClient } from './supabase/service';
@@ -10,9 +10,9 @@ import { sendMail } from './usage';
 import { PUBLIC_STATUSES, type Listing } from './types';
 
 export const alertText = (qs: string, found: Listing[], token: string) => {
-  const f = parseFilters(new URLSearchParams(qs));
+  const f = parseFilters(new URLSearchParams(qs), modeFromParams(new URLSearchParams(qs)));
   const lines = found.slice(0, 10).map((l) => `• ${address(l)}, ${l.city} — ${formatPrice(l)}, ${l.livingArea} m², ${l.rooms} kamers\n  ${siteUrl()}/woning/${l.slug}`);
-  return `Nieuw bij NNvastgoed voor je zoekopdracht (${describeFilters(f, formatEuro, provinceName, (t) => TYPE_LABEL[t])}):\n\n${lines.join('\n\n')}${found.length > 10 ? `\n\n… en nog ${found.length - 10} woningen: ${siteUrl()}/koop?${qs}` : ''}\n\nAfmelden: ${siteUrl()}/zoekopdracht/stop?token=${token}`;
+  return `Nieuw bij NNvastgoed voor je zoekopdracht (${describeFilters(f, formatEuro, provinceName, (t) => TYPE_LABEL[t])}):\n\n${lines.join('\n\n')}${found.length > 10 ? `\n\n… en nog ${found.length - 10} woningen: ${siteUrl()}${MODE_INFO[f.mode].path}?${qs}` : ''}\n\nAfmelden: ${siteUrl()}/zoekopdracht/stop?token=${token}`;
 };
 
 /** Eén ronde: draait dagelijks via de cron-route. Elke mail gaat door de usage gate. */

@@ -1,14 +1,15 @@
 import Link from 'next/link';
-import { ArrowRight, BellRing, MapPin, Network, ShieldCheck } from 'lucide-react';
+import { ArrowRight, BarChart3, BellRing, Briefcase, Building2, CalendarCheck, KeyRound, MapPin, Network, ShieldCheck } from 'lucide-react';
 import { latestListings, provinceCounts } from '@/lib/data';
 import { PROVINCES } from '@/lib/types';
 import { PROVINCE_INFO } from '@/lib/regions';
+import { HeroSearch } from '@/components/hero-search';
 import { ListingCard } from '@/components/listing-card';
 
 export const revalidate = 300;
 
 export default async function Home() {
-  const [counts, latest] = await Promise.all([provinceCounts(), latestListings(6)]);
+  const [counts, latest, rentals, newBuild] = await Promise.all([provinceCounts(), latestListings(6), latestListings(3, undefined, 'huur'), latestListings(3, undefined, 'nieuwbouw')]);
   const total = PROVINCES.reduce((n, p) => n + counts[p], 0);
   return (
     <>
@@ -17,27 +18,31 @@ export default async function Home() {
         <div className="container-x relative pb-32 pt-16 sm:pt-24">
           <p className="text-sm font-semibold uppercase tracking-[0.16em] text-white/75">Noord Nederlands Vastgoed</p>
           <h1 className="mt-3 max-w-3xl text-4xl font-extrabold leading-tight tracking-tight sm:text-5xl">Vind je huis in het noorden</h1>
-          <p className="mt-4 max-w-xl text-lg text-white/85">Het aanbod van makelaars in Groningen, Friesland en Drenthe, op één plek. {total > 0 && <>Nu {total} woningen te koop.</>}</p>
+          <p className="mt-4 max-w-xl text-lg text-white/85">Het aanbod van makelaars in Groningen, Friesland en Drenthe, op één plek. {total > 0 && <>Nu {total} koopwoningen, en ook huur, nieuwbouw en bedrijfsruimte.</>}</p>
 
-          <form action="/koop" method="get" role="search" aria-label="Woningen zoeken" className="mt-8 grid max-w-4xl gap-3 rounded-2xl bg-white p-3 text-ink shadow-2xl sm:grid-cols-[1fr_11rem_11rem_auto]">
-            <div>
-              <label htmlFor="h-q" className="sr-only">Plaats, postcode of straat</label>
-              <input id="h-q" name="q" placeholder="Plaats, postcode of straat" className="field !border-0 !bg-sand" autoComplete="off" />
-            </div>
-            <div>
-              <label htmlFor="h-p" className="sr-only">Provincie</label>
-              <select id="h-p" name="provincie" className="field !border-0 !bg-sand"><option value="">Heel het noorden</option>{PROVINCES.map((p) => <option key={p} value={p}>{PROVINCE_INFO[p].name}</option>)}</select>
-            </div>
-            <div>
-              <label htmlFor="h-t" className="sr-only">Maximale prijs</label>
-              <select id="h-t" name="tot" className="field !border-0 !bg-sand"><option value="">Geen maximum</option>{[200_000, 300_000, 400_000, 500_000, 750_000].map((n) => <option key={n} value={n}>Tot € {n.toLocaleString('nl-NL')}</option>)}</select>
-            </div>
-            <button className="btn-accent !px-6">Zoeken</button>
-          </form>
+          <HeroSearch />
         </div>
       </section>
 
-      <section className="container-x -mt-8 grid gap-4 sm:grid-cols-3" aria-label="Kies een provincie">
+      <section className="container-x relative z-10 -mt-12" aria-label="Snel naar">
+        <ul className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+          {[
+            { href: '/bedrijfsruimte', Icon: Building2, t: 'Zoek een bedrijfsruimte', d: 'Kantoor, hal, winkel of horeca' },
+            { href: '/makelaars?nvm=1', Icon: ShieldCheck, t: 'Zoek een NVM-makelaar', d: 'Aangesloten kantoren in het noorden' },
+            { href: '/huur', Icon: KeyRound, t: 'Zoek een huurwoning', d: 'Met de huur per maand' },
+            { href: '/woningmarkt', Icon: BarChart3, t: 'Alles over de woningmarkt', d: 'Prijzen, kosten en tips' },
+          ].map(({ href, Icon, t, d }) => (
+            <li key={href}>
+              <Link href={href} className="card focus-ring flex h-full items-center gap-4 p-4 transition hover:-translate-y-0.5 hover:shadow-lg">
+                <span className="inline-flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-accent-soft text-accent-dark"><Icon size={24} aria-hidden /></span>
+                <span><span className="block font-bold leading-snug">{t}</span><span className="block text-sm text-muted">{d}</span></span>
+              </Link>
+            </li>
+          ))}
+        </ul>
+      </section>
+
+      <section className="container-x mt-8 grid gap-4 sm:grid-cols-3" aria-label="Kies een provincie">
         {PROVINCES.map((p) => (
           <Link key={p} href={`/${p}`} className="card focus-ring group relative overflow-hidden p-6 transition hover:-translate-y-0.5 hover:shadow-lg">
             <span aria-hidden className="absolute -right-6 -top-6 h-28 w-28 rounded-full opacity-15" style={{ background: PROVINCE_INFO[p].hue }} />
@@ -61,11 +66,30 @@ export default async function Home() {
         )}
       </section>
 
+      {rentals.length > 0 && (
+        <section className="container-x mt-16" aria-labelledby="huur">
+          <div className="flex items-end justify-between gap-4">
+            <h2 id="huur" className="text-2xl font-extrabold tracking-tight">Nieuw te huur</h2>
+            <Link href="/huur" className="text-sm font-semibold text-brand hover:underline">Alle huurwoningen →</Link>
+          </div>
+          <div className="mt-6 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">{rentals.map((l) => <ListingCard key={l.id} l={l} />)}</div>
+        </section>
+      )}
+      {newBuild.length > 0 && (
+        <section className="container-x mt-16" aria-labelledby="nieuwbouw">
+          <div className="flex items-end justify-between gap-4">
+            <h2 id="nieuwbouw" className="text-2xl font-extrabold tracking-tight">Nieuwbouw</h2>
+            <Link href="/nieuwbouw" className="text-sm font-semibold text-brand hover:underline">Alle nieuwbouw →</Link>
+          </div>
+          <div className="mt-6 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">{newBuild.map((l) => <ListingCard key={l.id} l={l} />)}</div>
+        </section>
+      )}
+
       <section className="container-x mt-20 grid gap-6 sm:grid-cols-3" aria-label="Waarom NNvastgoed">
         {[
           { Icon: MapPin, t: 'Alleen het noorden', d: 'Geen ruis uit de rest van het land. Elke woning ligt in Groningen, Friesland of Drenthe.' },
           { Icon: Network, t: 'Rechtstreeks van de makelaar', d: 'Kantoren koppelen hun eigen systeem. Wijzigingen en prijsaanpassingen staan er direct.' },
-          { Icon: BellRing, t: 'Mis niets', d: 'Sla je zoekopdracht op en ontvang een mail zodra er iets nieuws binnenkomt dat past.' },
+          { Icon: CalendarCheck, t: 'Plan je bezichtiging zelf', d: 'Kies online een moment dat de makelaar heeft vrijgemaakt. Meteen bevestigd, zonder bellen.' },
         ].map(({ Icon, t, d }) => (
           <div key={t}><span className="inline-flex h-11 w-11 items-center justify-center rounded-xl bg-brand-soft text-brand"><Icon size={22} aria-hidden /></span><h3 className="mt-4 font-bold">{t}</h3><p className="mt-1.5 text-sm text-muted">{d}</p></div>
         ))}

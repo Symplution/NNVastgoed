@@ -1,7 +1,7 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
-import { Globe, Mail, MapPin, Phone } from 'lucide-react';
+import { Globe, Mail, MapPin, Phone, ShieldCheck } from 'lucide-react';
 import { ListingCard } from '@/components/listing-card';
 import { getOffice, officeListings } from '@/lib/data';
 import { provinceName } from '@/lib/regions';
@@ -25,6 +25,7 @@ export default async function Makelaar({ params }: Props) {
       <header className="grid gap-6 rounded-3xl bg-brand-soft p-8 sm:grid-cols-[1fr_auto]">
         <div>
           <h1 className="text-3xl font-extrabold tracking-tight">{o.name}</h1>
+          {o.nvmMember && <p className="mt-2 inline-flex items-center gap-1.5 rounded-full bg-white px-3 py-1 text-xs font-semibold text-brand"><ShieldCheck size={14} aria-hidden /> NVM-lid</p>}
           <p className="mt-1 flex items-center gap-1.5 text-muted"><MapPin size={16} aria-hidden /> {o.street && `${o.street}, `}{o.postcode} {o.city} · {provinceName(o.province)}</p>
           <p className="mt-4 max-w-2xl text-ink/85">{o.description}</p>
         </div>
