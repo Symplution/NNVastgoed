@@ -79,3 +79,26 @@ describe('kaart', () => {
     expect(out.every((x) => Math.abs(x.lat - 53.2) < 0.001 && Math.abs(x.lng - 6.5) < 0.001)).toBe(true);
   });
 });
+
+import { loadMapStyle, MAX_ZOOM, MIN_ZOOM, pdokStyle, WORLD_STYLE_URL } from '../src/lib/map-style';
+
+describe('kaartstijl', () => {
+  const world = { version: 8, sources: {}, layers: [{ id: 'a', type: 'background' }] };
+  it('gebruikt de wereldkaart als die bereikbaar is', async () => {
+    let asked = '';
+    const f = (async (url: string) => { asked = url; return { ok: true, json: async () => world }; }) as unknown as typeof fetch;
+    expect(await loadMapStyle(f)).toEqual(world);
+    expect(asked).toBe(WORLD_STYLE_URL);
+  });
+  it('valt terug op de Kadasterkaart bij een fout, een time-out of een lege stijl', async () => {
+    expect(await loadMapStyle(reply({}, false))).toEqual(pdokStyle());
+    expect(await loadMapStyle((async () => { throw new Error('netwerk'); }) as unknown as typeof fetch)).toEqual(pdokStyle());
+    expect(await loadMapStyle(reply({ version: 8, layers: [] }))).toEqual(pdokStyle());
+    const slow = ((_: string, init: RequestInit) => new Promise((_, reject) => { init.signal!.addEventListener('abort', () => reject(new Error('abort'))); })) as unknown as typeof fetch;
+    expect(await loadMapStyle(slow, 30)).toEqual(pdokStyle());
+  });
+  it('laat je ver uitzoomen en dichtbij inzoomen', () => {
+    expect(MIN_ZOOM).toBeLessThan(5);    // heel West-Europa in beeld: Duitsland, België
+    expect(MAX_ZOOM).toBeGreaterThanOrEqual(19);   // tot op de straat
+  });
+});

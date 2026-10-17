@@ -51,3 +51,7 @@ curl -X POST https://<domein>/api/feeds/<koppeling-id> \
 - Merkspecifieke koppelingen (Realworks, Skarabee, Kolibri, Walvis): die vragen API-toegang van het kantoor zelf. Het NNV-formaat is de basis waar een ICT-partner of een adapter op aansluit.
 - De AI-departments zelf en de verbinding met de app `ai-departments`.
 - Juridische controle van de privacyverklaring en de algemene voorwaarden.
+
+## Testgegevens
+`supabase/seed/testdata.sql` zet een complete testomgeving klaar: 6 kantoren, 48 woningen met foto's (koop, huur, nieuwbouw, bedrijfsruimte, ook concept/verkocht/ingetrokken), beschikbaarheid, leads, bezichtigingen, gesprekken, favorieten en testaccounts (`@nnv.test`, wachtwoord in het bestand). Herhaalbaar. Opruimen voor livegang: `supabase/seed/testdata_verwijderen.sql`. Opnieuw genereren: `npm run testdata`.
+De kaart gebruikt MapLibre met OpenFreeMap (wereldwijd, vloeiend), met PDOK als terugval. De voorbeeldfoto's komen uit `/api/foto/<naam>-<n>` (illustraties).

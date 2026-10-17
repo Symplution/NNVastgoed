@@ -1,28 +1,28 @@
 'use client';
 
-import 'leaflet/dist/leaflet.css';
 import { Loader2, MapPin, Search, X } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
-import type * as Leaflet from 'leaflet';
+import type { Map as MlMap, Marker, Popup } from 'maplibre-gl';
 import type { MapMarker } from '@/lib/data';
-import { NOORD_BOUNDS, type Place } from '@/lib/geo';
+import type { Place } from '@/lib/geo';
 import { boundsFor, inBounds, spread } from '@/lib/map';
-import { pinIcon, popupContent } from './leaflet-pin';
+import { createMap, type Ml } from './maplibre';
+import { pinElement, popupContent } from './map-pin';
 
-/** Kaartlaag van het Kadaster (PDOK): gratis, zonder sleutel. */
-export const TILES = 'https://service.pdok.nl/brt/achtergrondkaart/wmts/v2_0/standaard/EPSG:3857/{z}/{x}/{y}.png';
-export const ATTRIBUTION = 'Kaartgegevens © <a href="https://www.kadaster.nl" target="_blank" rel="noopener noreferrer">Kadaster</a>';
+interface Pin { marker: Marker; popup: Popup; el: HTMLElement }
 
 /**
- * Alle woningen van de zoekopdracht op de kaart, met een huisje en de prijs. Zoeken op plaats, straat of postcode vliegt erheen;
- * rechts staan de woningen die nu in beeld zijn.
+ * Alle woningen van de zoekopdracht op de kaart, met een huisje en de prijs. Je kunt vrij schuiven en zoomen: over heel Europa,
+ * en in Nederland tot op de straat. Zoeken op plaats, straat of postcode vliegt erheen; rechts staan de woningen die in beeld zijn.
  */
 export function ListingsMap({ soort, qs }: { soort: string; qs: string }) {
   const el = useRef<HTMLDivElement>(null);
-  const map = useRef<Leaflet.Map | null>(null);
-  const lib = useRef<typeof Leaflet | null>(null);
-  const layers = useRef(new Map<string, Leaflet.Marker>());
-  const dot = useRef<Leaflet.Marker | null>(null);
+  const map = useRef<MlMap | null>(null);
+  const lib = useRef<Ml | null>(null);
+  const pins = useRef(new Map<string, Pin>());
+  const dot = useRef<Marker | null>(null);
+  const [ready, setReady] = useState(false);
+  const [mapError, setMapError] = useState('');
   const [markers, setMarkers] = useState<MapMarker[]>([]);
   const [state, setState] = useState<{ loading: boolean; error: string; total: number; missing: number }>({ loading: true, error: '', total: 0, missing: 0 });
   const [visible, setVisible] = useState<MapMarker[]>([]);
@@ -49,49 +49,50 @@ export function ListingsMap({ soort, qs }: { soort: string; qs: string }) {
   // De kaart zelf.
   useEffect(() => {
     let dead = false;
+    let watch: ResizeObserver | null = null;
+    const pinMap = pins.current;
     (async () => {
-      const L = (await import('leaflet')).default;
-      if (dead || !el.current || map.current) return;
-      lib.current = L;
-      const m = L.map(el.current, { zoomControl: false, minZoom: 7, maxZoom: 19, maxBounds: [[52.2, 4.5], [54.0, 7.7]], maxBoundsViscosity: 0.8 });
-      L.tileLayer(TILES, { minZoom: 7, maxZoom: 19, attribution: ATTRIBUTION }).addTo(m);
-      L.control.zoom({ position: 'bottomright', zoomInTitle: 'Inzoomen', zoomOutTitle: 'Uitzoomen' }).addTo(m);
-      m.fitBounds([[NOORD_BOUNDS.south + 0.25, NOORD_BOUNDS.west + 0.3], [NOORD_BOUNDS.north - 0.1, NOORD_BOUNDS.east - 0.1]]);
-      map.current = m;
-      new ResizeObserver(() => m.invalidateSize()).observe(el.current);
-      m.on('moveend zoomend', () => setVisible((v) => v.slice()));   // de lijst rechts volgt de kaart
-      setMarkers((x) => x.slice());
+      if (!el.current) return;
+      try {
+        const { map: m, ml } = await createMap(el.current);
+        if (dead) { m.remove(); return; }
+        map.current = m; lib.current = ml;
+        watch = new ResizeObserver(() => m.resize());
+        watch.observe(el.current);
+        m.once('load', () => setReady(true));
+        setReady(true);
+      } catch { if (!dead) setMapError('Je browser kan de kaart niet tonen (WebGL is nodig). Gebruik de lijstweergave.'); }
     })();
-    return () => { dead = true; map.current?.remove(); map.current = null; layers.current.clear(); };
+    return () => { dead = true; watch?.disconnect(); pinMap.forEach((p) => p.marker.remove()); pinMap.clear(); map.current?.remove(); map.current = null; };
   }, []);
 
   // Huisjes plaatsen zodra de woningen en de kaart er zijn.
   useEffect(() => {
-    const L = lib.current, m = map.current;
-    if (!L || !m) return;
-    layers.current.forEach((x) => x.remove());
-    layers.current.clear();
+    const ml = lib.current, m = map.current;
+    if (!ready || !ml || !m) return;
+    pins.current.forEach((p) => p.marker.remove());
+    pins.current.clear();
     for (const mk of markers) {
-      const pin = L.marker([mk.lat, mk.lng], { icon: pinIcon(L, mk), title: `${mk.address}, ${mk.price}`, keyboard: true, riseOnHover: true });
-      pin.bindPopup(() => popupContent(mk), { className: 'nnv-popup', maxWidth: 260, autoPanPadding: [30, 60], closeButton: true });
-      pin.on('popupopen', () => setActive(mk.id)).on('popupclose', () => setActive((a) => (a === mk.id ? null : a)));
-      pin.addTo(m);
-      layers.current.set(mk.id, pin);
+      const elPin = pinElement(mk);
+      const popup = new ml.Popup({ offset: [0, -40], closeButton: true, maxWidth: '260px', className: 'nnv-popup' }).setDOMContent(popupContent(mk));
+      popup.on('open', () => setActive(mk.id));
+      popup.on('close', () => setActive((a) => (a === mk.id ? null : a)));
+      const marker = new ml.Marker({ element: elPin, anchor: 'bottom' }).setLngLat([mk.lng, mk.lat]).setPopup(popup).addTo(m);
+      elPin.addEventListener('keydown', (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); marker.togglePopup(); } });
+      pins.current.set(mk.id, { marker, popup, el: elPin });
     }
     if (markers.length) {
       const b = boundsFor(markers);
-      m.fitBounds([[b.south, b.west], [b.north, b.east]], { padding: [48, 48], maxZoom: 15, animate: false });
+      m.fitBounds([[b.west, b.south], [b.east, b.north]], { padding: 56, maxZoom: 15, duration: 0 });
     }
     const upd = () => { const bb = m.getBounds(); setVisible(markers.filter((x) => inBounds(x, { south: bb.getSouth(), north: bb.getNorth(), west: bb.getWest(), east: bb.getEast() }))); };
     upd();
     m.on('moveend', upd);
     return () => { m.off('moveend', upd); };
-  }, [markers]);
+  }, [markers, ready]);
 
   // Het actieve huisje licht op.
-  useEffect(() => {
-    layers.current.forEach((pin, id) => pin.getElement()?.classList.toggle('nnv-pin--on', id === active));
-  }, [active, visible]);
+  useEffect(() => { pins.current.forEach((p, id) => p.el.classList.toggle('nnv-pin--on', id === active)); }, [active, visible]);
 
   // Zoeken op plaats, straat of postcode.
   useEffect(() => {
@@ -105,17 +106,18 @@ export function ListingsMap({ soort, qs }: { soort: string; qs: string }) {
   async function goTo(p: Place) {
     setOpen(false); setQ(p.label);
     const res = await fetch(`/api/plaats?id=${encodeURIComponent(p.id)}`).then((r) => (r.ok ? r.json() : null)).catch(() => null) as { lat: number; lng: number; zoom: number } | null;
-    const L = lib.current, m = map.current;
-    if (!res || !L || !m) return;
+    const ml = lib.current, m = map.current;
+    if (!res || !ml || !m) return;
     dot.current?.remove();
-    dot.current = L.marker([res.lat, res.lng], { icon: L.divIcon({ className: '', html: '<div class="nnv-search-dot"></div>', iconSize: [18, 18], iconAnchor: [9, 9] }), interactive: false, keyboard: false }).addTo(m);
-    m.flyTo([res.lat, res.lng], res.zoom, { duration: 0.8 });
+    const d = document.createElement('div'); d.className = 'nnv-search-dot';
+    dot.current = new ml.Marker({ element: d }).setLngLat([res.lng, res.lat]).addTo(m);
+    m.flyTo({ center: [res.lng, res.lat], zoom: res.zoom, duration: 1100, essential: true });
   }
   function select(id: string) {
-    const pin = layers.current.get(id), m = map.current;
+    const pin = pins.current.get(id), m = map.current;
     if (!pin || !m) return;
-    m.flyTo(pin.getLatLng(), Math.max(m.getZoom(), 15), { duration: 0.6 });
-    m.once('moveend', () => pin.openPopup());
+    m.flyTo({ center: pin.marker.getLngLat(), zoom: Math.max(m.getZoom(), 16), duration: 900, essential: true });
+    m.once('moveend', () => { if (!pin.popup.isOpen()) pin.marker.togglePopup(); });
   }
   function onSearchKey(e: React.KeyboardEvent) {
     if (e.key === 'ArrowDown') { e.preventDefault(); setOpen(true); setHighlight((h) => Math.min(places.length - 1, h + 1)); }
@@ -127,8 +129,8 @@ export function ListingsMap({ soort, qs }: { soort: string; qs: string }) {
   return (
     <div className="grid gap-4 lg:grid-cols-[1fr_20rem]">
       <div className="relative overflow-hidden rounded-2xl border border-line bg-sand shadow-card">
-        <div ref={el} className="h-[28rem] w-full lg:h-[40rem]" role="application" aria-label="Kaart met woningen" />
-        <div className="absolute left-3 top-3 z-[500] w-[min(22rem,calc(100%-1.5rem))]">
+        <div ref={el} className="h-[28rem] w-full lg:h-[40rem]" role="application" aria-label="Kaart met woningen. Schuif en zoom vrij, ook buiten Nederland." />
+        <div className="absolute left-3 top-3 z-10 w-[min(22rem,calc(100%-1.5rem))]">
           <div className="relative">
             <label htmlFor="kaart-zoek" className="sr-only">Zoek op plaats, straat of postcode</label>
             <Search size={16} aria-hidden className="pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 text-muted" />
@@ -148,8 +150,8 @@ export function ListingsMap({ soort, qs }: { soort: string; qs: string }) {
             </ul>
           )}
         </div>
-        {state.loading && <div role="status" className="absolute bottom-3 left-3 z-[500] inline-flex items-center gap-2 rounded-full bg-white px-3 py-1.5 text-xs font-semibold shadow"><Loader2 size={14} className="animate-spin" aria-hidden /> Woningen laden…</div>}
-        {state.error && <p role="alert" className="absolute inset-x-3 bottom-3 z-[500] rounded-xl bg-red-50 p-3 text-sm text-red-800 shadow">{state.error}</p>}
+        {state.loading && <div role="status" className="absolute bottom-10 left-3 z-10 inline-flex items-center gap-2 rounded-full bg-white px-3 py-1.5 text-xs font-semibold shadow"><Loader2 size={14} className="animate-spin" aria-hidden /> Woningen laden…</div>}
+        {(state.error || mapError) && <p role="alert" className="absolute inset-x-3 bottom-10 z-10 rounded-xl bg-red-50 p-3 text-sm text-red-800 shadow">{mapError || state.error}</p>}
       </div>
 
       <aside aria-label="Woningen in beeld" className="flex max-h-[40rem] flex-col rounded-2xl border border-line bg-white shadow-card">

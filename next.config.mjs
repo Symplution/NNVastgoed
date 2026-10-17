@@ -7,7 +7,10 @@ const csp = [
   // Woningfoto's komen uit Supabase Storage of van de mediaserver van het kantoor.
   "img-src 'self' data: blob: https:",
   "font-src 'self' data:",
-  "connect-src 'self' https://*.supabase.co wss://*.supabase.co",
+  "connect-src 'self' https://*.supabase.co wss://*.supabase.co https://tiles.openfreemap.org https://service.pdok.nl",
+  // De kaart rekent in een achtergrondproces (blob) om soepel te blijven.
+  "worker-src 'self' blob:",
+  "child-src 'self' blob:",
   "frame-ancestors 'none'",
   "base-uri 'self'",
   "form-action 'self'",

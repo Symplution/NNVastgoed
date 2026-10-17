@@ -1,23 +1,38 @@
 import { createHash } from 'node:crypto';
 import { NextResponse } from 'next/server';
-import { isDemo } from '@/lib/env';
 
-// Voorbeeldfoto's voor de demomodus: een getekend huis in een landschap, kleur en vorm afgeleid van de naam.
+// Voorbeeldfoto's voor demo- en testgegevens: een getekende voorkant, tuin, woonkamer, keuken, slaapkamer of badkamer.
+// Kleur en vorm volgen uit de naam, het laatste cijfer bepaalt welke ruimte je ziet. Echte foto's upload je in het beheer.
+const VIEWS = ['Voorkant', 'Tuin', 'Woonkamer', 'Keuken', 'Slaapkamer', 'Badkamer', 'Werkruimte'] as const;
+
+interface Pal { wall: string; roof: string; accent: string; sky: string; floor: string }
+
+function front(p: Pal, w: number): string {
+  const x = 400 - w / 2;
+  return `<rect x="${x}" y="230" width="${w}" height="150" fill="${p.wall}"/><path d="M${x - 24} 232 L400 140 L${x + w + 24} 232Z" fill="${p.roof}"/>
+<rect x="${x + 28}" y="270" width="46" height="52" fill="#dbeaf3" stroke="#fff" stroke-width="5"/><rect x="${x + w - 74}" y="270" width="46" height="52" fill="#dbeaf3" stroke="#fff" stroke-width="5"/><rect x="383" y="305" width="34" height="75" fill="${p.roof}"/>
+<rect x="${x + w - 40}" y="150" width="22" height="50" fill="${p.roof}"/>`;
+}
+const scene = {
+  Voorkant: (p: Pal, h: Buffer) => `<rect width="800" height="500" fill="${p.sky}"/><circle cx="650" cy="90" r="38" fill="#fff" opacity=".75"/><path d="M0 360 Q200 330 400 350 T800 340 V500 H0Z" fill="#8fb48c"/><path d="M0 410 Q250 380 500 410 T800 395 V500 H0Z" fill="#6f9c72"/>${front(p, 200 + (h[3] % 80))}<rect x="120" y="300" width="14" height="90" fill="#7a5a3a"/><circle cx="127" cy="290" r="46" fill="#5a9a62"/>`,
+  Tuin: (p: Pal) => `<rect width="800" height="500" fill="${p.sky}"/><path d="M0 250 H800 V500 H0Z" fill="#7fb07a"/><rect x="0" y="240" width="800" height="26" fill="#4e8a56"/><rect x="520" y="150" width="190" height="110" fill="${p.wall}"/><rect x="540" y="180" width="60" height="70" fill="#dbeaf3" stroke="#fff" stroke-width="5"/><path d="M505 152 L615 96 L725 152Z" fill="${p.roof}"/><rect x="150" y="190" width="18" height="100" fill="#7a5a3a"/><circle cx="159" cy="170" r="62" fill="#4e9a5a"/><circle cx="125" cy="205" r="38" fill="#5aa866"/><rect x="300" y="360" width="200" height="14" rx="7" fill="#b9a78a"/><rect x="320" y="372" width="12" height="40" fill="#8a7a62"/><rect x="468" y="372" width="12" height="40" fill="#8a7a62"/><circle cx="360" cy="345" r="16" fill="${p.accent}"/><circle cx="440" cy="345" r="16" fill="${p.accent}" opacity=".8"/>`,
+  Woonkamer: (p: Pal) => `<rect width="800" height="500" fill="${p.wall}"/><rect y="380" width="800" height="120" fill="${p.floor}"/><rect x="480" y="70" width="230" height="190" fill="#dbeaf3" stroke="#fff" stroke-width="10"/><path d="M595 70 V260 M480 165 H710" stroke="#fff" stroke-width="6"/><rect x="90" y="250" width="300" height="110" rx="26" fill="${p.accent}"/><rect x="80" y="300" width="40" height="80" rx="16" fill="${p.accent}"/><rect x="360" y="300" width="40" height="80" rx="16" fill="${p.accent}"/><rect x="120" y="262" width="110" height="46" rx="14" fill="#fff" opacity=".35"/><ellipse cx="400" cy="430" rx="260" ry="34" fill="#fff" opacity=".4"/><rect x="430" y="385" width="140" height="18" rx="9" fill="#8a7a62"/><rect x="60" y="90" width="150" height="100" fill="#fff"/><rect x="72" y="102" width="126" height="76" fill="${p.sky}"/><path d="M72 178 L110 140 L140 165 L165 130 L198 178Z" fill="#6f9c72"/><rect x="740" y="190" width="10" height="190" fill="#444"/><path d="M715 190 H775 L762 150 H728Z" fill="#f3e3b8"/>`,
+  Keuken: (p: Pal) => `<rect width="800" height="500" fill="${p.wall}"/><rect y="400" width="800" height="100" fill="${p.floor}"/><rect x="40" y="60" width="720" height="110" fill="${p.accent}" opacity=".85"/><path d="M40 115 H760 M200 60 V170 M360 60 V170 M520 60 V170 M680 60 V170" stroke="#fff" stroke-width="3" opacity=".6"/><rect x="40" y="250" width="720" height="150" fill="${p.accent}"/><rect x="40" y="236" width="720" height="22" fill="#e8e4dc"/><path d="M200 258 V400 M360 258 V400 M520 258 V400 M680 258 V400" stroke="#fff" stroke-width="3" opacity=".5"/><rect x="330" y="30" width="140" height="44" fill="#b9bfc4"/><rect x="540" y="215" width="110" height="22" rx="4" fill="#333"/><rect x="120" y="300" width="560" height="14" fill="#e8e4dc" opacity="0"/><rect x="150" y="410" width="500" height="26" rx="6" fill="#e8e4dc"/><circle cx="230" cy="470" r="22" fill="${p.roof}"/><circle cx="400" cy="470" r="22" fill="${p.roof}"/><circle cx="570" cy="470" r="22" fill="${p.roof}"/>`,
+  Slaapkamer: (p: Pal) => `<rect width="800" height="500" fill="${p.wall}"/><rect y="390" width="800" height="110" fill="${p.floor}"/><rect x="170" y="130" width="440" height="110" rx="14" fill="${p.roof}"/><rect x="150" y="250" width="480" height="130" rx="16" fill="#fff"/><rect x="150" y="300" width="480" height="80" rx="12" fill="${p.accent}"/><rect x="190" y="262" width="130" height="50" rx="22" fill="#e8e4dc"/><rect x="460" y="262" width="130" height="50" rx="22" fill="#e8e4dc"/><rect x="60" y="300" width="70" height="80" fill="#8a7a62"/><rect x="82" y="250" width="26" height="50" fill="#f3e3b8"/><rect x="650" y="300" width="70" height="80" fill="#8a7a62"/><rect x="672" y="250" width="26" height="50" fill="#f3e3b8"/><rect x="620" y="40" width="140" height="170" fill="#dbeaf3" stroke="#fff" stroke-width="8"/>`,
+  Werkruimte: (p: Pal) => `<rect width="800" height="500" fill="${p.wall}"/><rect y="390" width="800" height="110" fill="${p.floor}"/><rect x="60" y="60" width="680" height="220" fill="#dbeaf3" stroke="#fff" stroke-width="10"/><path d="M230 60 V280 M400 60 V280 M570 60 V280" stroke="#fff" stroke-width="6"/><rect x="110" y="320" width="240" height="16" fill="#8a7a62"/><rect x="130" y="336" width="10" height="60" fill="#8a7a62"/><rect x="320" y="336" width="10" height="60" fill="#8a7a62"/><rect x="170" y="260" width="120" height="60" rx="4" fill="#333"/><rect x="450" y="320" width="240" height="16" fill="#8a7a62"/><rect x="470" y="336" width="10" height="60" fill="#8a7a62"/><rect x="660" y="336" width="10" height="60" fill="#8a7a62"/><rect x="510" y="260" width="120" height="60" rx="4" fill="#333"/><rect x="380" y="350" width="60" height="60" rx="12" fill="${p.accent}"/>`,
+  Badkamer: (p: Pal) => `<rect width="800" height="500" fill="#e8f0f4"/>${Array.from({ length: 10 }, (_, i) => `<path d="M${i * 80} 0 V400" stroke="#fff" stroke-width="3"/>`).join('')}${Array.from({ length: 5 }, (_, i) => `<path d="M0 ${i * 80} H800" stroke="#fff" stroke-width="3"/>`).join('')}<rect y="400" width="800" height="100" fill="${p.floor}"/><rect x="90" y="270" width="380" height="120" rx="40" fill="#fff" stroke="#d0dae0" stroke-width="4"/><rect x="110" y="290" width="340" height="40" rx="20" fill="#cfe6f3"/><rect x="530" y="200" width="200" height="30" rx="8" fill="#fff"/><rect x="560" y="230" width="140" height="150" fill="#fff"/><rect x="540" y="60" width="180" height="120" rx="14" fill="#cfe6f3" stroke="#b9bfc4" stroke-width="8"/><rect x="280" y="170" width="14" height="100" fill="#b9bfc4"/><circle cx="287" cy="160" r="14" fill="#b9bfc4"/>`,
+};
+
 export async function GET(_: Request, { params }: { params: Promise<{ seed: string }> }) {
-  if (!isDemo()) return new NextResponse('Niet gevonden', { status: 404 });
-  const seed = (await params).seed.replace(/[^a-z0-9-]/g, '').slice(0, 80);
-  const h = createHash('md5').update(seed).digest();
-  const view = Number(seed.match(/-(\d)$/)?.[1] ?? 1);
-  const hue = (h[0] / 255) * 360, wall = `hsl(${(hue + 20) % 360} 35% ${78 + (h[1] % 12)}%)`, roof = `hsl(${(hue + 200) % 360} 38% ${28 + (h[2] % 14)}%)`;
-  const sky = ['#cfe6f3', '#e8dcc8', '#d3e4d8', '#dfe3ee'][view % 4];
-  const w = 200 + (h[3] % 80), x = 400 - w / 2;
-  const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 500" role="img" aria-label="Voorbeeldfoto">
-<defs><linearGradient id="s" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="${sky}"/><stop offset="1" stop-color="#f7f4ee"/></linearGradient></defs>
-<rect width="800" height="500" fill="url(#s)"/>
-<circle cx="${620 - view * 40}" cy="${90 + view * 8}" r="38" fill="#fff" opacity=".75"/>
-<path d="M0 360 Q200 ${320 + view * 6} 400 350 T800 340 V500 H0Z" fill="#8fb48c"/>
-<path d="M0 410 Q250 380 500 410 T800 395 V500 H0Z" fill="#6f9c72"/>
-${view === 3 ? `<rect x="120" y="120" width="560" height="300" fill="${wall}"/><rect x="170" y="170" width="150" height="200" fill="#dbeaf3" stroke="#fff" stroke-width="10"/><rect x="480" y="170" width="150" height="200" fill="#dbeaf3" stroke="#fff" stroke-width="10"/><rect x="0" y="420" width="800" height="80" fill="#b9a78a"/>` : `<rect x="${x}" y="230" width="${w}" height="150" fill="${wall}"/><path d="M${x - 24} 232 L400 140 L${x + w + 24} 232Z" fill="${roof}"/><rect x="${x + 28}" y="270" width="46" height="52" fill="#dbeaf3" stroke="#fff" stroke-width="5"/><rect x="${x + w - 74}" y="270" width="46" height="52" fill="#dbeaf3" stroke="#fff" stroke-width="5"/><rect x="383" y="305" width="34" height="75" fill="${roof}"/>`}
-<text x="400" y="478" text-anchor="middle" font-family="system-ui, sans-serif" font-size="18" fill="#14212b" opacity=".45">Voorbeeldfoto</text></svg>`;
+  const seed = (await params).seed.replace(/[^a-z0-9-]/g, '').slice(0, 90);
+  const h = createHash('md5').update(seed.replace(/-\d$/, '')).digest();
+  const n = Math.min(7, Math.max(1, Number(seed.match(/-(\d)$/)?.[1] ?? 1)));
+  const hue = (h[0] / 255) * 360;
+  const p: Pal = {
+    wall: `hsl(${(hue + 20) % 360} 30% ${84 + (h[1] % 8)}%)`, roof: `hsl(${(hue + 200) % 360} 38% ${28 + (h[2] % 14)}%)`, accent: `hsl(${(hue + 150) % 360} 28% ${52 + (h[4] % 14)}%)`,
+    sky: ['#cfe6f3', '#e8dcc8', '#d3e4d8', '#dfe3ee'][h[5] % 4], floor: `hsl(${30 + (h[6] % 20)} 30% ${58 + (h[7] % 14)}%)`,
+  };
+  const view = VIEWS[n - 1];
+  const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 500" role="img" aria-label="Voorbeeldfoto: ${view}">${scene[view](p, h)}<rect x="0" y="468" width="800" height="32" fill="#14212b" opacity=".35"/><text x="400" y="489" text-anchor="middle" font-family="system-ui, sans-serif" font-size="15" fill="#fff">Voorbeeldfoto · ${view}</text></svg>`;
   return new NextResponse(svg, { headers: { 'Content-Type': 'image/svg+xml', 'Cache-Control': 'public, max-age=86400, immutable' } });
 }
