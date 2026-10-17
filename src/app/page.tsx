@@ -4,18 +4,20 @@ import { latestListings, provinceCounts } from '@/lib/data';
 import { PROVINCES } from '@/lib/types';
 import { PROVINCE_INFO } from '@/lib/regions';
 import { HeroSearch } from '@/components/hero-search';
+import { HeroIllustration } from '@/components/hero-illustration';
 import { ListingCard } from '@/components/listing-card';
 
 export const revalidate = 300;
 
 export default async function Home() {
-  const [counts, latest, rentals, newBuild] = await Promise.all([provinceCounts(), latestListings(6), latestListings(3, undefined, 'huur'), latestListings(3, undefined, 'nieuwbouw')]);
+  const [counts, latest, rentals, newBuild] = await Promise.all([provinceCounts(), latestListings(9), latestListings(6, undefined, 'huur'), latestListings(6, undefined, 'nieuwbouw')]);
   const total = PROVINCES.reduce((n, p) => n + counts[p], 0);
   return (
     <>
       <section className="relative overflow-hidden bg-gradient-to-br from-brand-dark via-brand to-[#1c6a93] text-white">
         <svg aria-hidden className="absolute inset-x-0 bottom-0 h-24 w-full text-white" viewBox="0 0 1440 96" preserveAspectRatio="none"><path fill="currentColor" d="M0 64c120-34 240-34 360 0s240 34 360 0 240-34 360 0 240 34 360 0v32H0z" /></svg>
-        <div className="container-x relative pb-32 pt-16 sm:pt-24">
+        <HeroIllustration className="pointer-events-none absolute bottom-0 right-0 hidden h-[22rem] w-[64rem] max-w-[72%] lg:block xl:right-[calc((100%-80rem)/2)]" />
+        <div className="container-x relative z-10 pb-32 lg:pb-72 pt-16 sm:pt-24">
           <p className="text-sm font-semibold uppercase tracking-[0.16em] text-white/75">Noord Nederlands Vastgoed</p>
           <h1 className="mt-3 max-w-3xl text-4xl font-extrabold leading-tight tracking-tight sm:text-5xl">Vind je huis in het noorden</h1>
           <p className="mt-4 max-w-xl text-lg text-white/85">Het aanbod van makelaars in Groningen, Friesland en Drenthe, op één plek. {total > 0 && <>Nu {total} koopwoningen, en ook huur, nieuwbouw en bedrijfsruimte.</>}</p>
@@ -24,7 +26,7 @@ export default async function Home() {
         </div>
       </section>
 
-      <section className="container-x relative z-10 -mt-12" aria-label="Snel naar">
+      <section className="container-x relative z-10 -mt-12 lg:mt-6" aria-label="Snel naar">
         <ul className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
           {[
             { href: '/bedrijfsruimte', Icon: Building2, t: 'Zoek een bedrijfsruimte', d: 'Kantoor, hal, winkel of horeca' },
