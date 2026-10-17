@@ -1,6 +1,6 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
-import { BellRing, CalendarCheck, Inbox, Network, Sparkles } from 'lucide-react';
+import { BellRing, CalendarCheck, Inbox, Megaphone, Network, Sparkles, Star, Store, Trophy, Map, Layers, Wand2 } from 'lucide-react';
 
 export const metadata: Metadata = { title: 'Voor makelaars', description: 'Toon je woningaanbod aan woningzoekers in Groningen, Friesland en Drenthe. Koppel je kantoorsoftware of beheer je woningen zelf.' };
 
@@ -39,6 +39,28 @@ export default function VoorMakelaars() {
           <div key={t} className="card flex gap-4 p-6"><span className="inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-brand-soft text-brand"><Icon size={22} aria-hidden /></span><div><h2 className="font-bold">{t}</h2><p className="mt-1 text-sm text-muted">{d}</p></div></div>
         ))}
       </div>
+
+      <section className="mt-14" aria-labelledby="pakketten">
+        <h2 id="pakketten" className="text-2xl font-extrabold tracking-tight">Pakketten</h2>
+        <p className="mt-2 max-w-2xl text-muted">Aansluiten is gratis. Wil je dat je aanbod of kantoor extra opvalt, dan kies je uit deze pakketten.</p>
+        <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          {[
+            { Icon: Layers, t: 'NNV Compleet', d: 'De volledige presentatie van je object, met foto’s, kaart en bezichtigingsplanner. Per jaar.' },
+            { Icon: Star, t: 'NNV Premium', d: 'Alles van Compleet, met extra aandacht in de zoekresultaten. Per jaar.' },
+            { Icon: Megaphone, t: 'Blikvanger', d: 'Je object op een opvallende plek op de homepage. Per kwartaal.' },
+            { Icon: Trophy, t: 'Topositie', d: 'Bovenaan in de zoekresultaten, per week of per maand.' },
+            { Icon: Map, t: 'Regio in beeld', d: 'Zichtbaar in één, twee of alle drie de provincies. Per maand.' },
+            { Icon: Store, t: 'Kantoorpakketten', d: 'Podiumplaats en Kantoorprofiel Pro, om je kantoor in de kijker te zetten.' },
+          ].map(({ Icon, t, d }) => (
+            <div key={t} className="card flex gap-4 p-5"><span className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-accent-soft text-accent-dark"><Icon size={20} aria-hidden /></span><div><h3 className="font-bold">{t}</h3><p className="mt-1 text-sm text-muted">{d}</p></div></div>
+          ))}
+        </div>
+        <div className="mt-6 flex flex-wrap items-center gap-4 rounded-2xl bg-sand p-5">
+          <span className="inline-flex h-10 w-10 items-center justify-center rounded-xl bg-white text-brand"><Wand2 size={20} aria-hidden /></span>
+          <p className="min-w-[14rem] flex-1 text-sm"><strong>Campagne op maat?</strong> Voor een kantoor of een groot project maken we een voorstel.</p>
+          <Link href="/voor-makelaars/prijzen" className="btn-primary">Bekijk prijzen</Link>
+        </div>
+      </section>
 
       <section className="mt-14" aria-labelledby="koppelen">
         <h2 id="koppelen" className="text-2xl font-extrabold tracking-tight">Zo koppel je</h2>
