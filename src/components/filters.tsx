@@ -4,11 +4,13 @@ import { COMMERCIAL_TYPES, ENERGY_LABELS, HOME_TYPES, PROVINCES } from '@/lib/ty
 import { provinceName } from '@/lib/regions';
 import { MODE_INFO, priceStepsFor, SORTS, SORT_LABEL, type SearchFilters } from '@/lib/search';
 import { TYPE_LABEL } from '@/lib/format';
+import { Select, type Option } from './select';
 
 const eur = (n: number) => `€ ${n.toLocaleString('nl-NL')}`;
+const opts = (first: string, list: Option[]): Option[] => [{ value: '', label: first }, ...list];
 
 /** Gewoon een GET-formulier: werkt zonder JavaScript, is deelbaar en zoekmachinevriendelijk. */
-export function Filters({ f, action, lockProvince = false }: { f: SearchFilters; action?: string; lockProvince?: boolean }) {
+export function Filters({ f, action, lockProvince = false, view }: { f: SearchFilters; action?: string; lockProvince?: boolean; view?: 'kaart' }) {
   const target = action ?? MODE_INFO[f.mode].path;
   const PRICES = priceStepsFor(f);
   const rent = f.mode === 'huur' || f.offer === 'huur';
@@ -23,34 +25,33 @@ export function Filters({ f, action, lockProvince = false }: { f: SearchFilters;
       {(f.mode === 'nieuwbouw' || commercial) && (
         <div>
           <label htmlFor="aanbod" className="label">Koop of huur</label>
-          <select id="aanbod" name="aanbod" defaultValue={f.offer ?? ''} className="field"><option value="">Koop en huur</option><option value="koop">Te koop</option><option value="huur">Te huur</option></select>
+          <Select id="aanbod" name="aanbod" defaultValue={f.offer ?? ''} options={opts('Koop en huur', [{ value: 'koop', label: 'Te koop' }, { value: 'huur', label: 'Te huur' }])} />
         </div>
       )}
       {!lockProvince && (
         <div>
           <label htmlFor="provincie" className="label">Provincie</label>
-          <select id="provincie" name="provincie" defaultValue={f.province ?? ''} className="field">
-            <option value="">Heel het noorden</option>
-            {PROVINCES.map((p) => <option key={p} value={p}>{provinceName(p)}</option>)}
-          </select>
+          <Select id="provincie" name="provincie" defaultValue={f.province ?? ''} options={opts('Heel het noorden', PROVINCES.map((p) => ({ value: p, label: provinceName(p) })))} />
         </div>
       )}
-      <div className="grid grid-cols-2 gap-3">
+      <div className="space-y-4">
         <div>
           <label htmlFor="van" className="label">{rent ? 'Huur vanaf' : 'Prijs vanaf'}</label>
-          <select id="van" name="van" defaultValue={f.minPrice ?? ''} className="field"><option value="">Geen min.</option>{PRICES.map((p) => <option key={p} value={p}>{eur(p)}{rent ? ' p.m.' : ''}</option>)}</select>
+          <Select id="van" name="van" defaultValue={String(f.minPrice ?? '')} options={opts('Geen min.', PRICES.map((p) => ({ value: String(p), label: `${eur(p)}${rent ? ' p.m.' : ''}` })))} />
         </div>
         <div>
           <label htmlFor="tot" className="label">{rent ? 'Huur tot' : 'Prijs tot'}</label>
-          <select id="tot" name="tot" defaultValue={f.maxPrice ?? ''} className="field"><option value="">Geen max.</option>{PRICES.map((p) => <option key={p} value={p}>{eur(p)}{rent ? ' p.m.' : ''}</option>)}</select>
+          <Select id="tot" name="tot" defaultValue={String(f.maxPrice ?? '')} options={opts('Geen max.', PRICES.map((p) => ({ value: String(p), label: `${eur(p)}${rent ? ' p.m.' : ''}` })))} />
         </div>
+      </div>
+      <div className="grid grid-cols-2 gap-3">
         <div>
           <label htmlFor="kamers" className="label">Kamers</label>
-          <select id="kamers" name="kamers" defaultValue={f.minRooms ?? ''} className="field"><option value="">Alle</option>{[2, 3, 4, 5, 6].map((n) => <option key={n} value={n}>{n}+</option>)}</select>
+          <Select id="kamers" name="kamers" defaultValue={String(f.minRooms ?? '')} options={opts('Alle', [2, 3, 4, 5, 6].map((n) => ({ value: String(n), label: `${n}+` })))} />
         </div>
         <div>
           <label htmlFor="m2" className="label">{commercial ? 'Oppervlakte' : 'Woonopp.'}</label>
-          <select id="m2" name="m2" defaultValue={f.minArea ?? ''} className="field"><option value="">Alle</option>{[50, 75, 100, 125, 150, 200].map((n) => <option key={n} value={n}>{n}+ m²</option>)}</select>
+          <Select id="m2" name="m2" defaultValue={String(f.minArea ?? '')} options={opts('Alle', [50, 75, 100, 125, 150, 200].map((n) => ({ value: String(n), label: `${n}+ m²` })))} />
         </div>
       </div>
       <fieldset>
@@ -63,14 +64,15 @@ export function Filters({ f, action, lockProvince = false }: { f: SearchFilters;
       </fieldset>
       <div>
         <label htmlFor="label" className="label">Energielabel minimaal</label>
-        <select id="label" name="label" defaultValue={f.energy ?? ''} className="field"><option value="">Alle</option>{ENERGY_LABELS.filter((e) => ['A', 'B', 'C', 'D'].includes(e)).map((e) => <option key={e} value={e}>{e} of beter</option>)}</select>
+        <Select id="label" name="label" defaultValue={f.energy ?? ''} options={opts('Alle', ENERGY_LABELS.filter((e) => ['A', 'B', 'C', 'D'].includes(e)).map((e) => ({ value: e, label: `${e} of beter` })))} />
       </div>
       <div>
         <label htmlFor="sorteer" className="label">Sorteren</label>
-        <select id="sorteer" name="sorteer" defaultValue={f.sort} className="field">{SORTS.map((s) => <option key={s} value={s}>{SORT_LABEL[s]}</option>)}</select>
+        <Select id="sorteer" name="sorteer" defaultValue={f.sort} options={SORTS.map((s) => ({ value: s, label: SORT_LABEL[s] }))} />
       </div>
       <label className="flex cursor-pointer items-center gap-2 text-sm"><input type="checkbox" name="verkocht" value="1" defaultChecked={!f.hideSold} /> Toon ook verkochte woningen</label>
       {lockProvince && f.province && <input type="hidden" name="provincie" value={f.province} />}
+      {view === 'kaart' && <input type="hidden" name="weergave" value="kaart" />}
       <div className="flex gap-2 pt-1">
         <button className="btn-primary flex-1"><Search size={16} aria-hidden /> Zoeken</button>
         <Link href={lockProvince && f.province ? `/${f.province}` : target} className="btn-ghost">Wissen</Link>

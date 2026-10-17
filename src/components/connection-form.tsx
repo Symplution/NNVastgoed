@@ -3,6 +3,7 @@
 import { useActionState } from 'react';
 import { createConnection } from '@/app/beheer/actions';
 import type { Office } from '@/lib/types';
+import { Select } from './select';
 
 export function ConnectionForm({ offices, pickOffice, baseUrl }: { offices: Office[]; pickOffice: boolean; baseUrl: string }) {
   const [state, action, pending] = useActionState(createConnection, undefined);
@@ -19,9 +20,9 @@ export function ConnectionForm({ offices, pickOffice, baseUrl }: { offices: Offi
       ) : (
         <form action={action} className="mt-4 grid gap-4 sm:grid-cols-[1fr_9rem_auto] sm:items-end">
           <div><label htmlFor="c-name" className="label">Naam (bijv. “Realworks”)</label><input id="c-name" name="name" required minLength={2} maxLength={80} className="field" /></div>
-          <div><label htmlFor="c-kind" className="label">Formaat</label><select id="c-kind" name="kind" className="field"><option value="json">JSON</option><option value="xml">XML</option></select></div>
+          <div><label htmlFor="c-kind" className="label">Formaat</label><Select id="c-kind" name="kind" defaultValue="json" options={[{ value: 'json', label: 'JSON' }, { value: 'xml', label: 'XML' }]} /></div>
           <button disabled={pending} className="btn-primary">{pending ? 'Bezig…' : 'Aanmaken'}</button>
-          {pickOffice && <div className="sm:col-span-3"><label htmlFor="c-office" className="label">Kantoor</label><select id="c-office" name="office_id" required className="field"><option value="">Kies…</option>{offices.map((o) => <option key={o.id} value={o.id}>{o.name}</option>)}</select></div>}
+          {pickOffice && <div className="sm:col-span-3"><label htmlFor="c-office" className="label">Kantoor</label><Select id="c-office" name="office_id" required options={[{ value: '', label: 'Kies een kantoor…' }, ...offices.map((o) => ({ value: o.id, label: o.name }))]} /></div>}
           {state?.errors && <p role="alert" className="text-sm text-red-700 sm:col-span-3">{state.errors.join(' ')}</p>}
         </form>
       )}

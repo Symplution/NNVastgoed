@@ -3,8 +3,10 @@ import { NextResponse, type NextRequest } from 'next/server';
 import { hasSupabase } from '@/lib/env';
 import { createAnonClient } from '@/lib/supabase/anon';
 import { parseJsonFeed, parseXmlFeed, type ParsedFeed } from '@/lib/feeds/parse';
+import { fillMissingGeo } from '@/lib/feeds/geo';
 
 export const dynamic = 'force-dynamic';
+export const maxDuration = 30;
 const MAX_BYTES = 8 * 1024 * 1024;
 const json = (body: unknown, status = 200) => NextResponse.json(body, { status, headers: { 'Cache-Control': 'no-store' } });
 
@@ -31,13 +33,16 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
     return json({ fout: `Kon het bericht niet lezen: ${e instanceof Error ? e.message : 'onbekende fout'}` }, 400);
   }
 
+  const secretHash = createHash('sha256').update(token).digest('hex');
   const { data, error } = await createAnonClient().rpc('ingest_listings', {
-    p_connection: id, p_secret_hash: createHash('sha256').update(token).digest('hex'),
+    p_connection: id, p_secret_hash: secretHash,
     p_items: parsed.items, p_rejected: parsed.rejected.slice(0, 50), p_full: parsed.full,
   });
   if (error) {
     if (error.code === '28000') return json({ fout: 'Ongeldige koppeling of sleutel.' }, 401);
     return json({ fout: 'De woningen konden niet worden opgeslagen.', detail: error.message }, 422);
   }
-  return json({ ...data, afgewezen_details: parsed.rejected.slice(0, 50) });
+  // Woningen zonder coördinaten krijgen hun kaartlocatie uit het adres (best effort; de rest volgt bij de volgende aanroep).
+  const geo = await fillMissingGeo(id, secretHash).catch(() => ({ found: 0, todo: 0 }));
+  return json({ ...data, kaartlocaties: geo.found, afgewezen_details: parsed.rejected.slice(0, 50) });
 }

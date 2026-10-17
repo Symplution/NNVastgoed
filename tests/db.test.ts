@@ -463,3 +463,39 @@ describe('contactgegevens van zoekers', () => {
     expect(await as(ids.agentA, `select 1 from profiles where id = '${ids.zoekerA}'`)).toHaveLength(0);
   });
 });
+
+describe('kaartlocaties', () => {
+  let conn = '';
+  const item = (ext: string, extra: Row = {}) => ({
+    slug: `kaart-${ext.toLowerCase()}`, external_id: ext, status: 'beschikbaar', offer: 'koop', category: 'woning', new_build: false, street: 'Dorpsstraat', house_number: '5', postcode: '8601 AA', city: 'Sneek',
+    province: 'friesland', asking_price: 250000, price_type: 'k.k.', living_area: 90, rooms: 4, bedrooms: 2, bathrooms: 1, property_type: 'tussenwoning', features: [], photos: [], ...extra,
+  });
+  const ingest = (secret: string, items: unknown[]) => as(null, `select public.ingest_listings('${conn}', '${hash(secret)}', '${JSON.stringify(items)}'::jsonb) as r`);
+  beforeAll(async () => {
+    conn = (await as(ids.agentB, `insert into feed_connections (office_id, name, secret_hash) values ('${office.b}', 'Kaart', '${hash('kaartsleutel')}') returning id`))[0].id;
+  });
+  it('een koppeling zonder coördinaten laat de bestaande locatie staan', async () => {
+    await ingest('kaartsleutel', [item('K1', { lat: 53.0329, lng: 5.6573 }), item('K2')]);
+    await ingest('kaartsleutel', [item('K1', { asking_price: 245000 }), item('K2')]);
+    const r = (await db.query<Row>(`select external_id, lat, asking_price from listings where external_id in ('K1', 'K2') order by external_id`)).rows;
+    expect(r).toEqual([{ external_id: 'K1', lat: 53.0329, asking_price: 245000 }, { external_id: 'K2', lat: null, asking_price: 250000 }]);
+  });
+  it('de server vraagt de woningen zonder locatie op en zet de locatie erbij, met de sleutel van de koppeling', async () => {
+    const todo = await as(null, `select listing_id, postcode, house_number from feed_listings_without_geo('${conn}', '${hash('kaartsleutel')}')`);
+    expect(todo.map((x) => x.house_number)).toEqual(['5']);
+    const id = todo[0].listing_id;
+    expect((await as(null, `select feed_set_geo('${conn}', '${hash('kaartsleutel')}', '[{"id":"${id}","lat":53.03,"lng":5.66}]') as n`))[0].n).toBe(1);
+    expect((await as(null, `select feed_set_geo('${conn}', '${hash('kaartsleutel')}', '[{"id":"${id}","lat":52.5,"lng":6.5}]') as n`))[0].n).toBe(0);   // een bestaande locatie wordt niet overschreven
+    expect(await as(null, `select 1 from feed_listings_without_geo('${conn}', '${hash('kaartsleutel')}')`)).toHaveLength(0);
+  });
+  it('met een verkeerde sleutel gebeurt er niets, en een andere koppeling raakt deze woningen niet', async () => {
+    await expect(as(null, `select * from feed_listings_without_geo('${conn}', '${hash('fout')}')`)).rejects.toThrow(/Ongeldige/);
+    await expect(as(null, `select feed_set_geo('${conn}', '${hash('fout')}', '[]')`)).rejects.toThrow(/Ongeldige/);
+    const other = (await as(ids.agentA, `insert into feed_connections (office_id, name, secret_hash) values ('${office.a}', 'Andere', '${hash('anders')}') returning id`))[0].id;
+    const id = (await db.query<Row>(`select id from listings where external_id = 'K2'`)).rows[0].id;
+    await db.exec(`update listings set lat = null, lng = null where id = '${id}'`);
+    expect((await as(null, `select feed_set_geo('${other}', '${hash('anders')}', '[{"id":"${id}","lat":53.1,"lng":5.7}]') as n`))[0].n).toBe(0);
+    await expect(as(null, `select feed_set_geo('${conn}', '${hash('kaartsleutel')}', '[{"id":"${id}","lat":10,"lng":5.7}]')`)).rejects.toThrow();   // buiten Noord-Nederland
+  });
+});
+

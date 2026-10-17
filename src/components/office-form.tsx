@@ -4,6 +4,7 @@ import { useActionState } from 'react';
 import { saveOffice } from '@/app/beheer/actions';
 import { PROVINCES, type Office } from '@/lib/types';
 import { provinceName } from '@/lib/regions';
+import { Select } from './select';
 
 export function OfficeForm({ office, canSetNvm = false }: { office?: Office; canSetNvm?: boolean }) {
   const [state, action, pending] = useActionState(saveOffice.bind(null, office?.id ?? null), undefined);
@@ -14,7 +15,7 @@ export function OfficeForm({ office, canSetNvm = false }: { office?: Office; can
     <form action={action} className="card grid gap-4 p-6 sm:grid-cols-2">
       {f('name', 'Naam', office?.name, { required: true })}
       {f('city', 'Plaats', office?.city, { required: true })}
-      <div><label htmlFor="o-province" className="label">Provincie</label><select id="o-province" name="province" defaultValue={office?.province ?? ''} required className="field"><option value="">Kies…</option>{PROVINCES.map((p) => <option key={p} value={p}>{provinceName(p)}</option>)}</select></div>
+      <div><label htmlFor="o-province" className="label">Provincie</label><Select id="o-province" name="province" defaultValue={office?.province ?? ''} required options={[{ value: '', label: 'Kies een provincie…' }, ...PROVINCES.map((p) => ({ value: p, label: provinceName(p) }))]} /></div>
       {f('street', 'Straat en nummer', office?.street)}
       {f('postcode', 'Postcode', office?.postcode)}
       {f('phone', 'Telefoon', office?.phone, { type: 'tel' })}

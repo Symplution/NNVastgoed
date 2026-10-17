@@ -153,5 +153,5 @@ export function describeFilters(f: Partial<SearchFilters>, euro: (n: number) => 
   else if (f.minPrice !== undefined) parts.push(`vanaf ${euro(f.minPrice)}`);
   if (f.minRooms !== undefined) parts.push(`${f.minRooms}+ kamers`);
   if (f.types?.length) parts.push(f.types.map(typeLabel).join(' of ').toLowerCase());
-  return parts.join(' · ') || 'Alle woningen in het noorden';
+  return parts.join(' · ') || 'Alles in het noorden';
 }

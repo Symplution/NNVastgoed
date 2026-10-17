@@ -6,6 +6,7 @@ import { COMMERCIAL_TYPES, ENERGY_LABELS, HOME_TYPES, PROVINCES, STATUSES, type 
 import { provinceName } from '@/lib/regions';
 import { STATUS_LABEL, TYPE_LABEL } from '@/lib/format';
 import { PhotoEditor } from './photo-editor';
+import { Select } from './select';
 
 export function ListingForm({ listing, offices, officeId, canPickOffice }: { listing?: Listing; offices: Office[]; officeId: string | null; canPickOffice: boolean }) {
   const [state, action, pending] = useActionState(saveListing.bind(null, listing?.id ?? null), undefined);
@@ -24,16 +25,16 @@ export function ListingForm({ listing, offices, officeId, canPickOffice }: { lis
         <legend className="sr-only">Status</legend>
         <div>
           <label htmlFor="offer" className="label">Aanbod</label>
-          <select id="offer" name="offer" defaultValue={l?.offer ?? 'koop'} className="field"><option value="koop">Te koop</option><option value="huur">Te huur (prijs per maand)</option></select>
+          <Select id="offer" name="offer" defaultValue={l?.offer ?? 'koop'} options={[{ value: 'koop', label: 'Te koop' }, { value: 'huur', label: 'Te huur (prijs per maand)' }]} />
           <label className="mt-2 flex items-center gap-2 text-sm"><input type="checkbox" name="new_build" defaultChecked={l?.newBuild} /> Nieuwbouw</label>
         </div>
         <div>
           <label htmlFor="status" className="label">Status</label>
-          <select id="status" name="status" defaultValue={l?.status ?? 'concept'} className="field">{STATUSES.map((s) => <option key={s} value={s}>{STATUS_LABEL[s]}</option>)}</select>
+          <Select id="status" name="status" defaultValue={l?.status ?? 'concept'} options={STATUSES.map((s) => ({ value: s, label: STATUS_LABEL[s] }))} />
           <p className="mt-1 text-xs text-muted">Een concept is niet zichtbaar op de site.</p>
         </div>
         {!l && canPickOffice && (
-          <div><label htmlFor="office_id" className="label">Kantoor</label><select id="office_id" name="office_id" required className="field"><option value="">Kies…</option>{offices.map((o) => <option key={o.id} value={o.id}>{o.name}</option>)}</select></div>
+          <div><label htmlFor="office_id" className="label">Kantoor</label><Select id="office_id" name="office_id" required options={[{ value: '', label: 'Kies een kantoor…' }, ...offices.map((o) => ({ value: o.id, label: o.name }))]} /></div>
         )}
       </fieldset>
 
@@ -44,24 +45,24 @@ export function ListingForm({ listing, offices, officeId, canPickOffice }: { lis
         <div className="sm:col-span-2">{txt('house_suffix', 'Toevoeging', l?.houseSuffix, { maxLength: 12 })}</div>
         <div className="sm:col-span-2">{txt('postcode', 'Postcode', l?.postcode, { required: true, maxLength: 7, placeholder: '9711 AB' })}</div>
         <div className="sm:col-span-2">{txt('city', 'Plaats', l?.city, { required: true, maxLength: 80 })}</div>
-        <div className="sm:col-span-2"><label htmlFor="province" className="label">Provincie</label><select id="province" name="province" defaultValue={l?.province ?? ''} required className="field"><option value="">Kies…</option>{PROVINCES.map((p) => <option key={p} value={p}>{provinceName(p)}</option>)}</select></div>
+        <div className="sm:col-span-2"><label htmlFor="province" className="label">Provincie</label><Select id="province" name="province" defaultValue={l?.province ?? ''} required options={[{ value: '', label: 'Kies een provincie…' }, ...PROVINCES.map((p) => ({ value: p, label: provinceName(p) }))]} /></div>
         <div className="sm:col-span-3">{txt('neighbourhood', 'Wijk of buurt', l?.neighbourhood, { maxLength: 80 })}</div>
-        <div className="sm:col-span-1">{num('lat', 'Breedtegraad', l?.lat, { step: 'any' })}</div>
-        <div className="sm:col-span-2">{num('lng', 'Lengtegraad', l?.lng, { step: 'any' })}</div>
+        <div className="sm:col-span-1">{num('lat', 'Breedtegraad (leeg = automatisch)', l?.lat, { step: 'any' })}</div>
+        <div className="sm:col-span-2">{num('lng', 'Lengtegraad (leeg = automatisch)', l?.lng, { step: 'any' })}</div>
       </fieldset>
 
       <fieldset className="card grid gap-4 p-6 sm:grid-cols-4">
         <legend className="mb-2 px-1 text-lg font-bold">Prijs en afmetingen</legend>
         {num('asking_price', 'Vraagprijs of huur per maand (€)', l?.askingPrice, { required: true, min: 0, step: 50 })}
-        <div><label htmlFor="price_type" className="label">Kosten (alleen bij koop)</label><select id="price_type" name="price_type" defaultValue={l?.priceType === 'v.o.n.' ? 'v.o.n.' : 'k.k.'} className="field"><option value="k.k.">Kosten koper</option><option value="v.o.n.">Vrij op naam</option></select></div>
+        <div><label htmlFor="price_type" className="label">Kosten (alleen bij koop)</label><Select id="price_type" name="price_type" defaultValue={l?.priceType === 'v.o.n.' ? 'v.o.n.' : 'k.k.'} options={[{ value: 'k.k.', label: 'Kosten koper' }, { value: 'v.o.n.', label: 'Vrij op naam' }]} /></div>
         {num('living_area', 'Woonoppervlakte (m²)', l?.livingArea, { required: true, min: 1 })}
         {num('plot_area', 'Perceel (m²)', l?.plotArea, { min: 0 })}
         {num('rooms', 'Kamers', l?.rooms, { required: true, min: 0 })}
         {num('bedrooms', 'Slaapkamers', l?.bedrooms ?? 0, { min: 0 })}
         {num('bathrooms', 'Badkamers', l?.bathrooms ?? 1, { min: 0 })}
         {num('build_year', 'Bouwjaar', l?.buildYear, { min: 1200, max: 2100 })}
-        <div><label htmlFor="property_type" className="label">Soort woning</label><select id="property_type" name="property_type" defaultValue={l?.propertyType ?? ''} required className="field"><option value="">Kies…</option><optgroup label="Woningen">{HOME_TYPES.map((t) => <option key={t} value={t}>{TYPE_LABEL[t]}</option>)}</optgroup><optgroup label="Bedrijfsruimte">{COMMERCIAL_TYPES.map((t) => <option key={t} value={t}>{TYPE_LABEL[t]}</option>)}</optgroup><option value="overig">Overig</option></select></div>
-        <div><label htmlFor="energy_label" className="label">Energielabel</label><select id="energy_label" name="energy_label" defaultValue={l?.energyLabel ?? ''} className="field"><option value="">Onbekend</option>{ENERGY_LABELS.map((e) => <option key={e} value={e}>{e}</option>)}</select></div>
+        <div><label htmlFor="property_type" className="label">Soort woning</label><Select id="property_type" name="property_type" defaultValue={l?.propertyType ?? ''} required options={[{ value: '', label: 'Kies een soort…' }, ...HOME_TYPES.map((t) => ({ value: t, label: TYPE_LABEL[t], hint: 'woning' })), ...COMMERCIAL_TYPES.map((t) => ({ value: t, label: TYPE_LABEL[t], hint: 'bedrijfsruimte' })), { value: 'overig', label: 'Overig' }]} /></div>
+        <div><label htmlFor="energy_label" className="label">Energielabel</label><Select id="energy_label" name="energy_label" defaultValue={l?.energyLabel ?? ''} options={[{ value: '', label: 'Onbekend' }, ...ENERGY_LABELS.map((e) => ({ value: e, label: e }))]} /></div>
       </fieldset>
 
       <fieldset className="card space-y-4 p-6">

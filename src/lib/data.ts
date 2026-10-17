@@ -1,4 +1,5 @@
 import { hasSupabase, isDemo } from './env';
+import { formatPrice, TYPE_LABEL, address as fmtAddress } from './format';
 import { createAnonClient } from './supabase/anon';
 import { DEMO_LISTINGS, DEMO_OFFICES } from './demo-data';
 import { matches, PAGE_SIZE, sortListings, type Mode, type SearchFilters } from './search';
@@ -150,4 +151,32 @@ export async function allLiveListings(): Promise<Listing[]> {
   if (!hasSupabase()) return [];
   const { data } = await createAnonClient().from('listings').select('*').in('status', ['beschikbaar', 'onder_bod', 'onder_voorbehoud']).limit(5000);
   return (data ?? []).map(mapListing);
+}
+
+// ───────────────────────── Kaart ─────────────────────────
+/** Wat de kaart per woning nodig heeft: klein, en alleen woningen met een locatie. */
+export interface MapMarker {
+  id: string; slug: string; lat: number; lng: number; amount: number; price: string; address: string; place: string; line: string; photo: string | null;
+  offer: 'koop' | 'huur'; newBuild: boolean; status: string;
+}
+export const MAP_LIMIT = 800;
+
+export function toMarker(l: Listing): MapMarker | null {
+  if (l.lat == null || l.lng == null) return null;
+  return {
+    id: l.id, slug: l.slug, lat: l.lat, lng: l.lng, amount: l.askingPrice, price: formatPrice(l), address: fmtAddress(l), place: `${l.postcode} ${l.city}`,
+    line: `${TYPE_LABEL[l.propertyType]} · ${l.livingArea} m²${l.rooms ? ` · ${l.rooms} kamers` : ''}`, photo: l.photos[0]?.url ?? null, offer: l.offer, newBuild: l.newBuild, status: l.status,
+  };
+}
+
+/** Alle woningen voor de kaart bij dezelfde filters als de lijst (zonder pagina's). */
+export async function mapListings(f: SearchFilters): Promise<{ markers: MapMarker[]; total: number; missing: number }> {
+  let rows: Listing[] = [];
+  if (isDemo()) rows = sortListings(demoVisible().filter((l) => matches(l, f)), f.sort);
+  else if (hasSupabase()) {
+    const { data } = await applyFilters(createAnonClient().from('listings').select('*'), f).order('published_at', { ascending: false, nullsFirst: false }).limit(MAP_LIMIT);
+    rows = (data ?? []).map(mapListing);
+  }
+  const markers = rows.flatMap((l) => { const m = toMarker(l); return m ? [m] : []; });
+  return { markers, total: rows.length, missing: rows.length - markers.length };
 }

@@ -4,6 +4,7 @@ import { canWrite, requireStaff } from '@/lib/auth';
 import { myLeads } from '@/lib/staff-data';
 import { formatDate } from '@/lib/format';
 import { setLeadStatus } from '../actions';
+import { Select } from '@/components/select';
 
 export const metadata: Metadata = { title: 'Leads' };
 
@@ -27,7 +28,7 @@ export default async function Leads() {
                 {write ? (
                   <form action={setLeadStatus} className="flex items-center gap-2"><input type="hidden" name="id" value={l.id} />
                     <label htmlFor={`s-${l.id}`} className="sr-only">Status</label>
-                    <select id={`s-${l.id}`} name="status" defaultValue={l.status} className="field !w-auto !py-1.5"><option value="nieuw">Nieuw</option><option value="opgepakt">Opgepakt</option><option value="afgehandeld">Afgehandeld</option></select>
+                    <Select id={`s-${l.id}`} name="status" compact defaultValue={l.status} className="min-w-[9rem]" options={[{ value: 'nieuw', label: 'Nieuw' }, { value: 'opgepakt', label: 'Opgepakt' }, { value: 'afgehandeld', label: 'Afgehandeld' }]} />
                     <button className="btn-ghost !py-1.5">Opslaan</button></form>
                 ) : <span className="pill bg-sand text-muted">{l.status}</span>}
               </div>

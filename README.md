@@ -7,6 +7,7 @@ Het woningportaal voor Groningen, Friesland en Drenthe. Woningzoekers zoeken, be
 ## Wat erin zit
 - **Kiezen bovenin:** Kopen, Huren of Nieuwbouw (verkopen zit er bewust niet in). Op de voorpagina een zoekbalk met dezelfde keuze, en daaronder snelle ingangen naar bedrijfsruimte, NVM-makelaars, huurwoningen en alles over de woningmarkt.
 - **Zoeken:** koop (`/koop`), huur (`/huur`, prijs per maand), nieuwbouw (`/nieuwbouw`) en bedrijfsruimte (`/bedrijfsruimte`), met filters, sorteren, provinciepagina's, makelaarspagina's (met NVM-filter), de woningmarkt met cijfers en uitleg, en een zoekopdracht met e-mailalert (dubbele opt-in).
+- **Kaart:** bij kopen, huren, nieuwbouw en bedrijfsruimte schakel je tussen *Lijst* en *Kaart*. Op de kaart (Kadaster/PDOK, zonder sleutel) staat elke woning als huisje met de prijs op de exacte plek; klik voor de foto, het adres en een link, zoek op plaats, straat of postcode, en rechts staan de woningen die in beeld zijn. Woningen zonder coördinaten krijgen hun locatie automatisch uit het adres (bij invoeren en bij koppelingen). Op de woningpagina staat een tabblad *Locatie*.
 - **Woningpagina:** galerij, tabbladen *Overzicht*, *Bezichtiging plannen* en *Maandlast*, berichten aan de makelaar en vergelijkbare woningen.
 - **Bezichtigingen zonder bellen:** de makelaar stelt per kantoor in wanneer hij beschikbaar is (dagen, tijden, minuten per keer, aantal makelaars tegelijk, en blokkades). Een bezoeker kiest op de woningpagina een dag en tijd en het is meteen bevestigd: een mail met agenda-bestand (.ics) naar de bezoeker en het kantoor, en een link om te bekijken of te annuleren, ook zonder account. De database controleert zelf dat een moment vrij is, dus dubbel boeken kan niet.
 - **Twee soorten accounts:**
@@ -19,7 +20,7 @@ Het woningportaal voor Groningen, Friesland en Drenthe. Woningzoekers zoeken, be
 
 ## Opzetten
 1. **GitHub:** de code staat in deze repository.
-2. **Supabase** (regio Frankfurt): draai in de SQL Editor, **in deze volgorde en elk bestand apart**: `supabase/migrations/0001_init.sql`, `0002_storage.sql`, `0003_aanbod.sql`, `0004_seeker_role.sql`, `0005_bezichtigingen.sql`, `0006_contacten.sql` (of `supabase db push`).
+2. **Supabase** (regio Frankfurt): draai in de SQL Editor, **in deze volgorde en elk bestand apart**: `supabase/migrations/0001_init.sql`, `0002_storage.sql`, `0003_aanbod.sql`, `0004_seeker_role.sql`, `0005_bezichtigingen.sql`, `0006_contacten.sql`, `0007_kaart.sql` (of `supabase db push`).
    - Authentication → Multi-Factor: TOTP aan.
    - Authentication → Sign In / Providers: **open registratie blijft aan** (zoekers maken zelf een account) met **e-mail bevestigen** aan. Makelaars worden niet via de site aangemaakt maar uitgenodigd (Authentication → Users → Invite) en door de eigenaar aan een kantoor gekoppeld.
    - Authentication → URL Configuration: Site URL op je domein en `https://<domein>/auth/callback` bij Redirect URLs.

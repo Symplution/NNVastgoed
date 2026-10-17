@@ -7,6 +7,7 @@ import { canWrite, isManager, requireStaff } from '@/lib/auth';
 import { createClient } from '@/lib/supabase/server';
 import { validateListing } from '@/lib/listing-input';
 import { slugify } from '@/lib/format';
+import { geocodeAddress } from '@/lib/geo';
 import { resolveProvince } from '@/lib/regions';
 
 export type SaveState = { errors?: string[]; secret?: { id: string; value: string }; ok?: string } | undefined;
@@ -19,6 +20,11 @@ export async function saveListing(id: string | null, _: SaveState, form: FormDat
   if (!canWrite(staff)) return { errors: ['Je hebt alleen leesrechten.'] };
   const v = validateListing(form);
   if (!v.ok) return { errors: v.errors };
+  // Zonder opgegeven coördinaten komt de kaartlocatie uit het adres.
+  if (v.value.lat === null || v.value.lng === null) {
+    const p = await geocodeAddress({ postcode: v.value.postcode, houseNumber: v.value.house_number, houseSuffix: v.value.house_suffix }).catch(() => null);
+    if (p) { v.value.lat = p.lat; v.value.lng = p.lng; }
+  }
   const supabase = await createClient();
 
   if (id) {
@@ -127,7 +133,7 @@ export async function setProfile(form: FormData) {
   const staff = await requireStaff();
   const id = uuid(form.get('id'));
   const role = String(form.get('role'));
-  if (staff.role !== 'owner' || !id || !['owner', 'admin', 'agent', 'readonly'].includes(role)) return;
+  if (staff.role !== 'owner' || !id || !['owner', 'admin', 'agent', 'readonly', 'seeker'].includes(role)) return;
   await (await createClient()).from('profiles').update({ role, office_id: uuid(form.get('office_id')), active: form.get('active') === '1' }).eq('id', id);
   revalidatePath('/beheer/gebruikers');
 }

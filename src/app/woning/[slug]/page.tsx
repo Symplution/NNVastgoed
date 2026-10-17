@@ -7,9 +7,10 @@ import { ListingTabs, OpenTabButton } from '@/components/listing-tabs';
 import { ViewingPlanner } from '@/components/viewing-planner';
 import { Gallery } from '@/components/gallery';
 import { ListingCard } from '@/components/listing-card';
+import { LocationMapLazy } from '@/components/map-loader';
 import { MortgageCalc } from '@/components/mortgage-calc';
 import { SaveButton } from '@/components/save-button';
-import { getListing, getOffice, similarListings } from '@/lib/data';
+import { getListing, getOffice, similarListings, toMarker } from '@/lib/data';
 import { siteUrl } from '@/lib/env';
 import { address, formatDate, formatPrice, OFFER_LABEL, STATUS_LABEL, TYPE_LABEL } from '@/lib/format';
 import { provinceName } from '@/lib/regions';
@@ -31,6 +32,7 @@ export default async function Woning({ params }: Props) {
   const [office, similar] = await Promise.all([getOffice({ id: l.officeId }), similarListings(l)]);
   const title = `${address(l)}, ${l.city}`;
   const commercial = l.category === 'bedrijfsruimte';
+  const marker = toMarker(l);
   const bookable = ['beschikbaar', 'onder_bod', 'onder_voorbehoud'].includes(l.status);
   const rows: [string, string | null][] = [
     ['Status', STATUS_LABEL[l.status]], [l.offer === 'huur' ? 'Huurprijs' : 'Vraagprijs', formatPrice(l)], [commercial ? 'Soort bedrijfsruimte' : 'Soort woning', TYPE_LABEL[l.propertyType]], ['Nieuwbouw', l.newBuild ? 'Ja' : null], ['Bouwjaar', l.buildYear ? String(l.buildYear) : null],
@@ -100,6 +102,7 @@ export default async function Woning({ params }: Props) {
                   ? <ViewingPlanner listingId={l.id} officeName={office?.name ?? 'de makelaar'} officePhone={office?.phone} />
                   : <p className="rounded-2xl bg-sand p-6 text-muted">Voor deze woning kun je geen bezichtiging meer plannen.</p>,
               },
+              ...(marker ? [{ id: 'locatie', label: 'Locatie', content: <LocationMapLazy marker={marker} addressLine={address(l)} /> }] : []),
               ...(l.offer === 'koop' && !commercial ? [{ id: 'maandlast', label: 'Maandlast', content: <MortgageCalc price={l.askingPrice} vonOrKk={l.priceType === 'v.o.n.' ? 'v.o.n.' : 'k.k.'} /> }] : []),
             ]}
           />

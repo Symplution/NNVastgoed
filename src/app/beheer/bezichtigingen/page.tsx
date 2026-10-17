@@ -8,6 +8,7 @@ import { dayKey, formatDay, formatTime } from '@/lib/format';
 import { myListings, officeViewings } from '@/lib/staff-data';
 import { addDays, weekStart, zonedToUtc } from '@/lib/viewings';
 import { setViewingStatus } from '../actions';
+import { Select } from '@/components/select';
 
 export const metadata: Metadata = { title: 'Bezichtigingen' };
 
@@ -66,7 +67,7 @@ export default async function Bezichtigingen({ searchParams }: { searchParams: P
                       {write && v.status === 'bevestigd' && (
                         <form action={setViewingStatus} className="flex items-center gap-1"><input type="hidden" name="id" value={v.id} />
                           <label htmlFor={`st-${v.id}`} className="sr-only">Status wijzigen</label>
-                          <select id={`st-${v.id}`} name="status" defaultValue="bevestigd" className="field !w-auto !py-1.5 text-xs"><option value="bevestigd">Bevestigd</option><option value="afgerond">Afgerond</option><option value="niet_verschenen">Niet verschenen</option><option value="geannuleerd">Annuleren</option></select>
+                          <Select id={`st-${v.id}`} name="status" compact defaultValue="bevestigd" className="min-w-[10rem]" options={[{ value: 'bevestigd', label: 'Bevestigd' }, { value: 'afgerond', label: 'Afgerond' }, { value: 'niet_verschenen', label: 'Niet verschenen' }, { value: 'geannuleerd', label: 'Annuleren' }]} />
                           <button className="btn-ghost !py-1.5 text-xs">Opslaan</button></form>
                       )}
                     </div>

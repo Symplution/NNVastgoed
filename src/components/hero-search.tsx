@@ -5,6 +5,7 @@ import { Search } from 'lucide-react';
 import { PROVINCES } from '@/lib/types';
 import { PROVINCE_INFO } from '@/lib/regions';
 import { MODE_INFO, PRICE_STEPS } from '@/lib/search';
+import { Select } from './select';
 
 const TABS = ['koop', 'huur', 'nieuwbouw'] as const;
 type Tab = (typeof TABS)[number];
@@ -30,11 +31,11 @@ export function HeroSearch() {
         </div>
         <div>
           <label htmlFor="h-p" className="sr-only">Provincie</label>
-          <select id="h-p" name="provincie" className="field !border-0 !bg-sand"><option value="">Heel het noorden</option>{PROVINCES.map((p) => <option key={p} value={p}>{PROVINCE_INFO[p].name}</option>)}</select>
+          <Select id="h-p" name="provincie" tone="sand" defaultValue="" options={[{ value: '', label: 'Heel het noorden' }, ...PROVINCES.map((p) => ({ value: p, label: PROVINCE_INFO[p].name }))]} aria-label="Provincie" />
         </div>
         <div>
           <label htmlFor="h-t" className="sr-only">{tab === 'huur' ? 'Maximale huur' : 'Maximale prijs'}</label>
-          <select id="h-t" name="tot" key={tab} className="field !border-0 !bg-sand"><option value="">{tab === 'huur' ? 'Geen max. huur' : 'Geen max. prijs'}</option>{steps.map((n) => <option key={n} value={n}>Tot € {n.toLocaleString('nl-NL')}{tab === 'huur' ? ' p.m.' : ''}</option>)}</select>
+          <Select id="h-t" name="tot" key={tab} tone="sand" defaultValue="" options={[{ value: '', label: tab === 'huur' ? 'Geen max. huur' : 'Geen max. prijs' }, ...steps.map((n) => ({ value: String(n), label: `Tot € ${n.toLocaleString('nl-NL')}${tab === 'huur' ? ' p.m.' : ''}` }))]} aria-label={tab === 'huur' ? 'Maximale huur' : 'Maximale prijs'} />
         </div>
         <button className="btn-accent !px-6"><Search size={16} aria-hidden /> Zoeken</button>
       </form>

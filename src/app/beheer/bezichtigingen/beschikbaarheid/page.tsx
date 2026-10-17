@@ -6,6 +6,7 @@ import { formatDateTime } from '@/lib/format';
 import { myOffices, viewingBlocks, viewingRules } from '@/lib/staff-data';
 import { WEEKDAYS } from '@/lib/viewings';
 import { addBlock, addRule, deleteBlock, deleteRule } from '../../actions';
+import { Select } from '@/components/select';
 
 export const metadata: Metadata = { title: 'Beschikbaarheid' };
 
@@ -15,7 +16,7 @@ export default async function Beschikbaarheid() {
   const write = canWrite(staff);
   const pick = isManager(staff.role);
   const office = (id: string) => offices.find((o) => o.id === id)?.name ?? '';
-  const officeField = pick && <div><label htmlFor="o" className="label">Kantoor</label><select id="o" name="office_id" required className="field"><option value="">Kies…</option>{offices.map((o) => <option key={o.id} value={o.id}>{o.name}</option>)}</select></div>;
+  const officeField = pick && <div><label htmlFor="o" className="label">Kantoor</label><Select id="o" name="office_id" required options={[{ value: '', label: 'Kies een kantoor…' }, ...offices.map((o) => ({ value: o.id, label: o.name }))]} /></div>;
   return (
     <div className="space-y-8">
       <div><p className="text-sm"><Link href="/beheer/bezichtigingen" className="text-muted hover:underline">← Bezichtigingen</Link></p>
@@ -37,7 +38,7 @@ export default async function Beschikbaarheid() {
         {write && (
           <form action={addRule} className="card mt-4 grid gap-3 p-4 sm:grid-cols-3 lg:grid-cols-6">
             {officeField}
-            <div><label htmlFor="wd" className="label">Dag</label><select id="wd" name="weekday" className="field">{WEEKDAYS.map((d, i) => <option key={d} value={i + 1}>{d}</option>)}</select></div>
+            <div><label htmlFor="wd" className="label">Dag</label><Select id="wd" name="weekday" defaultValue="1" options={WEEKDAYS.map((d, i) => ({ value: String(i + 1), label: d }))} /></div>
             <div><label htmlFor="st" className="label">Van</label><input id="st" name="start_time" type="time" required defaultValue="09:00" className="field" /></div>
             <div><label htmlFor="et" className="label">Tot</label><input id="et" name="end_time" type="time" required defaultValue="17:00" className="field" /></div>
             <div><label htmlFor="sm" className="label">Minuten per keer</label><input id="sm" name="slot_minutes" type="number" min={10} max={180} step={5} defaultValue={30} className="field" /></div>

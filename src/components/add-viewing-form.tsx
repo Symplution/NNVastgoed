@@ -2,6 +2,7 @@
 
 import { useActionState, useRef, useEffect } from 'react';
 import { addViewing } from '@/app/beheer/actions';
+import { Select } from './select';
 
 export function AddViewingForm({ listings }: { listings: { id: string; label: string }[] }) {
   const [state, action, pending] = useActionState(addViewing, undefined);
@@ -10,7 +11,7 @@ export function AddViewingForm({ listings }: { listings: { id: string; label: st
   return (
     <form ref={ref} action={action} className="card grid gap-4 p-5 sm:grid-cols-2 lg:grid-cols-3">
       <div className="sm:col-span-2 lg:col-span-3"><p className="font-bold">Bezichtiging zelf inplannen</p><p className="text-sm text-muted">Bijvoorbeeld na een telefoontje. De bezoeker krijgt een bevestiging per mail.</p></div>
-      <div className="sm:col-span-2"><label htmlFor="a-listing" className="label">Woning</label><select id="a-listing" name="listing_id" required className="field"><option value="">Kies…</option>{listings.map((l) => <option key={l.id} value={l.id}>{l.label}</option>)}</select></div>
+      <div className="sm:col-span-2"><label htmlFor="a-listing" className="label">Woning</label><Select id="a-listing" name="listing_id" required options={[{ value: '', label: 'Kies een woning…' }, ...listings.map((l) => ({ value: l.id, label: l.label }))]} /></div>
       <div><label htmlFor="a-start" className="label">Datum en tijd</label><input id="a-start" name="start" type="datetime-local" required className="field" /></div>
       <div><label htmlFor="a-min" className="label">Duur (minuten)</label><input id="a-min" name="minutes" type="number" min={10} max={180} defaultValue={30} className="field" /></div>
       <div><label htmlFor="a-name" className="label">Naam</label><input id="a-name" name="name" required maxLength={120} className="field" /></div>
