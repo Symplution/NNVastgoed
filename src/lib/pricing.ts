@@ -32,4 +32,15 @@ export const CUSTOM_CAMPAIGNS: { name: string; from: number }[] = [
   { name: 'Projectcampagne op maat', from: 1750 },
 ];
 
+/** Een woning plaatsen: eenmalig per woning (koop, huur of nieuwbouw). */
+export const LISTING_FEE = { name: 'Woning plaatsen', amount: 29, note: 'Eenmalig per woning, zolang de woning online staat. Geen abonnement.' };
+
+/** Website, CRM en koppelingen volledig op maat ingericht voor één kantoor. */
+export const BESPOKE = {
+  name: 'Volledig maatwerkpakket',
+  approx: 3000,
+  note: 'Eenmalig, circa. Je exacte prijs hangt af van de wensen.',
+  includes: ['Eigen website in je huisstijl en op je eigen domein', 'CRM voor je kantoor, ingericht op jouw werkwijze', 'Koppeling met je kantoorsoftware', 'Je woningen, collega’s en bezichtigingen volledig ingesteld', 'Uitleg en training voor je team'],
+};
+
 export const euro = (n: number) => `€ ${n.toLocaleString('nl-NL')}`;

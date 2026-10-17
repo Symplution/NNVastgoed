@@ -12,7 +12,7 @@ const STEPS = [
   { Icon: Network, t: 'Zet je aanbod online', d: 'Voer woningen zelf in, of koppel je kantoorsoftware zodat je aanbod automatisch binnenkomt en bijgewerkt blijft.' },
 ];
 const FAQ = [
-  ['Wat kost het?', 'Aansluiten is gratis. Wil je extra zichtbaarheid, dan zijn er pakketten; die zie je onder Pakketten op de pagina Voor makelaars. Je krijgt nooit een verrassing.'],
+  ['Wat kost het?', 'Aansluiten is gratis. Je betaalt eenmalig per geplaatste woning, en je kunt extra zichtbaarheid of een website en CRM op maat kiezen. Alle pakketten zie je onder Pakketten op de pagina Voor makelaars. Alle prijzen zijn exclusief btw.'],
   ['Voor wie is het?', 'Voor makelaarskantoren met woningen, nieuwbouw, huur of bedrijfsruimte in Groningen, Friesland en Drenthe. Wel of niet NVM maakt niet uit; NVM-kantoren krijgen wel een eigen label.'],
   ['Moet ik mijn software koppelen?', 'Nee. Je kunt woningen ook zelf invoeren. Een koppeling is handig bij veel aanbod: je ziet na elke aanroep wat is verwerkt en wat is afgewezen.'],
   ['Wat gebeurt er met de leads?', 'Elk contactverzoek en elke bezichtiging komt in je beheer en in je inbox, met de woning erbij. Gesprekken met zoekers lopen via het berichtenoverzicht.'],
@@ -49,7 +49,7 @@ export default function Aanmelden() {
           <h2 id="formulier" className="text-2xl font-extrabold tracking-tight">Aanmelden</h2>
           <p className="mt-2 text-muted">Na je aanmelding nemen we contact met je op om je kantoor aan te sluiten.</p>
           <ul className="mt-6 space-y-3 text-sm">
-            {['Aansluiten is gratis', 'Leads direct in je beheer en inbox', 'Zoekers plannen zelf een bezichtiging', 'Koppeling met je kantoorsoftware mogelijk', 'Alleen aanbod in Groningen, Friesland en Drenthe'].map((x) => <li key={x} className="flex gap-2"><CheckCircle2 size={18} className="shrink-0 text-green-600" aria-hidden />{x}</li>)}
+            {['Aansluiten is gratis, betalen per geplaatste woning', 'Leads direct in je beheer en inbox', 'Zoekers plannen zelf een bezichtiging', 'Koppeling met je kantoorsoftware mogelijk', 'Alleen aanbod in Groningen, Friesland en Drenthe'].map((x) => <li key={x} className="flex gap-2"><CheckCircle2 size={18} className="shrink-0 text-green-600" aria-hidden />{x}</li>)}
           </ul>
           <div className="mt-8 rounded-2xl bg-sand p-5 text-sm"><p className="flex items-center gap-2 font-bold"><PartyPopper size={17} aria-hidden /> Al aangesloten?</p><p className="mt-1 text-muted">Log in met je account en authenticator-app om je woningen, bezichtigingen en leads te beheren.</p><Link href="/login" className="btn-primary mt-3">Inloggen voor makelaars</Link></div>
         </div>
