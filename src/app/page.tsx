@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import { ArrowRight, BarChart3, BellRing, Briefcase, Building2, CalendarCheck, KeyRound, MapPin, Network, ShieldCheck } from 'lucide-react';
+import { ArrowRight, BarChart3, BellRing, Briefcase, Building2, CalendarCheck, KeyRound, MapPin, Network, Palmtree, ShieldCheck } from 'lucide-react';
 import { latestListings, provinceCounts } from '@/lib/data';
 import { ARTICLES } from '@/lib/articles';
 import { ArticleTile } from '@/components/article-tile';
@@ -13,7 +13,7 @@ import { ListingCard } from '@/components/listing-card';
 export const revalidate = 300;
 
 export default async function Home() {
-  const [counts, latest] = await Promise.all([provinceCounts(), latestListings(4)]);
+  const [counts, latest, recreation] = await Promise.all([provinceCounts(), latestListings(4), latestListings(4, undefined, 'recreatie')]);
   const total = PROVINCES.reduce((n, p) => n + counts[p], 0);
   return (
     <>
@@ -29,11 +29,12 @@ export default async function Home() {
       </section>
 
       <section className="container-x relative z-10 mt-8" aria-label="Snel naar">
-        <ul className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+        <ul className="grid gap-3 sm:grid-cols-2 lg:grid-cols-5">
           {[
             { href: '/bedrijfsruimte', Icon: Building2, t: 'Zoek een bedrijfsruimte', d: 'Kantoor, hal, winkel of horeca' },
             { href: '/makelaars?nvm=1', Icon: ShieldCheck, t: 'Zoek een NVM-makelaar', d: 'Aangesloten kantoren in het noorden' },
             { href: '/huur', Icon: KeyRound, t: 'Zoek een huurwoning', d: 'Met de huur per maand' },
+            { href: '/recreatie', Icon: Palmtree, t: 'Zoek een recreatiewoning', d: 'Chalet, bungalow of vakantiehuis' },
             { href: '/woningmarkt', Icon: BarChart3, t: 'Alles over de woningmarkt', d: 'Prijzen, kosten en tips' },
           ].map(({ href, Icon, t, d }) => (
             <li key={href}>
@@ -69,6 +70,19 @@ export default async function Home() {
           <p className="mt-6 rounded-2xl bg-sand p-8 text-center text-muted">Er staan nog geen woningen online. Kom snel terug.</p>
         )}
       </section>
+
+      {recreation.length > 0 && (
+        <section className="container-x mt-16" aria-labelledby="recreatie">
+          <div className="flex items-end justify-between gap-4">
+            <div>
+              <h2 id="recreatie" className="text-2xl font-extrabold tracking-tight">Recreatiewoningen</h2>
+              <p className="mt-1 text-muted">Een chalet aan de Waddenzee, een bungalow bij de Friese meren of een vakantiehuis in de Drentse bossen.</p>
+            </div>
+            <Link href="/recreatie" className="shrink-0 text-sm font-semibold text-brand hover:underline">Alle recreatiewoningen →</Link>
+          </div>
+          <div className="mt-6 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">{recreation.map((l) => <ListingCard key={l.id} l={l} />)}</div>
+        </section>
+      )}
 
       <section className="container-x mt-16" aria-labelledby="artikelen">
         <div className="flex items-end justify-between gap-4">

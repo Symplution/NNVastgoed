@@ -4,7 +4,7 @@ import { isMode, parseFilters } from '@/lib/search';
 
 export const dynamic = 'force-dynamic';
 
-/** Woningen voor de kaart, met dezelfde filters als de zoekpagina (`soort` = koop, huur, nieuwbouw of bedrijfsruimte). */
+/** Woningen voor de kaart, met dezelfde filters als de zoekpagina (`soort` = koop, huur, nieuwbouw, bedrijfsruimte of recreatie). */
 export async function GET(request: NextRequest) {
   const sp = request.nextUrl.searchParams;
   const soort = sp.get('soort');

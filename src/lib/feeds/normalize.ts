@@ -1,5 +1,5 @@
 import { createHash } from 'node:crypto';
-import { COMMERCIAL_TYPES, ENERGY_LABELS, PROPERTY_TYPES } from '../types';
+import { ENERGY_LABELS, PROPERTY_TYPES, categoryOfType } from '../types';
 import { normalizePostcode, slugify } from '../format';
 import { resolveProvince } from '../regions';
 import type { IngestItem, Parsed } from './types';
@@ -15,6 +15,7 @@ const TYPE_ALIAS: Record<string, string> = {
   boerderij: 'woonboerderij', 'woon-boerderij': 'woonboerderij', rijtjeshuis: 'tussenwoning', 'rijwoning': 'tussenwoning', hoekhuis: 'hoekwoning', 'eindwoning': 'hoekwoning', grachtenpand: 'herenhuis',
   grond: 'bouwgrond', kavel: 'bouwgrond', woonschip: 'woonboot',
   kantoor: 'kantoorruimte', kantoorpand: 'kantoorruimte', bedrijfsruimte: 'bedrijfshal', bedrijfspand: 'bedrijfshal', hal: 'bedrijfshal', winkel: 'winkelruimte', winkelpand: 'winkelruimte', horeca: 'horecapand', restaurant: 'horecapand', cafe: 'horecapand',
+  recreatie: 'recreatiewoning', vakantiewoning: 'recreatiewoning', vakantiehuis: 'recreatiewoning', recreatiebungalow: 'vakantiebungalow', bungalowpark: 'vakantiebungalow', caravan: 'stacaravan', 'chalet park': 'chalet',
 };
 const STATUS_ALIAS: Record<string, string> = {
   beschikbaar: 'beschikbaar', 'te koop': 'beschikbaar', 'onder bod': 'onder_bod', onder_bod: 'onder_bod', 'onder voorbehoud': 'onder_voorbehoud', onder_voorbehoud: 'onder_voorbehoud',
@@ -72,7 +73,7 @@ export function normalizeRecord(raw: Raw, scope: string): IngestItem {
   if (!['koop', 'huur', 'te koop', 'te huur'].includes(offerIn)) throw new RecordError(`Onbekend aanbod "${offerIn}" (koop of huur).`);
   const offer = offerIn.endsWith('huur') ? 'huur' : 'koop';
   if (offer === 'huur' && price > 100_000) throw new RecordError('De huurprijs is per maand; een bedrag boven € 100.000 klopt niet.');
-  const category = (COMMERCIAL_TYPES as readonly string[]).includes(propertyType) ? 'bedrijfsruimte' : 'woning';
+  const category = categoryOfType(propertyType);
   // Bij huur is de prijs per maand; bij koop kosten koper of vrij op naam.
   const priceType = offer === 'huur' ? 'p.m.' : str(raw.prijs_type)?.toLowerCase() === 'v.o.n.' ? 'v.o.n.' : 'k.k.';
   const newBuild = raw.nieuwbouw === true || ['ja', 'true', '1'].includes(String(raw.nieuwbouw ?? '').toLowerCase());

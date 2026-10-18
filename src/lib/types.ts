@@ -7,11 +7,14 @@ export const PUBLIC_STATUSES: ListingStatus[] = ['beschikbaar', 'onder_bod', 'on
 
 export const HOME_TYPES = ['appartement', 'tussenwoning', 'hoekwoning', 'twee-onder-een-kap', 'vrijstaand', 'woonboerderij', 'bungalow', 'herenhuis', 'woonboot', 'bouwgrond'] as const;
 export const COMMERCIAL_TYPES = ['kantoorruimte', 'bedrijfshal', 'winkelruimte', 'horecapand'] as const;
-export const PROPERTY_TYPES = [...HOME_TYPES, ...COMMERCIAL_TYPES, 'overig'] as const;
+export const RECREATION_TYPES = ['recreatiewoning', 'vakantiebungalow', 'chalet', 'stacaravan'] as const;
+export const PROPERTY_TYPES = [...HOME_TYPES, ...COMMERCIAL_TYPES, ...RECREATION_TYPES, 'overig'] as const;
 export type PropertyType = (typeof PROPERTY_TYPES)[number];
 
 export type Offer = 'koop' | 'huur';
-export type Category = 'woning' | 'bedrijfsruimte';
+export type Category = 'woning' | 'bedrijfsruimte' | 'recreatie';
+/** De categorie volgt uit de soort: recreatiewoningen en bedrijfsruimte hebben een eigen soortenlijst. */
+export const categoryOfType = (type: string): Category => ((COMMERCIAL_TYPES as readonly string[]).includes(type) ? 'bedrijfsruimte' : (RECREATION_TYPES as readonly string[]).includes(type) ? 'recreatie' : 'woning');
 export type PriceType = 'k.k.' | 'v.o.n.' | 'p.m.';
 
 export const ENERGY_LABELS = ['A++++', 'A+++', 'A++', 'A+', 'A', 'B', 'C', 'D', 'E', 'F', 'G'] as const;

@@ -30,6 +30,22 @@ describe('kopen, huren, nieuwbouw en bedrijfsruimte', () => {
     expect(b.every((l) => l.category === 'bedrijfsruimte' && ['kantoorruimte', 'bedrijfshal', 'winkelruimte', 'horecapand'].includes(l.propertyType))).toBe(true);
     expect(run('', 'koop').some((l) => l.category === 'bedrijfsruimte')).toBe(false);
   });
+  it('recreatie heeft alleen recreatiewoningen, en kopen en huren tonen ze niet', () => {
+    const r = run('', 'recreatie');
+    expect(r.length).toBeGreaterThan(5);
+    expect(r.every((l) => l.category === 'recreatie' && ['recreatiewoning', 'vakantiebungalow', 'chalet', 'stacaravan'].includes(l.propertyType))).toBe(true);
+    expect(run('', 'koop').some((l) => l.category === 'recreatie')).toBe(false);
+    expect(run('', 'huur').some((l) => l.category === 'recreatie')).toBe(false);
+    expect(run('aanbod=huur', 'recreatie').every((l) => l.offer === 'huur')).toBe(true);
+    expect(run('type=chalet', 'recreatie').every((l) => l.propertyType === 'chalet')).toBe(true);
+    expect(parseFilters(new URLSearchParams('aanbod=huur'), 'recreatie').offer).toBe('huur');
+  });
+  it('de soort volgt een recreatiewoning in het woningformulier', () => {
+    const f = new FormData();
+    Object.entries({ street: 'Bosweg', house_number: '8', postcode: '7981 AB', city: 'Diever', province: 'drenthe', asking_price: '195000', price_type: 'k.k.', living_area: '55', rooms: '3', property_type: 'chalet' }).forEach(([k, v]) => f.set(k, v));
+    const r = validateListing(f);
+    expect(r.ok && r.value.category).toBe('recreatie');
+  });
   it('een huurprijs filtert op huur per maand', () => {
     const r = run('tot=1250', 'huur');
     expect(r.length).toBeGreaterThan(0);

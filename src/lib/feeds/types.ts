@@ -3,7 +3,7 @@ import type { ListingStatus } from '../types';
 /** Eén woning zoals de database hem opneemt (kolomnamen van de tabel `listings`). */
 export interface IngestItem {
   slug: string; external_id: string; status: ListingStatus;
-  offer: 'koop' | 'huur'; category: 'woning' | 'bedrijfsruimte'; new_build: boolean;
+  offer: 'koop' | 'huur'; category: 'woning' | 'bedrijfsruimte' | 'recreatie'; new_build: boolean;
   street: string; house_number: string; house_suffix: string | null; postcode: string; city: string; province: string; neighbourhood: string | null;
   lat: number | null; lng: number | null;
   asking_price: number; price_type: 'k.k.' | 'v.o.n.' | 'p.m.';

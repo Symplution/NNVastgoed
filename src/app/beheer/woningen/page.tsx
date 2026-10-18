@@ -28,7 +28,7 @@ export default async function Woningen() {
                 <tr key={l.id} className="hover:bg-sand/60">
                   <td className="px-4 py-3"><Link href={`/beheer/woningen/${l.id}`} className="font-semibold text-brand hover:underline">{address(l)}, {l.city}</Link>{staff.role === 'owner' || staff.role === 'admin' ? <span className="block text-xs text-muted">{officeName.get(l.officeId)}</span> : null}</td>
                   <td className="px-4 py-3"><span className={`pill ${TONE[l.status]}`}>{STATUS_LABEL[l.status]}</span></td>
-                  <td className="px-4 py-3 text-muted">{l.offer === 'huur' ? 'Huur' : 'Koop'}{l.newBuild ? ' · nieuwbouw' : ''}{l.category === 'bedrijfsruimte' ? ' · bedrijf' : ''}</td>
+                  <td className="px-4 py-3 text-muted">{l.offer === 'huur' ? 'Huur' : 'Koop'}{l.newBuild ? ' · nieuwbouw' : ''}{l.category === 'bedrijfsruimte' ? ' · bedrijf' : l.category === 'recreatie' ? ' · recreatie' : ''}</td>
                   <td className="px-4 py-3">{formatEuro(l.askingPrice)}{l.offer === 'huur' ? ' p.m.' : ''}</td>
                   <td className="px-4 py-3 text-muted">{l.source === 'koppeling' ? 'Koppeling' : 'Handmatig'}</td>
                   <td className="px-4 py-3 text-muted">{formatDate(l.updatedAt)}</td>

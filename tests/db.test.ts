@@ -288,6 +288,15 @@ describe('aanbod: huur, nieuwbouw, bedrijfsruimte', () => {
     await expect(db.exec(ins(", category|'kantoorruimte', 'woning'"))).rejects.toThrow();
     await expect(db.exec(ins(", category|'tussenwoning', 'bedrijfsruimte'"))).rejects.toThrow();
   });
+  it('recreatie heeft een recreatiesoort, en een recreatiewoning is nooit een gewone woning', async () => {
+    await db.exec(ins(", category|'chalet', 'recreatie'"));
+    await db.exec(ins(", category|'stacaravan', 'recreatie'"));
+    await expect(db.exec(ins(", category|'chalet', 'woning'"))).rejects.toThrow();
+    await expect(db.exec(ins(", category|'tussenwoning', 'recreatie'"))).rejects.toThrow();
+    await expect(db.exec(ins(", category|'kantoorruimte', 'recreatie'"))).rejects.toThrow();
+    await expect(db.exec(ins(", category|'chalet', 'bedrijfsruimte'"))).rejects.toThrow();
+    await expect(db.exec(ins(", category|'tent', 'recreatie'"))).rejects.toThrow();
+  });
   it('alleen NNV-beheer zet het NVM-lidmaatschap van een kantoor', async () => {
     await expect(as(ids.agentA, `update offices set nvm_member = true where id = '${office.a}'`)).rejects.toThrow(/NVM/);
     await as(ids.owner, `update offices set nvm_member = true where id = '${office.a}'`);

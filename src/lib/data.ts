@@ -31,6 +31,7 @@ export function applyFilters(q: any, f: SearchFilters) {
     case 'huur': q = q.eq('offer', 'huur').eq('category', 'woning'); break;
     case 'nieuwbouw': q = q.eq('new_build', true).eq('category', 'woning'); if (f.offer) q = q.eq('offer', f.offer); break;
     case 'bedrijfsruimte': q = q.eq('category', 'bedrijfsruimte'); if (f.offer) q = q.eq('offer', f.offer); break;
+    case 'recreatie': q = q.eq('category', 'recreatie'); if (f.offer) q = q.eq('offer', f.offer); break;
   }
   if (f.province) q = q.eq('province', f.province);
   if (f.minPrice !== undefined) q = q.gte('asking_price', f.minPrice);
@@ -108,8 +109,8 @@ export async function provinceCounts(): Promise<Record<Province, number>> {
 
 export async function similarListings(l: Listing, n = 3): Promise<Listing[]> {
   const spread = Math.round(l.askingPrice * 0.25);
-  const mode: Mode = l.category === 'bedrijfsruimte' ? 'bedrijfsruimte' : l.offer === 'huur' ? 'huur' : 'koop';
-  const r = await searchListings({ mode, types: [], hideSold: true, sort: 'nieuw', page: 1, province: l.province, minPrice: l.askingPrice - spread, maxPrice: l.askingPrice + spread, offer: mode === 'bedrijfsruimte' ? l.offer : undefined });
+  const mode: Mode = l.category === 'bedrijfsruimte' ? 'bedrijfsruimte' : l.category === 'recreatie' ? 'recreatie' : l.offer === 'huur' ? 'huur' : 'koop';
+  const r = await searchListings({ mode, types: [], hideSold: true, sort: 'nieuw', page: 1, province: l.province, minPrice: l.askingPrice - spread, maxPrice: l.askingPrice + spread, offer: mode === 'bedrijfsruimte' || mode === 'recreatie' ? l.offer : undefined });
   return r.items.filter((x) => x.id !== l.id).slice(0, n);
 }
 

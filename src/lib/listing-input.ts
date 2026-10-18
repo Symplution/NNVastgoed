@@ -1,9 +1,9 @@
-import { COMMERCIAL_TYPES, ENERGY_LABELS, PROPERTY_TYPES, STATUSES, type Photo } from './types';
+import { ENERGY_LABELS, PROPERTY_TYPES, STATUSES, categoryOfType, type Photo } from './types';
 import { normalizePostcode } from './format';
 import { isProvince } from './regions';
 
 export interface ListingInput {
-  offer: 'koop' | 'huur'; category: 'woning' | 'bedrijfsruimte'; new_build: boolean;
+  offer: 'koop' | 'huur'; category: 'woning' | 'bedrijfsruimte' | 'recreatie'; new_build: boolean;
   status: string; street: string; house_number: string; house_suffix: string | null; postcode: string; city: string; province: string; neighbourhood: string | null;
   lat: number | null; lng: number | null; asking_price: number; price_type: 'k.k.' | 'v.o.n.' | 'p.m.'; living_area: number; plot_area: number | null;
   rooms: number; bedrooms: number; bathrooms: number; build_year: number | null; property_type: string; energy_label: string | null;
@@ -27,7 +27,7 @@ export function validateListing(f: FormData): ListingResult {
   const plot = optNum(f, 'plot_area'), year = optNum(f, 'build_year'), lat = optNum(f, 'lat'), lng = optNum(f, 'lng');
   const type = text(f, 'property_type'), label = text(f, 'energy_label');
   const offer = text(f, 'offer') === 'huur' ? 'huur' : 'koop';
-  const category = (COMMERCIAL_TYPES as readonly string[]).includes(type) ? 'bedrijfsruimte' : 'woning';   // volgt uit de soort
+  const category = categoryOfType(type);   // volgt uit de soort
   // Bij huur is de prijs per maand; bij koop kosten koper of vrij op naam.
   const priceType = offer === 'huur' ? 'p.m.' : text(f, 'price_type') === 'v.o.n.' ? 'v.o.n.' : 'k.k.';
   const newBuild = f.get('new_build') === 'on';

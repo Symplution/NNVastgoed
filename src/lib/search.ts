@@ -4,12 +4,13 @@ import { isProvince } from './regions';
 export const PAGE_SIZE = 12;
 
 /** Waar je naar zoekt. Elke soort heeft een eigen pagina; wat daar getoond wordt staat in `modeBase`. */
-export const MODES = ['koop', 'huur', 'nieuwbouw', 'bedrijfsruimte'] as const;
+export const MODES = ['koop', 'huur', 'nieuwbouw', 'bedrijfsruimte', 'recreatie'] as const;
 export type Mode = (typeof MODES)[number];
 export const MODE_INFO: Record<Mode, { label: string; path: string; title: string; lead: string }> = {
   koop: { label: 'Kopen', path: '/koop', title: 'Koopwoningen in het noorden', lead: 'Alle koopwoningen van makelaars in Groningen, Friesland en Drenthe.' },
   huur: { label: 'Huren', path: '/huur', title: 'Huurwoningen in het noorden', lead: 'Huurwoningen in Groningen, Friesland en Drenthe, met de huurprijs per maand.' },
   nieuwbouw: { label: 'Nieuwbouw', path: '/nieuwbouw', title: 'Nieuwbouwwoningen in het noorden', lead: 'Nieuwbouwprojecten en -woningen om te kopen of te huren.' },
+  recreatie: { label: 'Recreatie', path: '/recreatie', title: 'Recreatiewoningen in het noorden', lead: 'Vakantiehuizen, chalets, bungalows en stacaravans aan de Waddenzee, bij de Friese meren en in de Drentse bossen.' },
   bedrijfsruimte: { label: 'Bedrijfsruimte', path: '/bedrijfsruimte', title: 'Bedrijfsruimte in het noorden', lead: 'Kantoren, bedrijfshallen, winkels en horeca om te koop of te huur.' },
 };
 export const isMode = (v: unknown): v is Mode => (MODES as readonly string[]).includes(v as string);
@@ -26,7 +27,7 @@ export const SORT_LABEL: Record<Sort, string> = { nieuw: 'Nieuwste eerst', 'prij
 
 export interface SearchFilters {
   mode: Mode;
-  /** Alleen voor nieuwbouw en bedrijfsruimte: koop of huur kiezen. Bij koop en huur volgt het uit de pagina. */
+  /** Alleen voor nieuwbouw, bedrijfsruimte en recreatie: koop of huur kiezen. Bij koop en huur volgt het uit de pagina. */
   offer?: Offer;
   q?: string;
   province?: Province;
@@ -67,7 +68,7 @@ export function parseFilters(p: Params, mode: Mode = 'koop'): SearchFilters {
   const aanbod = get(p, 'aanbod');
   return {
     mode,
-    offer: (mode === 'nieuwbouw' || mode === 'bedrijfsruimte') && (aanbod === 'koop' || aanbod === 'huur') ? aanbod : undefined,
+    offer: (mode === 'nieuwbouw' || mode === 'bedrijfsruimte' || mode === 'recreatie') && (aanbod === 'koop' || aanbod === 'huur') ? aanbod : undefined,
     q: cleanQuery(get(p, 'q')),
     province: isProvince(prov) ? prov : undefined,
     minPrice: int(get(p, 'van')), maxPrice: int(get(p, 'tot')),
@@ -85,7 +86,7 @@ export function filtersToParams(f: Partial<SearchFilters>): URLSearchParams {
   const u = new URLSearchParams();
   if (f.mode && f.mode !== 'koop') u.set('soort', f.mode);   // alleen voor opgeslagen zoekopdrachten en alerts; de pagina zelf kent zijn soort
   if (f.q) u.set('q', f.q);
-  if (f.offer && (f.mode === 'nieuwbouw' || f.mode === 'bedrijfsruimte')) u.set('aanbod', f.offer);
+  if (f.offer && (f.mode === 'nieuwbouw' || f.mode === 'bedrijfsruimte' || f.mode === 'recreatie')) u.set('aanbod', f.offer);
   if (f.province) u.set('provincie', f.province);
   if (f.minPrice !== undefined) u.set('van', String(f.minPrice));
   if (f.maxPrice !== undefined) u.set('tot', String(f.maxPrice));
@@ -109,6 +110,7 @@ export function matchesMode(l: Pick<Listing, 'offer' | 'category' | 'newBuild'>,
     case 'huur': return l.offer === 'huur' && l.category === 'woning';
     case 'nieuwbouw': return l.newBuild && l.category === 'woning' && (!f.offer || l.offer === f.offer);
     case 'bedrijfsruimte': return l.category === 'bedrijfsruimte' && (!f.offer || l.offer === f.offer);
+    case 'recreatie': return l.category === 'recreatie' && (!f.offer || l.offer === f.offer);
   }
 }
 

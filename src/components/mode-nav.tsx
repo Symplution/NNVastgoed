@@ -7,10 +7,11 @@ const ITEMS = [
   { href: '/koop', label: 'Kopen' },
   { href: '/huur', label: 'Huren' },
   { href: '/nieuwbouw', label: 'Nieuwbouw' },
+  { href: '/recreatie', label: 'Recreatie' },
   { href: '/bedrijfsruimte', label: 'Bedrijfsruimte' },
 ] as const;
 
-/** Kopen, huren, nieuwbouw of bedrijfsruimte: de keuze bovenin. Verkopen is er bewust niet bij. */
+/** Kopen, huren, nieuwbouw, recreatie of bedrijfsruimte: de keuze bovenin. Verkopen is er bewust niet bij. */
 export function ModeNav() {
   const path = usePathname();
   return (

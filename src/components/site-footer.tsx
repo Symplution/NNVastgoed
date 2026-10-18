@@ -5,7 +5,7 @@ import { provinceName } from '@/lib/regions';
 import { placeHref } from '@/lib/places';
 
 const COLUMNS: { title: string; links: [string, string][] }[] = [
-  { title: 'Snel naar', links: [['Koopwoningen', '/koop'], ['Huurwoningen', '/huur'], ['Nieuwbouw', '/nieuwbouw'], ['Bedrijfsruimte', '/bedrijfsruimte'], ['Zoek een NVM-makelaar', '/makelaars?nvm=1'], ['Mijn favorieten', '/bewaard']] },
+  { title: 'Snel naar', links: [['Koopwoningen', '/koop'], ['Huurwoningen', '/huur'], ['Nieuwbouw', '/nieuwbouw'], ['Recreatiewoningen', '/recreatie'], ['Bedrijfsruimte', '/bedrijfsruimte'], ['Zoek een NVM-makelaar', '/makelaars?nvm=1'], ['Mijn favorieten', '/bewaard']] },
   { title: 'Inzichten & inspiratie', links: [['De woningmarkt', '/woningmarkt'], ['Alle artikelen', '/artikelen'], ['Alles over een huis kopen', '/artikelen/huis-kopen-in-het-noorden'], ['Alles over een huis verkopen', '/artikelen/huis-verkopen-voorbereiding'], ['Checklist bezichtiging', '/artikelen/bezichtiging-checklist'], ['Veelgestelde vragen', '/veelgestelde-vragen']] },
   { title: 'Voor makelaars', links: [['Meld je kantoor aan', '/voor-makelaars/aanmelden'], ['Aansluiten en koppelen', '/voor-makelaars'], ['Inloggen voor makelaars', '/login'], ['Aangesloten kantoren', '/makelaars']] },
   { title: 'Meer NNvastgoed', links: [['Over NNvastgoed', '/over-ons'], ['Contact', '/contact'], ['Inloggen of account maken', '/inloggen'], ['Toegankelijkheid', '/toegankelijkheid']] },

@@ -2,7 +2,7 @@
 
 import { useActionState } from 'react';
 import { saveListing } from '@/app/beheer/actions';
-import { COMMERCIAL_TYPES, ENERGY_LABELS, HOME_TYPES, PROVINCES, STATUSES, type Listing, type Office } from '@/lib/types';
+import { COMMERCIAL_TYPES, ENERGY_LABELS, HOME_TYPES, PROVINCES, RECREATION_TYPES, STATUSES, type Listing, type Office } from '@/lib/types';
 import { provinceName } from '@/lib/regions';
 import { STATUS_LABEL, TYPE_LABEL } from '@/lib/format';
 import { PhotoEditor } from './photo-editor';
@@ -62,7 +62,7 @@ export function ListingForm({ listing, offices, officeId, canPickOffice }: { lis
         {num('bedrooms', 'Slaapkamers', l?.bedrooms ?? 0, { min: 0 })}
         {num('bathrooms', 'Badkamers', l?.bathrooms ?? 1, { min: 0 })}
         {num('build_year', 'Bouwjaar', l?.buildYear, { min: 1200, max: 2100 })}
-        <div><label htmlFor="property_type" className="label">Soort woning</label><Select id="property_type" name="property_type" defaultValue={l?.propertyType ?? ''} required options={[{ value: '', label: 'Kies een soort…' }, ...HOME_TYPES.map((t) => ({ value: t, label: TYPE_LABEL[t], hint: 'woning' })), ...COMMERCIAL_TYPES.map((t) => ({ value: t, label: TYPE_LABEL[t], hint: 'bedrijfsruimte' })), { value: 'overig', label: 'Overig' }]} /></div>
+        <div><label htmlFor="property_type" className="label">Soort woning</label><Select id="property_type" name="property_type" defaultValue={l?.propertyType ?? ''} required options={[{ value: '', label: 'Kies een soort…' }, ...HOME_TYPES.map((t) => ({ value: t, label: TYPE_LABEL[t], hint: 'woning' })), ...COMMERCIAL_TYPES.map((t) => ({ value: t, label: TYPE_LABEL[t], hint: 'bedrijfsruimte' })), ...RECREATION_TYPES.map((t) => ({ value: t, label: TYPE_LABEL[t], hint: 'recreatie' })), { value: 'overig', label: 'Overig' }]} /></div>
         <div><label htmlFor="energy_label" className="label">Energielabel</label><Select id="energy_label" name="energy_label" defaultValue={l?.energyLabel ?? ''} options={[{ value: '', label: 'Onbekend' }, ...ENERGY_LABELS.map((e) => ({ value: e, label: e }))]} /></div>
       </fieldset>
 

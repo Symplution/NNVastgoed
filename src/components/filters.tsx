@@ -1,6 +1,6 @@
 import Link from 'next/link';
 import { Search } from 'lucide-react';
-import { COMMERCIAL_TYPES, ENERGY_LABELS, HOME_TYPES, PROVINCES } from '@/lib/types';
+import { COMMERCIAL_TYPES, ENERGY_LABELS, HOME_TYPES, PROVINCES, RECREATION_TYPES } from '@/lib/types';
 import { provinceName } from '@/lib/regions';
 import { MODE_INFO, priceStepsFor, SORTS, SORT_LABEL, type SearchFilters } from '@/lib/search';
 import { TYPE_LABEL } from '@/lib/format';
@@ -15,14 +15,15 @@ export function Filters({ f, action, lockProvince = false, view }: { f: SearchFi
   const PRICES = priceStepsFor(f);
   const rent = f.mode === 'huur' || f.offer === 'huur';
   const commercial = f.mode === 'bedrijfsruimte';
-  const types = commercial ? COMMERCIAL_TYPES : HOME_TYPES;
+  const recreation = f.mode === 'recreatie';
+  const types = commercial ? COMMERCIAL_TYPES : recreation ? RECREATION_TYPES : HOME_TYPES;
   return (
     <form action={target} method="get" className="space-y-4" role="search" aria-label="Zoeken">
       <div>
         <label htmlFor="q" className="label">Plaats, postcode of straat</label>
         <input id="q" name="q" defaultValue={f.q} placeholder="Bijv. Leeuwarden of 9711" className="field" autoComplete="off" />
       </div>
-      {(f.mode === 'nieuwbouw' || commercial) && (
+      {(f.mode === 'nieuwbouw' || commercial || recreation) && (
         <div>
           <label htmlFor="aanbod" className="label">Koop of huur</label>
           <Select id="aanbod" name="aanbod" defaultValue={f.offer ?? ''} options={opts('Koop en huur', [{ value: 'koop', label: 'Te koop' }, { value: 'huur', label: 'Te huur' }])} />
@@ -55,7 +56,7 @@ export function Filters({ f, action, lockProvince = false, view }: { f: SearchFi
         </div>
       </div>
       <fieldset>
-        <legend className="label">{commercial ? 'Soort bedrijfsruimte' : 'Soort woning'}</legend>
+        <legend className="label">{commercial ? 'Soort bedrijfsruimte' : recreation ? 'Soort recreatiewoning' : 'Soort woning'}</legend>
         <div className="grid grid-cols-1 gap-1.5 sm:grid-cols-2 lg:grid-cols-1">
           {types.map((t) => (
             <label key={t} className="flex cursor-pointer items-center gap-2 text-sm"><input type="checkbox" name="type" value={t} defaultChecked={f.types.includes(t)} /> {TYPE_LABEL[t]}</label>

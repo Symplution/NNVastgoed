@@ -7,10 +7,10 @@ import { PROVINCE_INFO } from '@/lib/regions';
 import { MODE_INFO, PRICE_STEPS } from '@/lib/search';
 import { Select } from './select';
 
-const TABS = ['koop', 'huur', 'nieuwbouw'] as const;
+const TABS = ['koop', 'huur', 'nieuwbouw', 'recreatie'] as const;
 type Tab = (typeof TABS)[number];
 
-/** De zoekbalk op de voorpagina: kies koop, huur of nieuwbouw en zoek op plaats, postcode of straat. */
+/** De zoekbalk op de voorpagina: kies koop, huur, nieuwbouw of recreatie en zoek op plaats, postcode of straat. */
 export function HeroSearch() {
   const [tab, setTab] = useState<Tab>('koop');
   const steps = tab === 'huur' ? PRICE_STEPS.huur : PRICE_STEPS.koop;
@@ -20,7 +20,7 @@ export function HeroSearch() {
         {TABS.map((t) => (
           <button key={t} type="button" role="tab" aria-selected={tab === t} onClick={() => setTab(t)}
             className={`focus-ring rounded-lg px-4 py-2 text-sm font-semibold transition ${tab === t ? 'bg-brand text-white' : 'text-muted hover:bg-brand-soft hover:text-brand'}`}>
-            {t === 'koop' ? 'Koop' : t === 'huur' ? 'Huur' : 'Nieuwbouw'}
+            {t === 'koop' ? 'Koop' : t === 'huur' ? 'Huur' : t === 'nieuwbouw' ? 'Nieuwbouw' : 'Recreatie'}
           </button>
         ))}
       </div>

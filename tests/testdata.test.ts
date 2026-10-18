@@ -37,8 +37,8 @@ describe('testgegevens', () => {
   it('lopen op het echte schema, ook twee keer achter elkaar', async () => {
     await db.exec(seed());
     await db.exec(seed());
-    expect(await count(`select count(*) n from listings`)).toBe(48);
-    expect(await count(`select count(*) n from listings where jsonb_array_length(photos) >= 3`)).toBe(48);
+    expect(await count(`select count(*) n from listings`)).toBe(58);
+    expect(await count(`select count(*) n from listings where jsonb_array_length(photos) >= 3`)).toBe(58);
     expect(await count(`select count(*) n from offices`)).toBe(6);
     expect(await count(`select count(*) n from leads`)).toBe(11);
     expect(await count(`select count(*) n from viewings`)).toBe(14);

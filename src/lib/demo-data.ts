@@ -1,5 +1,5 @@
 import { slugify } from './format';
-import type { Listing, Office, Province, PropertyType, EnergyLabel, ListingStatus } from './types';
+import { categoryOfType, type Listing, type Office, type Province, type PropertyType, type EnergyLabel, type ListingStatus } from './types';
 
 // Voorbeeldgegevens voor de demomodus (DEMO_MODE=1, alleen buiten productie). Alle kantoren en woningen zijn verzonnen.
 export const DEMO_OFFICES: Office[] = [
@@ -63,7 +63,7 @@ const BASE_LISTINGS: Listing[] = ROWS.map(([office, street, nr, postcode, city, 
   publishedAt: new Date(NOW - days * 86_400_000).toISOString(), updatedAt: new Date(NOW - days * 86_400_000).toISOString(),
 }));
 
-// Huur, nieuwbouw en bedrijfsruimte: [kantoor, straat, nr, postcode, plaats, provincie, wijk, prijs (huur per maand), m², kamers, slaapkamers, jaar, type, label, aanbod, nieuwbouw, dagen geleden, lat, lng, kop]
+// Huur, nieuwbouw, bedrijfsruimte en recreatie: [kantoor, straat, nr, postcode, plaats, provincie, wijk, prijs (huur per maand), m², kamers, slaapkamers, jaar, type, label, aanbod, nieuwbouw, dagen geleden, lat, lng, kop]
 type Extra = [string, string, string, string, string, Province, string, number, number, number, number, number, PropertyType, EnergyLabel, 'koop' | 'huur', boolean, number, number, number, string];
 const EXTRA: Extra[] = [
   ['o1', 'Oosterstraat', '88', '9711 NV', 'Groningen', 'groningen', 'Binnenstad', 1195, 62, 3, 2, 1998, 'appartement', 'B', 'huur', false, 3, 53.2178, 6.5719, 'Lichte tweekamerwoning bij de Grote Markt'],
@@ -82,19 +82,29 @@ const EXTRA: Extra[] = [
   ['o2', 'Hoofdstraat', '70', '9981 AD', 'Uithuizen', 'groningen', 'Centrum', 850, 75, 0, 0, 1950, 'winkelruimte', 'D', 'huur', false, 20, 53.4059, 6.6648, 'Winkelruimte op een A1-locatie in het dorp'],
   ['o6', 'Weiersstraat', '6', '7741 AB', 'Coevorden', 'drenthe', 'Binnenstad', 3200, 220, 0, 0, 1980, 'horecapand', 'C', 'huur', false, 10, 52.6611, 6.7399, 'Horecapand met terras bij de vesting'],
   ['o5', 'Marsdijk', '12', '9403 AB', 'Assen', 'drenthe', 'Bedrijventerrein', 1950, 140, 0, 0, 2008, 'kantoorruimte', 'A', 'huur', false, 3, 52.9877, 6.5591, 'Moderne kantoorruimte met eigen parkeerplaatsen'],
+  ['o4', 'Oudemirdumerklif', '12', '8567 AA', 'Oudemirdum', 'friesland', 'Gaasterland', 189000, 62, 3, 2, 2005, 'recreatiewoning', 'C', 'koop', false, 5, 52.8497, 5.5256, 'Recreatiewoning in de bossen van Gaasterland, vlak bij het IJsselmeer'],
+  ['o3', 'Waddendijk', '4', '9142 VE', 'Paesens-Moddergat', 'friesland', 'Waddenkust', 165000, 48, 3, 2, 1998, 'chalet', 'D', 'koop', false, 9, 53.4083, 6.0750, 'Gezellig chalet achter de Waddendijk, ideaal als tweede huis'],
+  ['o4', 'Oostergoweg', '21', '8528 GB', 'Langweer', 'friesland', 'Fluessen', 215000, 58, 3, 2, 2011, 'vakantiebungalow', 'B', 'koop', false, 13, 53.0356, 5.7192, 'Vakantiebungalow met eigen steiger aan de Friese meren'],
+  ['o1', 'Havenweg', '3', '9976 VR', 'Lauwersoog', 'groningen', 'Lauwersmeer', 39500, 32, 2, 1, 2008, 'stacaravan', 'D', 'koop', false, 4, 53.4005, 6.2003, 'Stacaravan op een rustig park bij het Lauwersmeer'],
+  ['o5', 'Bosweg', '8', '7981 AB', 'Diever', 'drenthe', 'Dwingelderveld', 195000, 55, 3, 2, 2014, 'chalet', 'B', 'koop', false, 7, 52.8644, 6.3175, 'Chalet met veranda aan de rand van het Nationaal Park Dwingelderveld'],
+  ['o5', 'Hunebedweg', '15', '9531 AC', 'Borger', 'drenthe', 'Hunebedden', 235000, 70, 4, 3, 2003, 'recreatiewoning', 'C', 'koop', false, 11, 52.9231, 6.7936, 'Ruime recreatiewoning op loopafstand van het Hunebedcentrum'],
+  ['o6', 'Veenpad', '2', '7887 AB', 'Erica', 'drenthe', 'Veenkoloniën', 149500, 52, 3, 2, 1996, 'vakantiebungalow', 'D', 'koop', false, 15, 52.7494, 6.9269, 'Betaalbare vakantiebungalow op een groen park'],
+  ['o2', 'Zeedijk', '10', '9974 RB', 'Zoutkamp', 'groningen', 'Waddenkust', 249000, 66, 3, 2, 2009, 'recreatiewoning', 'B', 'koop', false, 6, 53.3347, 6.2961, 'Recreatiewoning met uitzicht over de Waddenzee'],
+  ['o3', 'Burg. Reedekerstraat', '9', '8881 EA', 'West-Terschelling', 'friesland', 'Terschelling', 389000, 74, 4, 3, 2000, 'recreatiewoning', 'C', 'koop', false, 3, 53.3586, 5.2194, 'Vakantiehuis op Terschelling, vijf minuten van het strand'],
+  ['o5', 'Heidepad', '6', '9453 PA', 'Gasselte', 'drenthe', 'Hondsrug', 650, 50, 3, 2, 2010, 'chalet', 'B', 'huur', false, 8, 52.9956, 6.8244, 'Chalet te huur op het Drentse Hondsrug, ook voor langere periode'],
 ];
 
 const EXTRA_LISTINGS: Listing[] = EXTRA.map(([office, street, nr, postcode, city, province, wijk, price, area, rooms, bed, year, type, label, offer, newBuild, days, lat, lng, headline], i) => {
-  const commercial = ['kantoorruimte', 'bedrijfshal', 'winkelruimte', 'horecapand'].includes(type);
+  const category = categoryOfType(type), commercial = category === 'bedrijfsruimte', recreation = category === 'recreatie';
   const name = DEMO_OFFICES.find((o) => o.id === office)!.name;
   return {
     id: `x${i + 1}`, officeId: office, slug: slugify(`${street} ${nr} ${city}`), externalId: null, source: 'handmatig', status: 'beschikbaar',
-    offer, category: commercial ? 'bedrijfsruimte' : 'woning', newBuild,
+    offer, category, newBuild,
     street, houseNumber: nr, postcode, city, province, neighbourhood: wijk, lat, lng,
     askingPrice: price, priceType: offer === 'huur' ? 'p.m.' : newBuild ? 'v.o.n.' : 'k.k.', livingArea: area, plotArea: null, rooms, bedrooms: bed, bathrooms: bed > 2 ? 2 : 1, buildYear: year,
     propertyType: type, energyLabel: label,
-    description: `${headline}.\n\nDit is een voorbeeld uit de demo van NNvastgoed. ${commercial ? 'Het pand' : 'De woning'} ligt in ${wijk}, ${city} en heeft ${area} m²${rooms ? ` met ${rooms} kamers` : ''}. Neem contact op met ${name} voor een bezichtiging.`,
-    features: commercial ? ['Parkeren op eigen terrein', 'Glasvezel', 'Toegankelijk voor mindervaliden'] : stock(type),
+    description: `${headline}.\n\nDit is een voorbeeld uit de demo van NNvastgoed. ${commercial ? 'Het pand' : recreation ? 'De recreatiewoning' : 'De woning'} ligt in ${wijk}, ${city} en heeft ${area} m²${rooms ? ` met ${rooms} kamers` : ''}. Neem contact op met ${name} voor een bezichtiging.`,
+    features: commercial ? ['Parkeren op eigen terrein', 'Glasvezel', 'Toegankelijk voor mindervaliden'] : recreation ? ['Eigen parkeerplek', 'Terras of veranda', 'Dichtbij natuur en water', 'Volledig gemeubileerd te koop'] : stock(type),
     photos: photosFor(`${street} ${nr} ${city}`, commercial),
     publishedAt: new Date(NOW - days * 86_400_000).toISOString(), updatedAt: new Date(NOW - days * 86_400_000).toISOString(),
   };

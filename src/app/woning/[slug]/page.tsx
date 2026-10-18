@@ -32,10 +32,11 @@ export default async function Woning({ params }: Props) {
   const [office, similar] = await Promise.all([getOffice({ id: l.officeId }), similarListings(l)]);
   const title = `${address(l)}, ${l.city}`;
   const commercial = l.category === 'bedrijfsruimte';
+  const recreation = l.category === 'recreatie';
   const marker = toMarker(l);
   const bookable = ['beschikbaar', 'onder_bod', 'onder_voorbehoud'].includes(l.status);
   const rows: [string, string | null][] = [
-    ['Status', STATUS_LABEL[l.status]], [l.offer === 'huur' ? 'Huurprijs' : 'Vraagprijs', formatPrice(l)], [commercial ? 'Soort bedrijfsruimte' : 'Soort woning', TYPE_LABEL[l.propertyType]], ['Nieuwbouw', l.newBuild ? 'Ja' : null], ['Bouwjaar', l.buildYear ? String(l.buildYear) : null],
+    ['Status', STATUS_LABEL[l.status]], [l.offer === 'huur' ? 'Huurprijs' : 'Vraagprijs', formatPrice(l)], [commercial ? 'Soort bedrijfsruimte' : recreation ? 'Soort recreatiewoning' : 'Soort woning', TYPE_LABEL[l.propertyType]], ['Nieuwbouw', l.newBuild ? 'Ja' : null], ['Bouwjaar', l.buildYear ? String(l.buildYear) : null],
     [commercial ? 'Oppervlakte' : 'Woonoppervlakte', `${l.livingArea} m²`], ['Perceel', l.plotArea ? `${l.plotArea.toLocaleString('nl-NL')} m²` : null], [l.rooms ? 'Kamers' : '', l.rooms ? `${l.rooms} (waarvan ${l.bedrooms} slaapkamers)` : null],
     [l.rooms ? 'Badkamers' : '', l.rooms ? String(l.bathrooms) : null], ['Energielabel', l.energyLabel ?? null], ['Buurt', l.neighbourhood ?? null], ['Aangeboden sinds', l.publishedAt ? formatDate(l.publishedAt) : null],
   ];
@@ -49,7 +50,7 @@ export default async function Woning({ params }: Props) {
     <div className="container-x py-6">
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(ld).replace(/</g, '\\u003c') }} />
       <nav aria-label="Kruimelpad" className="mb-4 text-sm text-muted">
-        <Link href={commercial ? '/bedrijfsruimte' : l.offer === 'huur' ? '/huur' : '/koop'} className="hover:underline">{commercial ? 'Bedrijfsruimte' : l.offer === 'huur' ? 'Huur' : 'Koop'}</Link> / <Link href={`/${l.province}`} className="hover:underline">{provinceName(l.province)}</Link> / <span>{l.city}</span>
+        <Link href={commercial ? '/bedrijfsruimte' : recreation ? '/recreatie' : l.offer === 'huur' ? '/huur' : '/koop'} className="hover:underline">{commercial ? 'Bedrijfsruimte' : recreation ? 'Recreatie' : l.offer === 'huur' ? 'Huur' : 'Koop'}</Link> / <Link href={`/${l.province}`} className="hover:underline">{provinceName(l.province)}</Link> / <span>{l.city}</span>
       </nav>
       <div className="grid gap-8 lg:grid-cols-[1fr_22rem]">
         <div className="min-w-0 space-y-8">

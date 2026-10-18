@@ -15,6 +15,7 @@ export const TYPE_LABEL: Record<PropertyType, string> = {
   appartement: 'Appartement', tussenwoning: 'Tussenwoning', hoekwoning: 'Hoekwoning', 'twee-onder-een-kap': 'Twee-onder-een-kap', vrijstaand: 'Vrijstaande woning',
   woonboerderij: 'Woonboerderij', bungalow: 'Bungalow', herenhuis: 'Herenhuis', woonboot: 'Woonboot', bouwgrond: 'Bouwgrond', overig: 'Overig',
   kantoorruimte: 'Kantoorruimte', bedrijfshal: 'Bedrijfshal', winkelruimte: 'Winkelruimte', horecapand: 'Horecapand',
+  recreatiewoning: 'Recreatiewoning', vakantiebungalow: 'Vakantiebungalow', chalet: 'Chalet', stacaravan: 'Stacaravan',
 };
 
 export const address = (l: Pick<Listing, 'street' | 'houseNumber' | 'houseSuffix'>) => `${l.street} ${l.houseNumber}${l.houseSuffix ? (/^\d/.test(l.houseSuffix) ? `-${l.houseSuffix}` : l.houseSuffix) : ''}`;
