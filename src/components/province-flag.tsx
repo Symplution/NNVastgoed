@@ -49,13 +49,11 @@ function Drenthe() {
   );
 }
 
-/** De vlag van de provincie, in een ronde badge (de hele vlag blijft zichtbaar). */
+/** De vlag van de provincie in de juiste verhouding; de plek en de cirkel eromheen bepaalt de pagina. */
 export function ProvinceFlag({ province, className = '' }: { province: Province; className?: string }) {
   return (
-    <span aria-hidden className={`inline-flex aspect-square items-center justify-center overflow-hidden rounded-full bg-sand ring-1 ring-black/10 ${className}`}>
-      <span className="block w-full overflow-hidden shadow-sm ring-1 ring-black/10" style={{ aspectRatio: province === 'groningen' ? '3 / 2' : province === 'friesland' ? '538 / 371' : '547 / 371' }}>
-        {province === 'groningen' ? <Groningen /> : province === 'friesland' ? <Friesland /> : <Drenthe />}
-      </span>
+    <span aria-hidden className={`block overflow-hidden rounded-sm shadow-sm ring-1 ring-black/10 ${className}`} style={{ aspectRatio: province === 'groningen' ? '3 / 2' : province === 'friesland' ? '538 / 371' : '547 / 371' }}>
+      {province === 'groningen' ? <Groningen /> : province === 'friesland' ? <Friesland /> : <Drenthe />}
     </span>
   );
 }
