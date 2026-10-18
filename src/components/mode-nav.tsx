@@ -7,13 +7,14 @@ const ITEMS = [
   { href: '/koop', label: 'Kopen' },
   { href: '/huur', label: 'Huren' },
   { href: '/nieuwbouw', label: 'Nieuwbouw' },
+  { href: '/bedrijfsruimte', label: 'Bedrijfsruimte' },
 ] as const;
 
-/** Kopen, huren of nieuwbouw: de keuze bovenin. Verkopen is er bewust niet bij. */
+/** Kopen, huren, nieuwbouw of bedrijfsruimte: de keuze bovenin. Verkopen is er bewust niet bij. */
 export function ModeNav() {
   const path = usePathname();
   return (
-    <nav aria-label="Soort aanbod" className="flex items-center gap-0.5">
+    <nav aria-label="Soort aanbod" className="flex items-center gap-0.5 overflow-x-auto">
       {ITEMS.map((i) => {
         const on = path === i.href || path.startsWith(`${i.href}/`);
         return (
