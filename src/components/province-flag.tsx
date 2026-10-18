@@ -5,7 +5,7 @@ const star = (cx: number, cy: number, r: number) =>
 
 const HEART = 'M0 -3.5C3.5 -8.5 9.5 -3.5 5.5 1.5L0 7L-5.5 1.5C-9.5 -3.5 -3.5 -8.5 0 -3.5Z';
 
-/** De vlag van de provincie, getekend in de juiste verhouding (3:2). */
+/** De vlag van de provincie, getekend voor in een cirkel (het middelste vierkant van de vlag blijft zichtbaar). */
 function Flag({ province }: { province: Province }) {
   if (province === 'groningen') {
     // Rood links boven en rechts onder, blauw de andere twee; een wit kruis (1/3 van de hoogte) met daarin een groen kruis (1/9).
@@ -24,8 +24,8 @@ function Flag({ province }: { province: Province }) {
       <>
         <rect width="90" height="60" fill="#fff" />
         <g transform="rotate(33.7 45 30)">
-          {[0, 2, 4, 6].map((i) => <rect key={i} x="-40" y={-22.5 + 15 * i} width="170" height="15" fill="#21468b" />)}
-          {[[1, [30, 60]], [3, [22, 45, 68]], [5, [30, 60]]].map(([band, xs]) => (xs as number[]).map((x) => <path key={`${band}-${x}`} d={HEART} fill="#e0282e" transform={`translate(${x} ${-22.5 + 15 * (band as number) + 7.5}) rotate(180)`} />))}
+          {[0, 2, 4, 6].map((i) => <rect key={i} x="-40" y={-8.5 + 11 * i} width="170" height="11" fill="#21468b" />)}
+          {[[1, [36, 54]], [3, [27, 45, 63]], [5, [36, 54]]].map(([band, xs]) => (xs as number[]).map((x) => <path key={`${band}-${x}`} d={HEART} fill="#e0282e" transform={`translate(${x} ${-8.5 + 11 * (band as number) + 5.5}) rotate(180) scale(.85)`} />))}
         </g>
       </>
     );
@@ -44,8 +44,8 @@ function Flag({ province }: { province: Province }) {
 
 export function ProvinceFlag({ province, className = '' }: { province: Province; className?: string }) {
   return (
-    <span aria-hidden className={`inline-block aspect-[3/2] overflow-hidden rounded-lg shadow-md ring-1 ring-black/10 ${className}`}>
-      <svg viewBox="0 0 90 60" className="block h-full w-full"><Flag province={province} /></svg>
+    <span aria-hidden className={`inline-block aspect-square overflow-hidden rounded-full ring-1 ring-black/10 ${className}`}>
+      <svg viewBox="15 0 60 60" preserveAspectRatio="xMidYMid slice" className="block h-full w-full"><Flag province={province} /></svg>
     </span>
   );
 }
