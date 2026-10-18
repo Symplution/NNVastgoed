@@ -9,7 +9,7 @@ const LEAF = 'M0 -9C-5 -26 -34 -24 -34 -2C-34 20 -14 33 0 34C14 33 34 20 34 -2C3
 /** Groningen: rood linksboven en rechtsonder, blauw de andere twee hoeken, een groen kruis op wit. Verhouding 3:2. */
 function Groningen() {
   return (
-    <svg viewBox="0 0 600 400" className="block h-full w-full">
+    <svg viewBox="0 0 600 400" preserveAspectRatio="xMidYMid slice" className="block h-full w-full">
       <path fill="#fff" d="M0 0h600v400H0z" />
       <path stroke="#078930" strokeWidth="52" d="M0 200h600M300 0v400" />
       <path stroke="#da121a" strokeWidth="130" d="M0 64h227m146 272h227" />
@@ -24,7 +24,7 @@ function Friesland() {
   const band = (i: number) => -3.5 * T + i * T;
   const leaf = (x: number, y: number) => <path key={`${x}-${y}`} d={LEAF} fill="#e52329" transform={`translate(${x} ${y}) rotate(-12) scale(.95)`} />;
   return (
-    <svg viewBox="0 0 538 371" className="block h-full w-full">
+    <svg viewBox="0 0 538 371" preserveAspectRatio="xMidYMid slice" className="block h-full w-full">
       <rect width="538" height="371" fill="#fff" />
       <g transform="translate(269 185.5) rotate(34.6)">
         {[0, 2, 4, 6].map((i) => <rect key={i} x="-500" y={band(i)} width="1000" height={T} fill="#21468b" />)}
@@ -39,7 +39,7 @@ function Friesland() {
 /** Drenthe: wit met twee rode banen; in het midden een zwarte toren (kasteel van Coevorden) met aan elke kant drie rode sterren. */
 function Drenthe() {
   return (
-    <svg viewBox="0 0 547 371" className="block h-full w-full">
+    <svg viewBox="0 0 547 371" preserveAspectRatio="xMidYMid slice" className="block h-full w-full">
       <rect width="547" height="371" fill="#fff" />
       <rect y="80" width="547" height="43" fill="#d9121b" /><rect y="243" width="547" height="43" fill="#d9121b" />
       {[55, 115, 172, 372, 432, 490].map((x) => <polygon key={x} points={star(x, 183, 25)} fill="#d9121b" />)}
@@ -49,10 +49,10 @@ function Drenthe() {
   );
 }
 
-/** De vlag van de provincie in de juiste verhouding; de plek en de cirkel eromheen bepaalt de pagina. */
+/** De vlag van de provincie, die het vak waarin hij staat helemaal vult (het midden van de vlag blijft zichtbaar). */
 export function ProvinceFlag({ province, className = '' }: { province: Province; className?: string }) {
   return (
-    <span aria-hidden className={`block overflow-hidden rounded-sm shadow-sm ring-1 ring-black/10 ${className}`} style={{ aspectRatio: province === 'groningen' ? '3 / 2' : province === 'friesland' ? '538 / 371' : '547 / 371' }}>
+    <span aria-hidden className={`block overflow-hidden ${className}`}>
       {province === 'groningen' ? <Groningen /> : province === 'friesland' ? <Friesland /> : <Drenthe />}
     </span>
   );
