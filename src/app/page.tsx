@@ -17,19 +17,18 @@ export default async function Home() {
   const total = PROVINCES.reduce((n, p) => n + counts[p], 0);
   return (
     <>
-      <section className="relative overflow-hidden bg-gradient-to-br from-brand-dark via-brand to-[#1c6a93] text-white">
-        <svg aria-hidden className="absolute inset-x-0 bottom-0 h-24 w-full text-white" viewBox="0 0 1440 96" preserveAspectRatio="none"><path fill="currentColor" d="M0 64c120-34 240-34 360 0s240 34 360 0 240-34 360 0 240 34 360 0v32H0z" /></svg>
-        <HeroIllustration className="pointer-events-none absolute bottom-0 right-0 hidden h-auto w-[50rem] max-w-[68%] lg:block xl:right-[calc((100%-80rem)/2)]" />
-        <div className="container-x relative z-10 pb-32 lg:pb-72 pt-16 sm:pt-24">
-          <p className="text-sm font-semibold uppercase tracking-[0.16em] text-white/75">Noord Nederlands Vastgoed</p>
+      <section className="relative overflow-hidden bg-gradient-to-b from-[#d9f0fb] to-[#eaf8fe] text-brand-dark">
+        <HeroIllustration className="pointer-events-none absolute inset-x-0 bottom-0 hidden h-[21rem] w-full lg:block" />
+        <div className="container-x relative z-10 pb-24 pt-16 sm:pt-24 lg:pb-[22rem]">
+          <p className="text-sm font-semibold uppercase tracking-[0.16em] text-accent-dark">Noord Nederlands Vastgoed</p>
           <h1 className="mt-3 max-w-3xl text-4xl font-extrabold leading-tight tracking-tight sm:text-5xl">Vind je huis in het noorden</h1>
-          <p className="mt-4 max-w-xl text-lg text-white/85">Het aanbod van makelaars in Groningen, Friesland en Drenthe, op één plek. {total > 0 && <>Nu {total} koopwoningen, en ook huur, nieuwbouw en bedrijfsruimte.</>}</p>
+          <p className="mt-4 max-w-xl text-lg text-ink/75">Het aanbod van makelaars in Groningen, Friesland en Drenthe, op één plek. {total > 0 && <>Nu {total} koopwoningen, en ook huur, nieuwbouw en bedrijfsruimte.</>}</p>
 
           <HeroSearch />
         </div>
       </section>
 
-      <section className="container-x relative z-10 -mt-12 lg:mt-6" aria-label="Snel naar">
+      <section className="container-x relative z-10 mt-8" aria-label="Snel naar">
         <ul className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
           {[
             { href: '/bedrijfsruimte', Icon: Building2, t: 'Zoek een bedrijfsruimte', d: 'Kantoor, hal, winkel of horeca' },
