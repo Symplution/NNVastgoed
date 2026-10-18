@@ -26,7 +26,7 @@ describe('bundel 0008 t/m 0012', () => {
     expect(cols).toHaveLength(3);
     expect((await db.query(`select 1 from information_schema.tables where table_name = 'broker_requests'`)).rows).toHaveLength(1);
   }, 60_000);
-  it('de twee delen met alle migraties werken op een lege database', async () => {
+  it('het bestand met alle migraties werkt in één keer op een lege database', async () => {
     const db = new PGlite();
     await db.exec(`create schema auth;
       create table auth.users (instance_id uuid, id uuid primary key, aud text, role text, email text, encrypted_password text, email_confirmed_at timestamptz, raw_app_meta_data jsonb, raw_user_meta_data jsonb, created_at timestamptz, updated_at timestamptz);
@@ -38,8 +38,7 @@ describe('bundel 0008 t/m 0012', () => {
       create table storage.objects (id uuid primary key default gen_random_uuid(), bucket_id text, name text);
       alter table storage.objects enable row level security;
       grant usage on schema storage to authenticated, anon; grant select, insert, update, delete on storage.objects to authenticated;`);
-    await db.exec(readFileSync(join(root, 'bundels/nieuwe_database_deel1_0001_t_m_0004.sql'), 'utf8'));
-    await db.exec(readFileSync(join(root, 'bundels/nieuwe_database_deel2_0005_t_m_0012.sql'), 'utf8'));
+    await db.exec(readFileSync(join(root, 'bundels/nieuwe_database_alles_0001_t_m_0012.sql'), 'utf8'));   // in één keer, zoals in de SQL-editor
     const n = Number((await db.query<{ n: string }>(`select count(*) n from information_schema.tables where table_schema = 'public' and table_name in ('offices','listings','leads','viewings','conversations','broker_requests','feed_connections')`)).rows[0].n);
     expect(n).toBe(7);
   }, 60_000);
