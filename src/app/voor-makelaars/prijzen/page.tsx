@@ -104,7 +104,7 @@ export default function Prijzen() {
         </details>
 
         <div className="mt-12 flex flex-col items-start gap-4 rounded-3xl bg-gradient-to-br from-brand-dark to-brand p-8 text-white sm:flex-row sm:items-center sm:justify-between">
-          <div><h2 className="text-2xl font-extrabold">Klaar om te beginnen?</h2><p className="mt-1 text-white/85">Registreren is gratis. Wij nemen binnen twee werkdagen contact met je op.</p></div>
+          <div><h2 className="text-2xl font-extrabold">Registreer jouw makelaardij</h2><p className="mt-1 text-white/85">Registreren is gratis. Wij nemen binnen twee werkdagen contact met je op.</p></div>
           <div className="flex flex-wrap gap-3"><Link href="/voor-makelaars/aanmelden" className="btn-accent">Gratis registreren</Link><Link href="/contact" className="btn-ghost !border-white/40 !bg-transparent !text-white hover:!bg-white/10">Vraag een voorstel</Link></div>
         </div>
         <p className="mt-8 text-xs text-muted">Onder voorbehoud van type- en drukfouten. Alle prijzen zijn exclusief btw. Woning plaatsen is een eenmalig bedrag per woning; de promotie in het aanbod van de maand geldt per woning.</p>
