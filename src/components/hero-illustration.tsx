@@ -1,6 +1,6 @@
-// Getekende wijk voor de homepage-banner, in lagen voor diepte: verre heuvels en een lijntekening van gebouwen,
-// woningen aan een weg die naar de voordeur loopt, en groot groen, lantaarns en een gezin op de voorgrond.
-// Vlakke vormen met zachte kleurverlopen op de donkere huiskleur. Alleen vormen en één woord op het bord; decoratief (aria-hidden).
+// Getekend noorden voor de homepage-banner, in lagen voor diepte: het hunebed (Drenthe), de Martinitoren (Groningen), een molen
+// en de Waterpoort van Sneek (Friesland), woningen aan een weg, een gezin, planten, wolken en de zon.
+// Vlakke vormen met zachte kleurverlopen. Alleen vormen; decoratief (aria-hidden).
 const LINE = '#7a1f14';
 const SKY_LINE = '#7a1f14';
 
@@ -43,6 +43,104 @@ function Person({ x, y, s = 1, skin, shirt, pants, hair }: { x: number; y: numbe
   );
 }
 
+
+const CREAM = '#fff0dc';
+
+/** Martinitoren, Groningen. Oorsprong: midden van de voet. */
+function Martinitoren({ x, y, s = 1 }: { x: number; y: number; s?: number }) {
+  return (
+    <g transform={`translate(${x} ${y}) scale(${s})`}>
+      <ellipse cx="0" cy="3" rx="46" ry="6" fill="#000" opacity=".16" />
+      <rect x="-30" y="-72" width="60" height="72" fill="url(#hz-brick)" />
+      <rect x="-26" y="-132" width="52" height="62" fill="url(#hz-brick)" />
+      <rect x="-21" y="-172" width="42" height="42" fill="url(#hz-brick)" />
+      <rect x="-15" y="-204" width="30" height="34" fill="url(#hz-brick)" />
+      <g fill={CREAM}><rect x="-33" y="-76" width="66" height="7" rx="2" /><rect x="-29" y="-136" width="58" height="6" rx="2" /><rect x="-24" y="-176" width="48" height="6" rx="2" /><rect x="-18" y="-208" width="36" height="6" rx="2" /></g>
+      <path d="M-19 -208L0 -262L19 -208Z" fill="url(#hz-maroon)" />
+      <circle cx="0" cy="-221" r="11" fill={CREAM} /><path d="M-11 -221H11M0 -232V-210" stroke="#7a1f14" strokeWidth="1.6" opacity=".7" />
+      <path d="M0 -270V-258M-5 -266H5" stroke="#7a1f14" strokeWidth="2" strokeLinecap="round" />
+      <g fill="url(#hz-blue)"><path d="M-21 -20V-46a7 7 0 0 1 14 0V-20Z" /><path d="M7 -20V-46a7 7 0 0 1 14 0V-20Z" /></g>
+      <path d="M-9 0V-24a9 9 0 0 1 18 0V0Z" fill="url(#hz-orange)" />
+      <g fill="url(#hz-glow)"><path d="M-18 -92V-112a5 5 0 0 1 10 0V-92Z" /><path d="M8 -92V-112a5 5 0 0 1 10 0V-92Z" /></g>
+      <circle cx="0" cy="-152" r="9" fill={CREAM} stroke="#7a1f14" strokeWidth="2" /><path d="M0 -158V-152L5 -150" stroke="#7a1f14" strokeWidth="1.6" strokeLinecap="round" fill="none" />
+      <g fill="url(#hz-glow)"><path d="M-10 -181V-196a4 4 0 0 1 8 0V-181Z" /><path d="M2 -181V-196a4 4 0 0 1 8 0V-181Z" /></g>
+    </g>
+  );
+}
+
+/** Waterpoort, Sneek (Friesland). Oorsprong: midden van de voet. */
+function Waterpoort({ x, y, s = 1 }: { x: number; y: number; s?: number }) {
+  return (
+    <g transform={`translate(${x} ${y}) scale(${s})`}>
+      <ellipse cx="0" cy="12" rx="92" ry="8" fill="#000" opacity=".12" />
+      <rect x="-90" y="2" width="180" height="16" rx="8" fill="url(#hz-blue)" /><path d="M-70 10q6-5 12 0t12 0t12 0M20 10q6-5 12 0t12 0t12 0" stroke="#fff" strokeWidth="2" fill="none" opacity=".55" strokeLinecap="round" />
+      <rect x="-66" y="-92" width="34" height="94" fill="url(#hz-brick)" /><rect x="32" y="-92" width="34" height="94" fill="url(#hz-brick)" />
+      <polygon points="-70,-92 -49,-160 -28,-92" fill="url(#hz-maroon)" /><polygon points="28,-92 49,-160 70,-92" fill="url(#hz-maroon)" />
+      <g stroke="#7a1f14" strokeWidth="2" strokeLinecap="round"><path d="M-49 -160V-172M49 -160V-172" /></g>
+      <rect x="-34" y="-82" width="68" height="84" fill="url(#hz-cream)" />
+      <path d="M-38 -82L0 -118L38 -82Z" fill="url(#hz-maroon)" /><path d="M-24 -86L0 -108L24 -86Z" fill={CREAM} opacity=".35" />
+      <rect x="-10" y="-138" width="20" height="24" fill="url(#hz-brick)" /><path d="M-13 -138L0 -164L13 -138Z" fill="url(#hz-maroon)" /><circle cx="0" cy="-126" r="6" fill={CREAM} />
+      <path d="M-26 2V-34a12 12 0 0 1 24 0V2Z" fill="#cfeaf7" /><path d="M2 2V-34a12 12 0 0 1 24 0V2Z" fill="#cfeaf7" />
+      <path d="M-26 2V-34a12 12 0 0 1 24 0V2Z" fill="url(#hz-blue)" opacity=".5" /><path d="M2 2V-34a12 12 0 0 1 24 0V2Z" fill="url(#hz-blue)" opacity=".5" />
+      <g fill="url(#hz-glow)"><rect x="-58" y="-70" width="10" height="16" rx="5" /><rect x="-58" y="-44" width="10" height="16" rx="5" /><rect x="48" y="-70" width="10" height="16" rx="5" /><rect x="48" y="-44" width="10" height="16" rx="5" /></g>
+      <g fill={CREAM}><rect x="-70" y="-96" width="42" height="5" rx="2" /><rect x="28" y="-96" width="42" height="5" rx="2" /></g>
+    </g>
+  );
+}
+
+/** Molen. Oorsprong: midden van de voet. */
+function Molen({ x, y, s = 1 }: { x: number; y: number; s?: number }) {
+  return (
+    <g transform={`translate(${x} ${y}) scale(${s})`}>
+      <ellipse cx="0" cy="3" rx="46" ry="6" fill="#000" opacity=".16" />
+      <polygon points="-28,0 28,0 16,-98 -16,-98" fill="url(#hz-cream)" />
+      <polygon points="0,0 28,0 16,-98 0,-98" fill="#000" opacity=".08" />
+      <rect x="-36" y="-36" width="72" height="8" rx="3" fill="url(#hz-maroon)" /><rect x="-34" y="0" width="68" height="0" />
+      <path d="M-9 0V-18a9 9 0 0 1 18 0V0Z" fill="url(#hz-orange)" /><rect x="-5" y="-66" width="10" height="16" rx="5" fill="url(#hz-blue)" />
+      <path d="M-19 -98Q0 -128 19 -98Z" fill="url(#hz-maroon)" />
+      <g transform="translate(0 -100)">
+        {[18, 108, 198, 288].map((a) => (
+          <g key={a} transform={`rotate(${a})`}>
+            <line x1="0" y1="0" x2="84" y2="0" stroke="#7a1f14" strokeWidth="3.5" strokeLinecap="round" />
+            <rect x="22" y="-9" width="62" height="18" rx="2" fill={CREAM} stroke="#7a1f14" strokeWidth="2" />
+            <path d="M34 -9V9M46 -9V9M58 -9V9M70 -9V9M22 0H84" stroke="#7a1f14" strokeWidth="1.4" opacity=".7" />
+          </g>
+        ))}
+        <circle cx="0" cy="0" r="6" fill="url(#hz-orange)" stroke="#7a1f14" strokeWidth="2" />
+      </g>
+    </g>
+  );
+}
+
+/** Hunebed (Drenthe). Oorsprong: midden van de voet. */
+function Hunebed({ x, y, s = 1 }: { x: number; y: number; s?: number }) {
+  return (
+    <g transform={`translate(${x} ${y}) scale(${s})`}>
+      <ellipse cx="0" cy="4" rx="96" ry="9" fill="#000" opacity=".2" />
+      <g fill="url(#hz-stone)">
+        <rect x="-62" y="-56" width="22" height="58" rx="9" transform="rotate(-3 -51 -27)" /><rect x="-26" y="-50" width="22" height="52" rx="9" /><rect x="14" y="-52" width="22" height="54" rx="9" /><rect x="50" y="-44" width="20" height="46" rx="9" transform="rotate(4 60 -22)" />
+        <rect x="-74" y="-76" width="94" height="28" rx="13" transform="rotate(-4 -27 -62)" /><rect x="-2" y="-68" width="82" height="26" rx="12" transform="rotate(5 39 -55)" />
+      </g>
+      <g fill="#fff" opacity=".3"><rect x="-66" y="-70" width="40" height="7" rx="3.5" transform="rotate(-4 -46 -66)" /><rect x="8" y="-62" width="34" height="6" rx="3" transform="rotate(5 25 -59)" /></g>
+      <g fill="#b97fd1">{[[-90, 0], [-80, 4], [84, 2], [96, -2], [-100, 4], [106, 4]].map(([hx, hy], i) => <circle key={i} cx={hx} cy={hy} r="3.2" />)}</g>
+      <path d="M-86 4q-3-14 2-22M88 4q4-14 -1-22M-96 6q-4-10 0-16" stroke="#1fa382" strokeWidth="2.5" strokeLinecap="round" fill="none" />
+    </g>
+  );
+}
+
+/** Een woning in een rij. */
+function RowHouse({ x, y, w = 42, h = 62, body, roof, roofShape = 'punt' }: { x: number; y: number; w?: number; h?: number; body: string; roof: string; roofShape?: 'punt' | 'trap' }) {
+  const top = y - h;
+  return (
+    <g>
+      <rect x={x} y={top} width={w} height={h + 6} fill={`url(#${body})`} />
+      {roofShape === 'punt' ? <polygon points={`${x - 3},${top} ${x + w / 2},${top - 26} ${x + w + 3},${top}`} fill={`url(#${roof})`} /> : <g fill={`url(#${body})`}><rect x={x + 3} y={top - 8} width={w - 6} height="8" /><rect x={x + 8} y={top - 15} width={w - 16} height="7" /></g>}
+      <rect x={x + 6} y={top + 10} width="11" height="15" rx="5.5" fill="url(#hz-glow)" /><rect x={x + w - 17} y={top + 10} width="11" height="15" rx="5.5" fill="url(#hz-blue)" />
+      <rect x={x + w / 2 - 5} y={y - 20} width="10" height="26" rx="5" fill="url(#hz-orange)" />
+    </g>
+  );
+}
+
 export function HeroIllustration({ className = '' }: { className?: string }) {
   return (
     <svg aria-hidden focusable="false" viewBox="60 0 1540 360" className={className} preserveAspectRatio="xMidYMax slice">
@@ -59,36 +157,30 @@ export function HeroIllustration({ className = '' }: { className?: string }) {
         <linearGradient id="hz-lime" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stopColor="#c9ec6a" /><stop offset="1" stopColor="#7ccf4e" /></linearGradient>
         <linearGradient id="hz-leaf" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stopColor="#e6f9e4" /><stop offset="1" stopColor="#b9ecc0" /></linearGradient>
         <linearGradient id="hz-road" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stopColor="#f4e8d2" /><stop offset="1" stopColor="#cdb994" /></linearGradient>
+        <linearGradient id="hz-brick" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stopColor="#d4552f" /><stop offset="1" stopColor="#9a2d17" /></linearGradient>
+        <linearGradient id="hz-stone" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stopColor="#d3dce4" /><stop offset="1" stopColor="#8e9eae" /></linearGradient>
         <linearGradient id="hz-far" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stopColor="#8fd3ea" stopOpacity=".9" /><stop offset="1" stopColor="#bfe8f4" stopOpacity=".5" /></linearGradient>
       </defs>
 
       {/* lucht: zon en wolken */}
-      <circle cx="1236" cy="64" r="30" fill="url(#hz-glow)" /><circle cx="1236" cy="64" r="48" fill="#ffd45a" opacity=".16" />
-      <g fill="#fff"><g opacity=".95"><rect x="660" y="64" width="150" height="22" rx="11" /><rect x="700" y="46" width="80" height="26" rx="13" /></g><g opacity=".8"><rect x="1290" y="120" width="120" height="18" rx="9" /></g></g>
-      <g fill="#a9dcf7" opacity=".9"><rect x="1300" y="52" width="140" height="22" rx="11" /><rect x="1336" y="34" width="76" height="26" rx="13" /></g>
+      <circle cx="262" cy="92" r="30" fill="url(#hz-glow)" /><circle cx="262" cy="92" r="48" fill="#ffd45a" opacity=".2" />
+      <g fill="#fff"><g opacity=".95"><rect x="130" y="124" width="150" height="22" rx="11" /><rect x="166" y="106" width="80" height="26" rx="13" /></g><g opacity=".95"><rect x="700" y="60" width="150" height="22" rx="11" /><rect x="740" y="42" width="80" height="26" rx="13" /></g><g opacity=".8"><rect x="1010" y="96" width="120" height="18" rx="9" /></g></g>
+      <g fill="#a9dcf7" opacity=".9"><rect x="1300" y="56" width="140" height="22" rx="11" /><rect x="1336" y="38" width="76" height="26" rx="13" /></g>
 
-      {/* ver weg: heuvels en een lijntekening van gebouwen */}
-      <path d="M560 270C700 214 820 206 960 232C1100 258 1240 214 1380 222C1480 228 1560 246 1600 258V300H560Z" fill="url(#hz-far)" />
-      <g fill="none" stroke={SKY_LINE} strokeOpacity=".45" strokeWidth="2.5" strokeLinejoin="round" strokeLinecap="round">
-        <path d="M790 262V150h70V262M790 180h70M790 210h70M790 238h70M825 150V262" /><path d="M870 262V196l36-34 36 34V262" /><circle cx="906" cy="196" r="7" />
-        <path d="M1250 262V170h62V262M1250 198h62M1250 226h62" />
-      </g>
-      <g fill="#7fcfc4" opacity=".7"><ellipse cx="640" cy="258" rx="30" ry="36" /><ellipse cx="690" cy="262" rx="24" ry="28" /><ellipse cx="1510" cy="254" rx="34" ry="38" /><ellipse cx="1565" cy="258" rx="26" ry="30" /></g>
+      {/* ver weg: heuvels */}
+      <path d="M60 262C200 224 330 232 470 250C600 266 760 214 900 232C1040 250 1240 214 1380 222C1480 228 1560 246 1600 258V300H60Z" fill="url(#hz-far)" />
+      <g fill="#7fcfc4" opacity=".7"><ellipse cx="130" cy="262" rx="30" ry="34" /><ellipse cx="1510" cy="254" rx="34" ry="38" /><ellipse cx="1565" cy="258" rx="26" ry="30" /></g>
 
-      {/* appartementen links */}
-      <g>
-        <path d="M690 290V150h72a24 24 0 0 1 24 24V290Z" fill="url(#hz-orange)" /><path d="M690 290V150h30V290Z" fill="url(#hz-cream)" />
-        {[0, 1, 2].map((r) => <g key={r}><rect x="699" y={166 + r * 38} width="12" height="24" rx="6" fill="url(#hz-glow)" /><rect x="730" y={166 + r * 38} width="16" height="26" rx="8" fill={r === 1 ? 'none' : 'url(#hz-blue)'} stroke={LINE} strokeWidth={r === 1 ? 2.5 : 0} /><rect x="756" y={166 + r * 38} width="16" height="26" rx="8" fill="none" stroke={LINE} strokeWidth="2.5" /></g>)}
-      </g>
+      {/* de bekende bouwwerken van het noorden */}
+      <Martinitoren x={430} y={282} s={0.98} />
+      <Molen x={606} y={284} s={0.98} />
+      <Waterpoort x={792} y={284} s={0.92} />
 
-      {/* buurhuis, kleiner en verder weg */}
-      <g>
-        <rect x="838" y="226" width="64" height="48" fill="url(#hz-cream)" /><polygon points="828,230 870,194 912,230" fill="url(#hz-maroon)" />
-        <rect x="850" y="238" width="16" height="18" rx="8" fill="url(#hz-glow)" /><rect x="876" y="248" width="12" height="26" rx="6" fill="url(#hz-orange)" />
-      </g>
+      {/* woningen in een rij */}
+      <RowHouse x={884} y={284} body="hz-orange" roof="hz-maroon" /><RowHouse x={928} y={284} h={74} body="hz-cream" roof="hz-maroon" roofShape="trap" /><RowHouse x={972} y={284} h={58} body="hz-yellow" roof="hz-maroon" />
 
       {/* vrijstaande woning, aan het eind van de weg */}
-      <g transform="translate(-14 -30)">
+      <g transform="translate(46 -30)">
         <rect x="1118" y="196" width="86" height="90" rx="6" fill="url(#hz-orange)" />
         <rect x="1110" y="186" width="102" height="12" rx="6" fill="url(#hz-yellow)" />
         <rect x="1132" y="226" width="58" height="60" rx="4" fill="#fff" opacity=".92" />{[0, 1, 2, 3].map((i) => <path key={i} d={`M1132 ${238 + i * 12}H1190`} stroke="#ff6a10" strokeWidth="2" opacity=".55" />)}
@@ -102,7 +194,7 @@ export function HeroIllustration({ className = '' }: { className?: string }) {
       </g>
 
       {/* appartementen rechts */}
-      <g transform="translate(0 -44)">
+      <g transform="translate(-20 -44)">
         <path d="M1310 330V100h86a32 32 0 0 1 32 32V330Z" fill="url(#hz-orange)" /><path d="M1310 330V100h36V330Z" fill="url(#hz-cream)" />
         {[0, 1, 2].map((r) => <g key={r}><rect x="1322" y={126 + r * 52} width="14" height="30" rx="7" fill="url(#hz-glow)" /><rect x="1362" y={126 + r * 52} width="20" height="34" rx="10" fill={r === 1 ? 'none' : 'url(#hz-blue)'} stroke={LINE} strokeWidth={r === 1 ? 3 : 0} /><rect x="1396" y={126 + r * 52} width="20" height="34" rx="10" fill="none" stroke={LINE} strokeWidth="3" /></g>)}
         <path d="M1452 330V210h120V330Z" fill="url(#hz-cream)" /><path d="M1452 210a30 30 0 0 1 30-30h90v30Z" fill="url(#hz-yellow)" /><path d="M1512 210H1572V330H1512Z" fill="url(#hz-orange)" />
@@ -110,22 +202,31 @@ export function HeroIllustration({ className = '' }: { className?: string }) {
       </g>
 
       {/* grasland, de weg en het gras op de voorgrond */}
-      <path d="M0 304C200 284 420 296 640 276C860 256 1100 262 1300 272C1450 280 1540 274 1600 266V360H0Z" fill="url(#hz-mint)" />
+      <path d="M0 282C200 272 420 276 640 272C860 266 1100 262 1300 272C1450 280 1540 274 1600 266V360H0Z" fill="url(#hz-mint)" />
+      <g transform="translate(60 0)">
       <path d="M1080 262C1078 296 1040 316 1000 340L962 360H1262C1240 336 1130 316 1104 290C1100 280 1098 272 1100 262Z" fill="url(#hz-road)" />
       <path d="M1090 266C1088 304 1118 322 1124 360" stroke="#fff" strokeWidth="3" strokeDasharray="12 10" strokeLinecap="round" fill="none" opacity=".85" />
       <path d="M1080 262C1078 296 1040 316 1000 340L962 360M1100 262C1098 272 1100 280 1104 290C1130 316 1240 336 1262 360" stroke="#fff" strokeOpacity=".7" strokeWidth="3" fill="none" />
+      </g>
       <path d="M0 336C300 318 700 326 1000 342C1250 354 1450 340 1600 334V360H0Z" fill="url(#hz-grass)" />
 
       {/* groen en details langs de weg */}
-      <Bush x={1050} y={300} r={20} /><Bush x={1160} y={316} r={22} a="hz-teal" b="hz-lime" /><Bush x={980} y={322} r={24} />
-      <Leaf x={880} y={290} s={0.62} /><Leaf x={1250} y={300} s={0.85} /><Leaf x={1290} y={312} s={0.6} /><Leaf x={620} y={300} s={0.9} />
-      <Lamp x={1005} y={352} s={0.95} /><Lamp x={1118} y={304} s={0.5} />
-      <g>{[[1000, 350], [1034, 346], [1190, 350], [1226, 354], [700, 340], [730, 346], [1370, 346]].map(([fx, fy], i) => <g key={i}><path d={`M${fx} ${fy}v-12`} stroke="#0d7468" strokeWidth="2" /><circle cx={fx} cy={fy - 14} r="4.5" fill={['#ffd84d', '#ff8a1f', '#fff'][i % 3]} /></g>)}</g>
+      <g transform="translate(60 0)">
+        <Bush x={1050} y={300} r={20} /><Bush x={1160} y={316} r={22} a="hz-teal" b="hz-lime" /><Bush x={980} y={322} r={24} />
+        <Lamp x={1005} y={352} s={0.95} /><Lamp x={1118} y={304} s={0.5} />
+        <g>{[[1000, 350], [1034, 346], [1190, 350], [1226, 354]].map(([fx, fy], i) => <g key={i}><path d={`M${fx} ${fy}v-12`} stroke="#0d7468" strokeWidth="2" /><circle cx={fx} cy={fy - 14} r="4.5" fill={['#ffd84d', '#ff8a1f', '#fff'][i % 3]} /></g>)}</g>
+      </g>
+      <Leaf x={1318} y={300} s={0.85} /><Leaf x={1352} y={312} s={0.6} /><Leaf x={548} y={298} s={0.7} /><Leaf x={702} y={296} s={0.6} /><Leaf x={860} y={296} s={0.6} />
+      <Bush x={760} y={300} r={16} /><Bush x={560} y={304} r={18} a="hz-teal" b="hz-lime" />
+
+      {/* het hunebed van Drenthe, dichtbij en dus groot */}
+      <Hunebed x={250} y={332} s={1.15} />
+      <Leaf x={392} y={332} s={1.0} /><Leaf x={110} y={340} s={0.8} />
 
       {/* groot groen op de voorgrond, dichtbij en dus groter */}
-      <g transform="translate(666 372) scale(1.5)"><path d="M0 0C-34 -36 -40 -84 -8 -118C-2 -80 0 -40 0 0ZM0 0C40 -40 46 -78 26 -110C8 -78 4 -40 0 0ZM0 0C-60 -14 -78 -46 -70 -80C-34 -60 -10 -34 0 0Z" fill="url(#hz-teal)" /><path d="M0 0C-34 -36 -40 -84 -8 -118" stroke="#00d3aa" strokeWidth="2" fill="none" opacity=".5" /></g>
+      <g transform="translate(40 372) scale(1.5)"><path d="M0 0C-34 -36 -40 -84 -8 -118C-2 -80 0 -40 0 0ZM0 0C40 -40 46 -78 26 -110C8 -78 4 -40 0 0ZM0 0C-60 -14 -78 -46 -70 -80C-34 -60 -10 -34 0 0Z" fill="url(#hz-teal)" /><path d="M0 0C-34 -36 -40 -84 -8 -118" stroke="#00d3aa" strokeWidth="2" fill="none" opacity=".5" /></g>
       <g transform="translate(1536 372) scale(1.6)"><path d="M0 0C-36 -36 -42 -86 -8 -120C-2 -82 0 -40 0 0ZM0 0C42 -38 48 -80 28 -112C8 -80 4 -40 0 0ZM0 0C58 -10 82 -40 74 -74C36 -56 10 -32 0 0Z" fill="url(#hz-teal)" /></g>
-      <Bush x={1440} y={340} r={30} /><Bush x={590} y={346} r={28} a="hz-teal" b="hz-lime" />
+      <Bush x={1440} y={340} r={30} /><Bush x={470} y={346} r={26} a="hz-teal" b="hz-lime" />
 
       {/* gezin en hond op het gras */}
       <g>
