@@ -396,12 +396,18 @@ select (select count(*) from offices where id in (${officeIds.map(q).join(', ')}
        (select count(*) from feed_connections where id::text like 'a000000b-%') as koppelingen;
 `;
 
-const cleanup = `-- NNvastgoed — testgegevens verwijderen (hoort bij testdata.sql). Raakt alleen de testkantoren en accounts op @${DOMAIN}.
+const allSlugs = base.map((l) => q(l.slug)).join(', ');
+const cleanup = `-- NNvastgoed — ALLE testgegevens verwijderen (hoort bij testdata.sql en testdata_recreatie.sql).
+-- Raakt alleen de testkantoren, de testwoningen (ook losse recreatiewoningen bij een eigen kantoor) en de accounts op @${DOMAIN}.
+-- Jouw eigen account, je eigen kantoren en je eigen woningen blijven staan.
+
 delete from saved_searches where email like '%@${DOMAIN}';
 delete from broker_requests where email like '%@${DOMAIN}';
 delete from usage_events where unique_key like 'testdata:%';
-delete from offices where id in (${officeIds.map(q).join(', ')});   -- woningen, leads, bezichtigingen, gesprekken en beschikbaarheid volgen mee
+delete from listings where slug in (${allSlugs});                  -- ook testwoningen die bij een eigen kantoor staan; leads, bezichtigingen en gesprekken volgen mee
+delete from offices where id in (${officeIds.map(q).join(', ')});   -- woningen, leads, bezichtigingen, gesprekken, beschikbaarheid en koppelingen volgen mee
 delete from auth.users where email like '%@${DOMAIN}';          -- profielen en favorieten volgen mee
+
 select (select count(*) from offices) as kantoren_over, (select count(*) from listings) as woningen_over, (select count(*) from auth.users) as accounts_over;
 `;
 

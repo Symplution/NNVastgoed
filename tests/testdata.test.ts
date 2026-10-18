@@ -94,6 +94,19 @@ describe('testgegevens', () => {
     await db.exec(readFileSync(join(root, 'seed/testdata.sql'), 'utf8'));   // daarna het hele bestand: geen dubbele woningen
     expect(await count(`select count(*) n from listings where category = 'recreatie'`)).toBe(before);
   });
+  it('ruimt ook losse recreatiewoningen bij een eigen kantoor op, en laat eigen gegevens staan', async () => {
+    await db.exec(readFileSync(join(root, 'seed/testdata_verwijderen.sql'), 'utf8'));
+    await db.exec(`insert into offices (slug, name, city, province, email) values ('eigen-kantoor', 'Eigen Kantoor', 'Assen', 'drenthe', 'eigen@echt.nl')`);
+    await db.exec(`insert into listings (office_id, slug, status, street, house_number, postcode, city, province, asking_price, living_area, rooms, property_type, category) select id, 'eigen-woning', 'beschikbaar', 'Straat', '1', '9401 AA', 'Assen', 'drenthe', 100000, 80, 3, 'tussenwoning', 'woning' from offices where slug = 'eigen-kantoor'`);
+    await db.exec(readFileSync(join(root, 'seed/testdata_recreatie.sql'), 'utf8'));
+    expect(await count(`select count(*) n from listings where category = 'recreatie'`)).toBeGreaterThanOrEqual(15);   // bij het eigen kantoor
+    await db.exec(readFileSync(join(root, 'seed/testdata_verwijderen.sql'), 'utf8'));
+    expect(await count(`select count(*) n from listings where category = 'recreatie'`)).toBe(0);
+    expect(await count(`select count(*) n from listings where slug = 'eigen-woning'`)).toBe(1);
+    expect(await count(`select count(*) n from offices where slug = 'eigen-kantoor'`)).toBe(1);
+    await db.exec(`delete from offices where slug = 'eigen-kantoor'`);   // het eigen kantoor van deze test
+    await db.exec(readFileSync(join(root, 'seed/testdata.sql'), 'utf8'));   // zodat de volgende test weer iets heeft om op te ruimen
+  });
   it('ruimt alles op met testdata_verwijderen.sql', async () => {
     await db.exec(readFileSync(join(root, 'seed/testdata_verwijderen.sql'), 'utf8'));
     expect(await count(`select count(*) n from listings`)).toBe(0);
