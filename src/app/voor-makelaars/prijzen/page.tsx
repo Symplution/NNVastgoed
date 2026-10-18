@@ -1,7 +1,7 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import { ArrowLeft, ArrowRight, Check, Eye, Gift, Home, Receipt, Sparkles } from 'lucide-react';
-import { BESPOKE, CUSTOM_CAMPAIGNS, LISTING_FEE, OBJECT_TYPES, OFFICE_PRICES, PRICE_GROUPS, PROMO_FEE, REGISTRATION, euro } from '@/lib/pricing';
+import { CUSTOM_CAMPAIGNS, LISTING_FEE, OBJECT_TYPES, OFFICE_PRICES, PRICE_GROUPS, PROMO_FEE, REGISTRATION, euro } from '@/lib/pricing';
 
 // Bewust niet in de sitemap, de footer of de zoekresultaten: alleen bereikbaar via "Bekijk prijzen" bij de makelaarspagina.
 export const metadata: Metadata = { title: 'Prijzen voor makelaars', description: 'Registreren is gratis. Een woning plaatsen kost € 250 en promoten in het aanbod van de maand € 50 (excl. btw).', robots: { index: false, follow: false } };
@@ -36,7 +36,7 @@ export default function Prijzen() {
             <p className="mt-4 text-5xl font-extrabold tracking-tight text-green-700">Gratis</p>
             <p className="mt-1 text-sm text-muted">{REGISTRATION.note}</p>
             <Bullets items={['Je kantoor en collega’s in het beheer', 'Je eigen kantoorprofiel met logo', 'Koppeling met je CRM, zoals Realworks', 'Leads en berichten in één overzicht']} />
-            <Link href="/voor-makelaars/aanmelden" className="btn-primary mt-auto self-start pt-0 !mt-8">Gratis registreren <ArrowRight size={16} aria-hidden /></Link>
+            <div className="mt-auto pt-8"><Link href="/voor-makelaars/aanmelden" className="btn-primary w-full !py-3 text-base">Gratis registreren <ArrowRight size={18} aria-hidden /></Link></div>
           </article>
 
           <article className="card flex flex-col p-7">
@@ -71,20 +71,6 @@ export default function Prijzen() {
             <div className="flex justify-between"><dt>Aanbod van de maand</dt><dd className="font-semibold">{euro(PROMO_FEE.amount)}</dd></div>
             <div className="flex justify-between border-t border-brand/20 pt-2 text-lg font-extrabold"><dt>Totaal (excl. btw)</dt><dd className="text-brand">{euro(total)}</dd></div>
           </dl>
-        </section>
-
-        <section className="mt-12 grid gap-6 lg:grid-cols-[1fr_auto] lg:items-center card p-7" aria-labelledby="maatwerk">
-          <div>
-            <p className="text-sm font-semibold uppercase tracking-wider text-accent">Website en CRM</p>
-            <h2 id="maatwerk" className="text-2xl font-extrabold tracking-tight">{BESPOKE.name}</h2>
-            <ul className="mt-3 grid gap-x-8 gap-y-1.5 text-sm sm:grid-cols-2">{BESPOKE.includes.map((x) => <li key={x} className="flex gap-2"><Check size={16} className="mt-0.5 shrink-0 text-green-600" aria-hidden />{x}</li>)}</ul>
-          </div>
-          <div className="text-left lg:text-right">
-            <p className="text-sm text-muted">vanaf</p>
-            <p className="text-4xl font-extrabold tabular-nums text-brand">{euro(BESPOKE.from)}</p>
-            <p className="text-xs text-muted">eenmalig, excl. btw</p>
-            <Link href="/contact" className="btn-accent mt-3">Vraag een voorstel</Link>
-          </div>
         </section>
 
         <details className="group mt-12 rounded-2xl border border-line">

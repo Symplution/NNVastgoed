@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { BESPOKE, CUSTOM_CAMPAIGNS, LISTING_FEE, OBJECT_TYPES, OFFICE_PRICES, PRICE_GROUPS, euro } from '../src/lib/pricing';
+import { CUSTOM_CAMPAIGNS, LISTING_FEE, PROMO_FEE, OBJECT_TYPES, OFFICE_PRICES, PRICE_GROUPS, euro } from '../src/lib/pricing';
 
 describe('tarieven voor makelaars', () => {
   it('heeft voor elke regel een prijs of een streepje per objecttype', () => {
@@ -19,10 +19,10 @@ describe('tarieven voor makelaars', () => {
     expect(OFFICE_PRICES.every((o) => o.price > 0)).toBe(true);
     expect(CUSTOM_CAMPAIGNS.every((c) => c.from > 0)).toBe(true);
   });
-  it('een woning plaatsen is een klein eenmalig bedrag en het maatwerkpakket kost vanaf 5000', () => {
-    expect(LISTING_FEE.amount).toBeGreaterThan(0);
-    expect(BESPOKE.from).toBe(5000);
-    expect(BESPOKE.includes.length).toBeGreaterThanOrEqual(4);
+  it('registreren is gratis, een woning plaatsen kost 250 en promoten 50', () => {
+    expect(LISTING_FEE.amount).toBe(250);
+    expect(PROMO_FEE.amount).toBe(50);
+    expect(PROMO_FEE.boost).toBe(5);
   });
   it('schrijft bedragen in het Nederlands', () => { expect(euro(1750)).toMatch(/^€ 1\.750$/); });
 });
