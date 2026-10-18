@@ -205,7 +205,8 @@ begin
   return d;
 end $$;
 
--- 1. Eerdere testgegevens weg
+-- 1. Eerdere testgegevens weg (ook losse recreatiewoningen uit testdata_recreatie.sql)
+delete from listings where slug in (${base.filter((l) => l.category === 'recreatie').map((l) => q(l.slug)).join(', ')});
 delete from saved_searches where email like '%@${DOMAIN}';
 delete from offices where id in (${officeIds.map(q).join(', ')});
 delete from auth.users where email like '%@${DOMAIN}';
@@ -290,7 +291,35 @@ delete from auth.users where email like '%@${DOMAIN}';          -- profielen en 
 select (select count(*) from offices) as kantoren_over, (select count(*) from listings) as woningen_over, (select count(*) from auth.users) as accounts_over;
 `;
 
+// ── Alleen de recreatiewoningen: handig als de rest van de testgegevens al staat (of niet nodig is) ──
+const rec = base.filter((l) => l.category === 'recreatie');
+const recRows = rec.map((l) => {
+  const days = Math.max(0, Math.round((new Date('2026-10-01T09:00:00Z').getTime() - new Date(l.publishedAt!).getTime()) / 86_400_000));
+  const office = DEMO_OFFICES.find((o) => o.id === l.officeId)!;
+  return `(coalesce((select id from offices where slug = ${q(office.slug)}), (select id from offices order by created_at limit 1)), ${q(l.slug)}, ${q(l.status)}, ${q(l.offer)}, 'recreatie', false, ${q(l.street)}, ${q(l.houseNumber)}, ${q(l.postcode)}, ${q(l.city)}, ${q(l.province)}, ${q(l.neighbourhood)}, ${n(l.lat)}, ${n(l.lng)}, ${l.askingPrice}, ${q(l.priceType)}, ${l.livingArea}, ${n(l.plotArea)}, ${l.rooms}, ${l.bedrooms}, ${l.bathrooms}, ${n(l.buildYear)}, ${q(l.propertyType)}, ${q(l.energyLabel)}, ${q(l.description)}, ${arr(l.features)}, ${q(JSON.stringify(l.photos))}::jsonb, now() - interval '${days + 1} days')`;
+});
+const recSql = `-- NNvastgoed — TESTGEGEVENS voor Recreatie (gegenereerd met "npm run testdata"; niet met de hand aanpassen)
+--
+-- Zet ${rec.length} recreatiewoningen (recreatiewoning, vakantiebungalow, chalet, stacaravan; koop en huur) met foto's in de database.
+-- Vereist: migratie 0010_recreatie.sql is gedraaid en er bestaat minstens één kantoor (bijvoorbeeld via testdata.sql).
+-- Herhaalbaar: dezelfde woningen worden eerst verwijderd. Opruimen: testdata_verwijderen.sql (haalt alle testkantoren en hun woningen weg).
+
+do $$ begin
+  if (select count(*) from offices) = 0 then
+    raise exception 'Er is nog geen kantoor. Draai eerst testdata.sql, of maak een kantoor aan onder Beheer.';
+  end if;
+end $$;
+
+delete from listings where slug in (${rec.map((l) => q(l.slug)).join(', ')});
+
+insert into listings (office_id, slug, status, offer, category, new_build, street, house_number, postcode, city, province, neighbourhood, lat, lng, asking_price, price_type, living_area, plot_area, rooms, bedrooms, bathrooms, build_year, property_type, energy_label, description, features, photos, published_at) values
+${recRows.join(',\n')};
+
+select count(*) as recreatiewoningen from listings where category = 'recreatie' and status = 'beschikbaar';
+`;
+
 mkdirSync('supabase/seed', { recursive: true });
+writeFileSync('supabase/seed/testdata_recreatie.sql', recSql);
 writeFileSync('supabase/seed/testdata.sql', sql);
 writeFileSync('supabase/seed/testdata_verwijderen.sql', cleanup);
 console.log(`testdata.sql: ${sql.split('\n').length} regels, ${listingRows.length} woningen, ${viewings.length} bezichtigingen`);

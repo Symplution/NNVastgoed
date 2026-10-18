@@ -53,10 +53,11 @@ curl -X POST https://<domein>/api/feeds/<koppeling-id> \
 - Juridische controle van de privacyverklaring en de algemene voorwaarden.
 
 ## Testgegevens
-`supabase/seed/testdata.sql` zet een complete testomgeving klaar: 6 kantoren, 70 woningen met foto's (koop, huur, nieuwbouw, bedrijfsruimte, ook concept/verkocht/ingetrokken), beschikbaarheid, leads, bezichtigingen, gesprekken, favorieten en testaccounts (`@nnv.test`, wachtwoord in het bestand). Herhaalbaar. Opruimen voor livegang: `supabase/seed/testdata_verwijderen.sql`. Opnieuw genereren: `npm run testdata`.
+`supabase/seed/testdata.sql` zet een complete testomgeving klaar: 6 kantoren, 75 woningen met foto's (koop, huur, nieuwbouw, bedrijfsruimte, ook concept/verkocht/ingetrokken), beschikbaarheid, leads, bezichtigingen, gesprekken, favorieten en testaccounts (`@nnv.test`, wachtwoord in het bestand). Herhaalbaar. Opruimen voor livegang: `supabase/seed/testdata_verwijderen.sql`. Opnieuw genereren: `npm run testdata`.
 De kaart gebruikt MapLibre met OpenFreeMap (wereldwijd, vloeiend), met PDOK als terugval. De voorbeeldfoto's komen uit `/api/foto/<naam>-<n>` (illustraties).
 
 ## Video, logo en pdf
 - Per woning kan één video (MP4, WebM of MOV, tot 50 MB) worden geüpload of als https-adres worden toegevoegd (bucket `listing-videos`). Hij staat op de woningpagina onder de foto's.
 - Elk kantoor kan een logo uploaden (bucket `office-logos`, onder Mijn kantoor).
 - In het beheer staat bij elke woning een knop "Download pdf": een intern overzicht met beide logo's, alle foto's, de kenmerken, de volledige tekst en de contactgegevens van het kantoor (`src/lib/listing-pdf.ts`, route `/beheer/woningen/[id]/pdf`). Migratie `0009_media.sql`.
+Alleen recreatiewoningen toevoegen (16 stuks, ook als de rest van de testgegevens al staat): `supabase/seed/testdata_recreatie.sql` (vereist migratie 0010 en minstens één kantoor).

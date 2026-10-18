@@ -111,6 +111,11 @@ const EXTRA: Extra[] = [
   ['o6', 'Hoofdstraat', '61', '7901 EE', 'Hoogeveen', 'drenthe', 'Centrum', 2800, 180, 0, 0, 1975, 'winkelruimte', 'C', 'huur', false, 8, 52.7233, 6.4766, 'Winkelruimte met etalage in het winkelhart van Hoogeveen'],
   ['o6', 'Verlengde Stationsweg', '2', '7811 BB', 'Emmen', 'drenthe', 'Centrum', 325000, 320, 0, 0, 1995, 'kantoorruimte', 'B', 'koop', false, 14, 52.7857, 6.8985, 'Kantoorpand met eigen parkeerterrein nabij het station'],
   ['o4', 'Dijkweg', '1', '8754 JA', 'Makkum', 'friesland', 'Waterfront', 215000, 60, 3, 2, 2015, 'chalet', 'B', 'koop', false, 4, 53.0529, 5.4025, 'Chalet vlak achter de dijk, met uitzicht over het IJsselmeer'],
+  ['o3', 'Hoofdweg', '5', '9161 AB', 'Hollum', 'friesland', 'Ameland', 445000, 80, 4, 3, 2012, 'recreatiewoning', 'B', 'koop', false, 2, 53.4416, 5.6338, 'Vakantiehuis op Ameland, op loopafstand van de duinen'],
+  ['o3', 'Reeweg', '8', '9166 NA', 'Schiermonnikoog', 'friesland', 'Middenstreek', 365000, 62, 3, 2, 2006, 'vakantiebungalow', 'C', 'koop', false, 6, 53.4722, 6.1903, 'Vakantiebungalow op het autovrije Schiermonnikoog'],
+  ['o2', 'Strandweg', '2', '9976 VS', 'Lauwersoog', 'groningen', 'Lauwersmeer', 175000, 52, 3, 2, 2013, 'chalet', 'B', 'koop', false, 5, 53.4012, 6.2054, 'Chalet met veranda bij de haven van Lauwersoog'],
+  ['o5', 'Wijkweg', '3', '7991 AA', 'Dwingeloo', 'drenthe', 'Dwingelderveld', 185000, 58, 3, 2, 2008, 'vakantiebungalow', 'C', 'koop', false, 9, 52.8314, 6.3667, 'Vakantiebungalow aan de rand van het Dwingelderveld'],
+  ['o4', 'Meerweg', '4', '8521 AB', 'Heeg', 'friesland', 'Heegermeer', 750, 55, 3, 2, 2016, 'chalet', 'A', 'huur', false, 3, 52.9514, 5.6358, 'Chalet te huur aan het Heegermeer, ook voor langere periode'],
   ['o5', 'Heidepad', '6', '9453 PA', 'Gasselte', 'drenthe', 'Hondsrug', 650, 50, 3, 2, 2010, 'chalet', 'B', 'huur', false, 8, 52.9956, 6.8244, 'Chalet te huur op het Drentse Hondsrug, ook voor langere periode'],
 ];
 

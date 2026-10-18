@@ -37,8 +37,8 @@ describe('testgegevens', () => {
   it('lopen op het echte schema, ook twee keer achter elkaar', async () => {
     await db.exec(seed());
     await db.exec(seed());
-    expect(await count(`select count(*) n from listings`)).toBe(70);
-    expect(await count(`select count(*) n from listings where jsonb_array_length(photos) >= 3`)).toBe(70);
+    expect(await count(`select count(*) n from listings`)).toBe(75);
+    expect(await count(`select count(*) n from listings where jsonb_array_length(photos) >= 3`)).toBe(75);
     expect(await count(`select count(*) n from offices`)).toBe(6);
     expect(await count(`select count(*) n from leads`)).toBe(17);
     expect(await count(`select count(*) n from viewings`)).toBe(20);
@@ -64,6 +64,19 @@ describe('testgegevens', () => {
     expect(await count(`select count(*) n from listings where status = 'beschikbaar'`)).toBeGreaterThan(30);
     expect(await count(`select count(*) n from viewings where starts_at > now() and status = 'bevestigd'`)).toBeGreaterThanOrEqual(9);
     expect(await count(`select count(*) n from viewings where starts_at < now()`)).toBeGreaterThanOrEqual(4);
+  });
+  it('voegt met testdata_recreatie.sql alleen recreatiewoningen toe, ook twee keer achter elkaar', async () => {
+    const before = await count(`select count(*) n from listings where category = 'recreatie'`);
+    expect(before).toBeGreaterThanOrEqual(15);
+    await db.exec(`delete from listings where category = 'recreatie'`);
+    const sql = readFileSync(join(root, 'seed/testdata_recreatie.sql'), 'utf8');
+    await db.exec(sql);
+    await db.exec(sql);
+    expect(await count(`select count(*) n from listings where category = 'recreatie'`)).toBe(before);
+    expect(await count(`select count(*) n from listings where category = 'recreatie' and property_type in ('recreatiewoning','vakantiebungalow','chalet','stacaravan')`)).toBe(before);
+    expect(await count(`select count(*) n from listings where category = 'recreatie' and offer = 'huur'`)).toBeGreaterThanOrEqual(1);
+    await db.exec(readFileSync(join(root, 'seed/testdata.sql'), 'utf8'));   // daarna het hele bestand: geen dubbele woningen
+    expect(await count(`select count(*) n from listings where category = 'recreatie'`)).toBe(before);
   });
   it('ruimt alles op met testdata_verwijderen.sql', async () => {
     await db.exec(readFileSync(join(root, 'seed/testdata_verwijderen.sql'), 'utf8'));
