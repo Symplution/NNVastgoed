@@ -37,7 +37,7 @@ export function SiteFooter() {
       </div>
       <div className="border-t border-white/15">
         <div className="container-x flex flex-col items-center justify-between gap-2 py-5 text-xs text-white/65 sm:flex-row">
-          <p>© {new Date().getFullYear()} NNvastgoed · Noord Nederlands Vastgoed</p>
+          <p>© {new Date().getFullYear()} NNvastgoed · Noord Nederland Vastgoed</p>
           <ul className="flex flex-wrap gap-x-4 gap-y-1">
             <li><Link href="/privacy" className={a}>Privacy</Link></li><li><Link href="/voorwaarden" className={a}>Voorwaarden</Link></li><li><Link href="/cookies" className={a}>Cookies</Link></li><li><Link href="/toegankelijkheid" className={a}>Toegankelijkheid</Link></li><li><Link href="/contact" className={a}>Contact</Link></li>
           </ul>

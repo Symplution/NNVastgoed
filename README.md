@@ -1,4 +1,4 @@
-# NNvastgoed (NNV) — Noord Nederlands Vastgoed
+# NNvastgoed (NNV) — Noord Nederland Vastgoed
 
 Het woningportaal voor Groningen, Friesland en Drenthe. Woningzoekers zoeken, bewaren en laten zich mailen bij nieuw aanbod. Makelaars koppelen hun eigen systeem of beheren woningen zelf, en krijgen hun leads in het beheer en per mail.
 

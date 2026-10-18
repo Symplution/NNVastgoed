@@ -1,7 +1,7 @@
 # NNvastgoed (NNV)
 
 ## Wat dit is
-Woningportaal voor makelaars en woningzoekers in Noord-Nederland: Groningen, Friesland en Drenthe (Noord Nederlands Vastgoed).
+Woningportaal voor makelaars en woningzoekers in Noord-Nederland: Groningen, Friesland en Drenthe (Noord Nederland Vastgoed).
 Publieke site (kopen, huren, nieuwbouw, bedrijfsruimte, woningmarkt, makelaars, zoekopdracht met e-mailalert), Mijn NNV voor woningzoekers (favorieten, bezichtigingen, berichten) en een beheer voor makelaars (woningen, bezichtigingen met agenda, berichten, contacten, leads, koppelingen).
 Draait op GitHub, Vercel (fra1) en Supabase (EU, Frankfurt). Later komen er AI-departments bij (zie `/beheer/ai`); die zijn een aparte, bewust gebouwde verbinding met de app `ai-departments`.
 

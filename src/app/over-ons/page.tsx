@@ -6,7 +6,7 @@ export const metadata: Metadata = { title: 'Over NNvastgoed' };
 
 export default function OverOns() {
   return (
-    <InfoPage title="Over NNvastgoed" intro="NNvastgoed (Noord Nederlands Vastgoed) is het woningportaal voor Groningen, Friesland en Drenthe.">
+    <InfoPage title="Over NNvastgoed" intro="NNvastgoed (Noord Nederland Vastgoed) is het woningportaal voor Groningen, Friesland en Drenthe.">
       <p>We laten het aanbod van makelaars uit het noorden op één plek zien: koop, huur, nieuwbouw en bedrijfsruimte. Geen ruis uit de rest van het land, maar woningen waar je echt kunt wonen.</p>
       <h2>Voor woningzoekers</h2>
       <p>Zoek op plaats, prijs en kenmerken, bekijk het aanbod op de kaart, bewaar favorieten en laat je mailen bij nieuw aanbod. Met een gratis account plan je bezichtigingen en chat je met de makelaar.</p>

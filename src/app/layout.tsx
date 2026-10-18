@@ -7,7 +7,7 @@ import { siteUrl } from '@/lib/env';
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl()),
   title: { default: 'NNvastgoed — koopwoningen in Groningen, Friesland en Drenthe', template: '%s · NNvastgoed' },
-  description: 'Zoek je nieuwe huis in het noorden. NNvastgoed (Noord Nederlands Vastgoed) toont het aanbod van makelaars in Groningen, Friesland en Drenthe.',
+  description: 'Zoek je nieuwe huis in het noorden. NNvastgoed (Noord Nederland Vastgoed) toont het aanbod van makelaars in Groningen, Friesland en Drenthe.',
   openGraph: { siteName: 'NNvastgoed', locale: 'nl_NL', type: 'website' },
 };
 export const viewport: Viewport = { themeColor: '#0e4a6e', width: 'device-width', initialScale: 1 };

@@ -12,7 +12,7 @@ export function Logo({ light = false }: { light?: boolean }) {
       </svg>
       <span className="leading-none">
         <span className={`block text-lg font-extrabold tracking-tight ${light ? 'text-white' : 'text-brand'}`}>NNvastgoed</span>
-        <span className={`block text-[10px] font-semibold uppercase tracking-[0.14em] ${light ? 'text-white/70' : 'text-muted'}`}>Noord Nederlands Vastgoed</span>
+        <span className={`block text-[10px] font-semibold uppercase tracking-[0.14em] ${light ? 'text-white/70' : 'text-muted'}`}>Noord Nederland Vastgoed</span>
       </span>
     </Link>
   );

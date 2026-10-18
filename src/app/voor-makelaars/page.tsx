@@ -26,7 +26,7 @@ export default function VoorMakelaars() {
     <div className="container-x py-12">
       <p className="text-sm font-semibold uppercase tracking-[0.16em] text-accent">Voor makelaars in het noorden</p>
       <h1 className="mt-2 max-w-3xl text-4xl font-extrabold tracking-tight">Laat je aanbod zien aan iedereen die in het noorden zoekt</h1>
-      <p className="mt-4 max-w-2xl text-lg text-muted">NNvastgoed (Noord Nederlands Vastgoed) is dé plek voor woningzoekers in Groningen, Friesland en Drenthe. Jij houdt je eigen werkwijze; wij zorgen dat je aanbod er goed uitziet en dat reacties direct bij jou aankomen.</p>
+      <p className="mt-4 max-w-2xl text-lg text-muted">NNvastgoed (Noord Nederland Vastgoed) is dé plek voor woningzoekers in Groningen, Friesland en Drenthe. Jij houdt je eigen werkwijze; wij zorgen dat je aanbod er goed uitziet en dat reacties direct bij jou aankomen.</p>
 
       <div className="mt-10 grid gap-6 sm:grid-cols-2">
         {[

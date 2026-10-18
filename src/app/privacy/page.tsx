@@ -10,7 +10,7 @@ export default function Privacy() {
     <div className="container-x max-w-3xl py-12">
       <h1 className="text-3xl font-extrabold tracking-tight">Privacyverklaring</h1>
       <div className="mt-6 space-y-3 leading-relaxed text-ink/90">
-        <p>NNvastgoed (Noord Nederlands Vastgoed) toont woningen van makelaars in Groningen, Friesland en Drenthe. Hieronder staat welke gegevens we verwerken en waarom.</p>
+        <p>NNvastgoed (Noord Nederland Vastgoed) toont woningen van makelaars in Groningen, Friesland en Drenthe. Hieronder staat welke gegevens we verwerken en waarom.</p>
         <h2 className={h2}>Als je een bericht stuurt over een woning</h2>
         <p>We bewaren je naam, e-mailadres, eventueel telefoonnummer en je bericht. Ze gaan naar de makelaar die de woning aanbiedt, zodat die contact met je kan opnemen. Grondslag: je toestemming (je vinkt die aan in het formulier).</p>
         <h2 className={h2}>Als je een zoekopdracht opslaat</h2>
