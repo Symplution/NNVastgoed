@@ -1,5 +1,6 @@
 // Maakt supabase/seed/testdata.sql en testdata_verwijderen.sql uit de demowoningen.
 // Draai: npm run testdata
+import { createHash } from 'node:crypto';
 import { mkdirSync, writeFileSync } from 'node:fs';
 import { DEMO_LISTINGS, DEMO_OFFICES } from '../src/lib/demo-data';
 
@@ -40,15 +41,22 @@ for (const e of extra) {
 const L = (slug: string) => q(listingId.get(slug)!);
 
 // ── gebruikers ──
-const staff = [
+const staff: { n: number; email: string; name: string; role: string; office: string | null; phone: string }[] = [
   { n: 1, email: `makelaar.groningen@${DOMAIN}`, name: 'Sanne Visser', role: 'agent', office: 'o1', phone: '050 123 45 67' },
   { n: 2, email: `makelaar.friesland@${DOMAIN}`, name: 'Bram de Boer', role: 'agent', office: 'o3', phone: '058 123 45 67' },
   { n: 3, email: `lezer.drenthe@${DOMAIN}`, name: 'Lotte Mulder', role: 'readonly', office: 'o5', phone: '0592 12 34 56' },
+  { n: 4, email: `beheer@${DOMAIN}`, name: 'Daan Prins', role: 'admin', office: null, phone: '06 40404040' },
+  { n: 5, email: `makelaar.hogeland@${DOMAIN}`, name: 'Rik Smit', role: 'agent', office: 'o2', phone: '0595 12 34 56' },
+  { n: 6, email: `makelaar.meerwaarde@${DOMAIN}`, name: 'Ilse Postma', role: 'agent', office: 'o4', phone: '0515 12 34 56' },
+  { n: 7, email: `makelaar.veenhuizen@${DOMAIN}`, name: 'Joost Hilbrands', role: 'agent', office: 'o6', phone: '0591 12 34 56' },
+  { n: 8, email: `lezer.groningen@${DOMAIN}`, name: 'Nina Kuipers', role: 'readonly', office: 'o1', phone: '050 123 45 68' },
 ];
 const seekers = [
   { n: 11, email: `anna@${DOMAIN}`, name: 'Anna de Vries', phone: '06 12345678' },
   { n: 12, email: `piet@${DOMAIN}`, name: 'Piet Jansen', phone: '06 23456789' },
   { n: 13, email: `fleur@${DOMAIN}`, name: 'Fleur Bos', phone: '06 34567890' },
+  { n: 14, email: `lars@${DOMAIN}`, name: 'Lars Mulder', phone: '06 45678901' },
+  { n: 15, email: `marloes@${DOMAIN}`, name: 'Marloes Visser', phone: '06 56789012' },
 ];
 const user = (n_: number) => q(id(3, n_));
 const A = 11, P = 12, F = 13;
@@ -75,6 +83,18 @@ const leads: { l: string; name: string; email: string; phone: string | null; msg
   { l: 'hoofdstraat-61-hoogeveen', name: 'Bakkerij De Brink', email: `info.debrink@${DOMAIN}`, phone: '0528 33 44 55', msg: 'Wat zijn de huurvoorwaarden en is horeca-gebruik toegestaan?', kind: 'info', status: 'opgepakt', days: 3 },
   { l: 'paterswoldseweg-45-groningen', name: 'Eline Postma', email: `eline.postma@${DOMAIN}`, phone: null, msg: 'Per wanneer is de woning beschikbaar?', kind: 'info', status: 'opgepakt', days: 6 },
 ];
+leads.push(
+  { l: 'wierdeweg-7-usquert', name: 'Karin Dijk', email: `karin.dijk@${DOMAIN}`, phone: '06 70707070', msg: 'Is er aardbevingsschade geweest aan de boerderij en zijn er subsidiemogelijkheden?', kind: 'info', status: 'nieuw', days: 1 },
+  { l: 'molenweg-3-winschoten', name: 'Bas Schuurman', email: `bas.s@${DOMAIN}`, phone: '06 71717171', msg: 'Wat zijn de verwachte verbouwkosten voor de keuken?', kind: 'info', status: 'afgehandeld', days: 10 },
+  { l: 'oudemirdumerklif-12-oudemirdum', name: 'Femke Jorritsma', email: `femke.j@${DOMAIN}`, phone: '06 72727272', msg: 'Mag ik de recreatiewoning het hele jaar verhuren aan toeristen?', kind: 'info', status: 'nieuw', days: 0 },
+  { l: 'waddendijk-4-paesens-moddergat', name: 'Roel Bouma', email: `roel.bouma@${DOMAIN}`, phone: null, msg: 'Zijn de kosten voor het park inbegrepen?', kind: 'info', status: 'opgepakt', days: 3 },
+  { l: 'strandweg-2-lauwersoog', name: 'Gerda Tuin', email: `gerda.tuin@${DOMAIN}`, phone: '06 73737373', msg: 'Kunnen we dit weekend langskomen voor het chalet?', kind: 'bezichtiging', status: 'nieuw', days: 1 },
+  { l: 'wijkweg-3-dwingeloo', name: 'Sjoerd Smit', email: `sjoerd.smit@${DOMAIN}`, phone: '06 74747474', msg: 'Wat is de maximale bewoningsduur per jaar?', kind: 'info', status: 'afgehandeld', days: 8 },
+  { l: 'meerweg-4-heeg', name: 'Yara El Idrissi', email: `yara.e@${DOMAIN}`, phone: '06 75757575', msg: 'Is het chalet gemeubileerd en is een huisdier toegestaan?', kind: 'info', status: 'nieuw', days: 2 },
+  { l: 'zuidergrachtswal-12-leeuwarden', name: 'Mees van der Berg', email: `mees.vdberg@${DOMAIN}`, phone: '06 76767676', msg: 'Is de huur inclusief servicekosten?', kind: 'info', status: 'opgepakt', days: 4 },
+  { l: 'oudvaart-14-sneek', name: 'Anouk Terpstra', email: `anouk.t@${DOMAIN}`, phone: '06 77777777', msg: 'Kunnen we de bouwtekeningen inzien?', kind: 'bezichtiging', status: 'nieuw', days: 0 },
+  { l: 'hoofdstraat-61-hoogeveen', name: 'Pieter Bosma', email: `pieter.bosma@${DOMAIN}`, phone: '0528 11 22 44', msg: 'Is het pand geschikt voor een kapsalon?', kind: 'info', status: 'nieuw', days: 6 },
+);
 const leadRows = leads.map((x) => `  (${L(x.l)}, ${q(x.name)}, ${q(x.email)}, ${q(x.phone)}, ${q(x.msg)}, ${q(x.kind)}, now() - interval '${x.days} days' - interval '${(x.name.length * 37) % 600} minutes')`).join(',\n');
 
 // ── bezichtigingen: [woning, wanneer (werkdag-offset, 'HH:MM'), wie, status, ...] ──
@@ -101,6 +121,16 @@ const viewings: V[] = [
   { l: 'plantsoen-4-meppel', day: 1, time: '16:00', min: 30, name: 'Lars Mulder', email: `lars.mulder@${DOMAIN}`, phone: '06 33330000', note: null, status: 'bevestigd' },
   { l: 'hereweg-112-groningen', day: 3, time: '15:30', min: 30, name: 'Telefonisch: familie Brouwer', email: `brouwer@${DOMAIN}`, phone: '050 987 65 43', note: 'Via de telefoon ingepland', status: 'bevestigd', source: 'makelaar' },
 ];
+viewings.push(
+  { l: 'wierdeweg-7-usquert', day: 2, time: '13:30', min: 30, name: 'Marloes Visser', email: `marloes@${DOMAIN}`, phone: '06 56789012', note: 'Met onze architect', seeker: 15, status: 'bevestigd' },
+  { l: 'dijkweg-1-makkum', day: 3, time: '10:00', min: 30, name: 'Lars Mulder', email: `lars@${DOMAIN}`, phone: '06 45678901', note: null, seeker: 14, status: 'bevestigd' },
+  { l: 'oudemirdumerklif-12-oudemirdum', day: 4, time: '11:30', min: 30, name: 'Femke Jorritsma', email: `femke.j@${DOMAIN}`, phone: '06 72727272', note: null, status: 'bevestigd' },
+  { l: 'strandweg-2-lauwersoog', day: 5, time: '14:30', min: 30, name: 'Gerda Tuin', email: `gerda.tuin@${DOMAIN}`, phone: '06 73737373', note: 'Met de hond', status: 'bevestigd' },
+  { l: 'molenweg-3-winschoten', day: -7, time: '10:30', min: 30, name: 'Bas Schuurman', email: `bas.s@${DOMAIN}`, phone: '06 71717171', note: null, status: 'afgerond' },
+  { l: 'kerkstraat-21-haren', day: -3, time: '13:00', min: 30, name: 'Marloes Visser', email: `marloes@${DOMAIN}`, phone: '06 56789012', note: null, seeker: 15, status: 'geannuleerd', by: 'zoeker' },
+  { l: 'zuiderpark-8-groningen', day: -1, time: '16:00', min: 30, name: 'Tim Prins', email: `tim.prins@${DOMAIN}`, phone: null, note: null, status: 'niet_verschenen' },
+  { l: 'meerweg-4-heeg', day: 6, time: '09:30', min: 30, name: 'Yara El Idrissi', email: `yara.e@${DOMAIN}`, phone: '06 75757575', note: 'Ook voor mijn zus', status: 'bevestigd' },
+);
 const dayExpr = (d: number) => (d < 0 ? `pg_temp.wd(${d})` : `pg_temp.wd(${d})`);
 const viewingRows = viewings.map((v, i) => {
   const start = `((${dayExpr(v.day)} + time '${v.time}') at time zone 'Europe/Amsterdam')`;
@@ -109,7 +139,8 @@ const viewingRows = viewings.map((v, i) => {
 }).join(',\n');
 
 // ── gesprekken ──
-const convs = [
+type Conv = { n: number; l: string; seeker: number; office: string; staffN: number; msgs: [string, string, number][]; read: string };
+const convs: Conv[] = [
   { n: 1, l: 'hereweg-112-groningen', seeker: A, office: 'o1', staffN: 1, msgs: [
     ['zoeker', 'Goedemiddag, is Hereweg 112 nog beschikbaar? En klopt het dat de tuin op het zuidwesten ligt?', 5 * 24 * 60],
     ['makelaar', 'Goedemiddag Anna, ja de woning is nog beschikbaar. De achtertuin ligt op het zuidwesten, dus tot laat in de avond zon.', 5 * 24 * 60 - 90],
@@ -137,7 +168,24 @@ const convs = [
     ['zoeker', 'Is de tuin rondom omheind? Wij hebben een jonge hond.', 24 * 60],
     ['makelaar', 'Ja, de tuin is volledig omheind en heeft een afsluitbare poort.', 22 * 60],
   ], read: 'zoeker-ongelezen' },
-] as const;
+];
+convs.push(
+  { n: 6, l: 'oudvaart-14-sneek', seeker: 14, office: 'o4', staffN: 6, msgs: [
+    ['zoeker', 'Dag, zijn er nog kavels beschikbaar in het project en wanneer start de bouw?', 2 * 24 * 60],
+    ['makelaar', 'Goedemiddag Lars, er zijn nog twee kavels beschikbaar. De bouw start in het voorjaar. Ik stuur je de brochure.', 2 * 24 * 60 - 120],
+    ['zoeker', 'Graag! En wat zijn de opleveringskosten?', 5 * 60],
+  ], read: 'kantoor-ongelezen' },
+  { n: 7, l: 'wierdeweg-7-usquert', seeker: 15, office: 'o2', staffN: 5, msgs: [
+    ['zoeker', 'Is de boerderij aardbevingsbestendig versterkt?', 3 * 24 * 60],
+    ['makelaar', 'Ja, de versterking is in 2021 uitgevoerd. De documenten staan in het dossier.', 3 * 24 * 60 - 90],
+    ['zoeker', 'Top, dank u wel. Ik plan een bezichtiging in.', 3 * 24 * 60 - 200],
+    ['makelaar', 'Prima, tot dan!', 60 * 3],
+  ], read: 'zoeker-ongelezen' },
+  { n: 8, l: 'dijkweg-1-makkum', seeker: 14, office: 'o4', staffN: 6, msgs: [
+    ['zoeker', 'Wat zijn de jaarlijkse parkkosten voor het chalet?', 24 * 60],
+    ['makelaar', 'Die zijn € 1.850 per jaar, inclusief water en onderhoud van de gemeenschappelijke delen.', 20 * 60],
+  ], read: 'zoeker-ongelezen' },
+);
 const convRows = convs.map((c) => `  (${q(id(6, c.n))}, ${L(c.l)}, ${q(OFFICE_ID.get(c.office)!)}, ${user(c.seeker)}, now() - interval '${c.msgs[0][2] + 60} minutes')`).join(',\n');
 let mi = 0;
 const msgRows = convs.flatMap((c) => c.msgs.map((m) => {
@@ -147,12 +195,18 @@ const msgRows = convs.flatMap((c) => c.msgs.map((m) => {
 
 // ── favorieten en zoekopdrachten ──
 const favs: [number, string][] = [[A, 'hereweg-112-groningen'], [A, 'nieuwe-ebbingestraat-34-groningen'], [A, 'meerstad-zuid-kavel-12-groningen'], [A, 'torenlaan-3-assen'], [P, 'oldehoofsterkerkhof-5-leeuwarden'], [P, 'havenstraat-14-joure'], [P, 'zuiderhaven-1-harlingen'], [F, 'brinkstraat-31-assen'], [F, 'zuidlaarderweg-16-zuidlaren'], [A, 'zuiderpark-8-groningen'], [A, 'dijkweg-1-makkum'], [P, 'oudvaart-14-sneek'], [P, 'zuidergrachtswal-12-leeuwarden'], [F, 'gieterstraat-9-gieten'], [F, 'heidepad-6-gasselte']];
+favs.push([14, 'oudvaart-14-sneek'], [14, 'dijkweg-1-makkum'], [14, 'meerweg-4-heeg'], [14, 'strandweg-2-lauwersoog'], [15, 'wierdeweg-7-usquert'], [15, 'oudemirdumerklif-12-oudemirdum'], [15, 'kerkstraat-21-haren'], [15, 'waddendijk-4-paesens-moddergat']);
 const favRows = favs.map(([u, s]) => `  (${user(u)}, ${L(s)})`).join(',\n');
 const searches = [
   { n: 1, email: `anna@${DOMAIN}`, qs: 'provincie=groningen&tot=450000' },
   { n: 2, email: `piet@${DOMAIN}`, qs: 'soort=huur&tot=1300&provincie=friesland' },
   { n: 3, email: `fleur@${DOMAIN}`, qs: 'provincie=drenthe&type=vrijstaand' },
 ];
+searches.push(
+  { n: 4, email: `lars@${DOMAIN}`, qs: 'soort=recreatie&tot=250000' },
+  { n: 5, email: `marloes@${DOMAIN}`, qs: 'provincie=groningen&type=woonboerderij' },
+  { n: 6, email: `gast.zoeker@${DOMAIN}`, qs: 'soort=huur&provincie=friesland&tot=1500' },
+);
 const searchRows = searches.map((s) => `  (${q(id(10, s.n))}, ${q(s.email)}, ${q(JSON.stringify({ qs: s.qs }))}::jsonb, now() - interval '10 days', now())`).join(',\n');
 
 // ── beschikbaarheid: werkdagen 09:00-12:00 en 13:00-16:30, zaterdag bij twee kantoren ──
@@ -170,23 +224,76 @@ const blocks = `  (${q(id(9, 1))}, ${q(officeIds[0])}, pg_temp.wd(7)::timestamp 
 
 const officeRows = DEMO_OFFICES.map((o, i) => `  (${q(OFFICE_ID.get(o.id)!)}, ${q(o.slug)}, ${q(o.name)}, ${q(o.city)}, ${q(o.province)}, ${q(o.street)}, ${q(o.postcode)}, ${q(o.phone)}, ${q(o.email.replace(/@.*/, `@${DOMAIN}`))}, ${q(o.website)}, ${q(o.description)}, ${o.nvmMember}, ${q(o.logoUrl ?? null)})`).join(',\n');
 
-const staffUpdates = staff.map((s) => `  update profiles set full_name = ${q(s.name)}, phone = ${q(s.phone)}, role = '${s.role}', office_id = ${q(OFFICE_ID.get(s.office)!)} where id = ${q(id(3, s.n))};`).join('\n');
+const staffUpdates = staff.map((s) => `  update profiles set full_name = ${q(s.name)}, phone = ${q(s.phone)}, role = '${s.role}', office_id = ${s.office ? q(OFFICE_ID.get(s.office)!) : 'null'} where id = ${q(id(3, s.n))};`).join('\n');
 const seekerUpdates = seekers.map((s) => `  update profiles set full_name = ${q(s.name)}, phone = ${q(s.phone)} where id = ${q(id(3, s.n))};`).join('\n');
+
+
+// ── Aanmeldingen van makelaars, koppelingen, gebruik ──
+const brokerRequests = [
+  { name: 'Waddenkust Makelaars', city: 'Delfzijl', province: 'groningen', kvk: '12345678', nvm: true, contact: 'Eva Hofman', email: `eva.hofman@${DOMAIN}`, phone: '0596 12 34 56', software: 'Realworks', count: 48, msg: 'Wij willen graag ons aanbod koppelen en aansluiten als NVM-kantoor.', status: 'nieuw', days: 0 },
+  { name: 'De Friese Hoeve', city: 'Heerenveen', province: 'friesland', kvk: '23456789', nvm: false, contact: 'Gerrit Wiersma', email: `gerrit.wiersma@${DOMAIN}`, phone: '0513 12 34 56', software: 'Skarabee', count: 25, msg: null, status: 'in_behandeling', days: 3 },
+  { name: 'Hunebed Vastgoed', city: 'Borger', province: 'drenthe', kvk: null, nvm: false, contact: 'Mirjam Kuiper', email: `mirjam.kuiper@${DOMAIN}`, phone: null, software: null, count: 8, msg: 'Wij zijn gespecialiseerd in recreatiewoningen en zoeken een goed platform.', status: 'nieuw', days: 1 },
+  { name: 'Lauwers Wonen', city: 'Zoutkamp', province: 'groningen', kvk: '34567890', nvm: false, contact: 'Henk Dijkstra', email: `henk.dijkstra@${DOMAIN}`, phone: '0595 98 76 54', software: 'Eigen systeem', count: 12, msg: 'Kunnen we de woningen ook handmatig invoeren?', status: 'aangesloten', days: 14 },
+  { name: 'Noordelijk Bedrijfsvastgoed', city: 'Assen', province: 'drenthe', kvk: '45678901', nvm: true, contact: 'Anita Veenstra', email: `anita.veenstra@${DOMAIN}`, phone: '0592 22 33 44', software: 'Realworks', count: 60, msg: 'Wij bieden vooral bedrijfsruimte en kantoren aan.', status: 'in_behandeling', days: 5 },
+  { name: 'Eilandmakelaars Terschelling', city: 'West-Terschelling', province: 'friesland', kvk: '56789012', nvm: false, contact: 'Jelle de Haan', email: `jelle.dehaan@${DOMAIN}`, phone: '0562 44 55 66', software: null, count: 5, msg: null, status: 'afgewezen', days: 20 },
+];
+const brokerSql = brokerRequests.map((b) => `  (${q(b.name)}, ${q(b.city)}, ${q(b.province)}, ${q(b.kvk)}, ${b.nvm}, ${q(b.contact)}, ${q(b.email)}, ${q(b.phone)}, ${q(b.software)}, ${b.count}, ${q(b.msg)}, true, now() - interval '${b.days} days' - interval '${(b.name.length * 53) % 700} minutes')`).join(',\n');
+const brokerStatus = brokerRequests.map((b) => `update broker_requests set status = ${q(b.status)} where email = ${q(b.email)};`).join('\n');
+
+const secretHash = (k: string) => createHash('sha256').update(k).digest('hex');
+const connections = [
+  { n: 1, office: 'o1', name: 'Realworks (hoofdkantoor)', kind: 'json', key: 'testsleutel-martinihof', active: true, last: { min: 25, status: 'ok', rec: 31, up: 31 } },
+  { n: 2, office: 'o2', name: 'Skarabee-export', kind: 'xml', key: 'testsleutel-hogeland', active: true, last: { min: 60 * 26, status: 'gedeeltelijk', rec: 12, up: 10 } },
+  { n: 3, office: 'o3', name: 'Realworks Leeuwarden', kind: 'json', key: 'testsleutel-elfsteden', active: true, last: { min: 60 * 5, status: 'ok', rec: 22, up: 22 } },
+  { n: 4, office: 'o5', name: 'Eigen systeem (proef)', kind: 'json', key: 'testsleutel-brink', active: false, last: null },
+] as const;
+const connSql = connections.map((c) => `  (${q(id(11, c.n))}, ${q(OFFICE_ID.get(c.office)!)}, ${q(c.name)}, ${q(c.kind)}, ${q(secretHash(c.key))}, ${q('…' + secretHash(c.key).slice(-4))}, ${c.active}, ${c.last ? `now() - interval '${c.last.min} minutes'` : 'null'}, ${q(c.last?.status ?? null)}, ${n(c.last?.rec)}, ${n(c.last?.up)})`).join(',\n');
+let runN = 0;
+const runs: string[] = [];
+for (const c of connections) {
+  if (!c.last) continue;
+  for (let k = 0; k < 4; k++) {
+    const rej = c.last.status === 'gedeeltelijk' && k === 0 ? 2 : 0, rec = c.last.rec - (k % 2), up = rec - rej;
+    const errors = rej ? [{ index: 3, external_id: 'RW-20431', reason: 'Postcode ontbreekt' }, { index: 7, external_id: 'RW-20488', reason: 'De provincie ligt buiten Groningen, Friesland en Drenthe' }] : [];
+    runs.push(`  (${q(id(12, ++runN))}, ${q(id(11, c.n))}, ${q(OFFICE_ID.get(c.office)!)}, now() - interval '${c.last.min + k * 60 * 24} minutes', ${rec}, ${up}, ${rej}, ${q(JSON.stringify(errors))}::jsonb)`);
+  }
+}
+const usage: string[] = [];
+for (let k = 0; k < 14; k++) usage.push(`  ('mail', ${q(`testdata:mail:${k}`)}, ${q(officeIds[k % officeIds.length])}, 1, ${q(JSON.stringify({ subject: ['Nieuw bericht over een woning', 'Bezichtiging aangevraagd', 'Bevestig je zoekopdracht'][k % 3] }))}::jsonb, now() - interval '${k * 2 + 1} days')`);
+const extraSql = `-- 10. Aanmeldingen van makelaars (Beheer → Aanmeldingen)
+insert into broker_requests (office_name, city, province, kvk, nvm_member, contact_name, email, phone, software, listing_count, message, consent, created_at) values
+${brokerSql};
+${brokerStatus}
+
+-- 11. Koppelingen en hun aanroepen (Beheer → Koppelingen). De sleutels zijn verzonnen testsleutels.
+insert into feed_connections (id, office_id, name, kind, secret_hash, secret_hint, active, last_run_at, last_status, last_received, last_upserted) values
+${connSql};
+insert into feed_runs (id, connection_id, office_id, at, received, upserted, rejected, errors) values
+${runs.join(',\n')};
+
+-- 12. Gebruik (verstuurde mails)
+insert into usage_events (kind, unique_key, office_id, units, detail, created_at) values
+${usage.join(',\n')};
+`;
 
 const sql = `-- NNvastgoed — TESTGEGEVENS (gegenereerd met "npm run testdata"; niet met de hand aanpassen)
 --
--- Zet een complete testomgeving in de database: kantoren, ${listingRows.length} woningen met foto's (koop, huur, nieuwbouw, bedrijfsruimte, met statussen),
--- beschikbaarheid, leads, bezichtigingen (voorbij en gepland), gesprekken met berichten, favorieten en zoekopdrachten, en testaccounts.
+-- Zet een complete testomgeving in de database: kantoren met logo's, ${listingRows.length} woningen met foto's (koop, huur, nieuwbouw, recreatie, bedrijfsruimte, met statussen),
+-- beschikbaarheid, leads, bezichtigingen (voorbij en gepland), gesprekken met berichten, favorieten, opgeslagen zoekopdrachten,
+-- aanmeldingen van makelaars, koppelingen met aanroepen, gebruik en testaccounts.
 --
 -- Testaccounts (wachtwoord voor allemaal: ${PASSWORD}):
---   Zoekers:   anna@${DOMAIN}  piet@${DOMAIN}  fleur@${DOMAIN}          → inloggen via /inloggen (geen authenticator nodig)
---   Makelaars: makelaar.groningen@${DOMAIN} (kantoor Martinihof), makelaar.friesland@${DOMAIN} (Elfsteden), lezer.drenthe@${DOMAIN} (alleen lezen, Brink & Es)
---              → inloggen via /login; de eerste keer stel je een authenticator-app in
+--   Zoekers:   anna@${DOMAIN}  piet@${DOMAIN}  fleur@${DOMAIN}  lars@${DOMAIN}  marloes@${DOMAIN}     → inloggen via /inloggen (geen authenticator nodig)
+--   Makelaars: makelaar.groningen@${DOMAIN} (Martinihof), makelaar.friesland@${DOMAIN} (Elfsteden), makelaar.hogeland@${DOMAIN} (Hogeland Wonen),
+--              makelaar.meerwaarde@${DOMAIN} (Meerwaarde Friesland), makelaar.veenhuizen@${DOMAIN} (Veenhuizen Vastgoed)
+--   Alleen lezen: lezer.drenthe@${DOMAIN} (Brink & Es), lezer.groningen@${DOMAIN} (Martinihof)
+--   Beheerder (alle kantoren): beheer@${DOMAIN}
+--              → makelaars en beheerders loggen in via /login; de eerste keer stel je een authenticator-app in
 --   Jouw eigen account (eigenaar) ziet alle kantoren.
 -- Alle testadressen eindigen op @${DOMAIN}: dat domein bestaat niet, er gaat dus nooit echte mail naartoe.
 --
 -- Herhaalbaar: eerdere testgegevens worden eerst verwijderd. Opruimen voor je live gaat: draai testdata_verwijderen.sql.
--- Vereist: je eigen account bestaat al (de eerste gebruiker wordt eigenaar) en migraties 0001 t/m 0007 zijn gedraaid.
+-- Vereist: je eigen account bestaat al (de eerste gebruiker wordt eigenaar) en migraties 0001 t/m 0012 zijn gedraaid.
 
 do $$ begin
   if (select count(*) from profiles) = 0 then
@@ -208,6 +315,8 @@ end $$;
 -- 1. Eerdere testgegevens weg (ook losse recreatiewoningen uit testdata_recreatie.sql)
 delete from listings where slug in (${base.filter((l) => l.category === 'recreatie').map((l) => q(l.slug)).join(', ')});
 delete from saved_searches where email like '%@${DOMAIN}';
+delete from broker_requests where email like '%@${DOMAIN}';
+delete from usage_events where unique_key like 'testdata:%';
 delete from offices where id in (${officeIds.map(q).join(', ')});
 delete from auth.users where email like '%@${DOMAIN}';
 
@@ -267,7 +376,7 @@ ${msgRows};
 update messages set read_at = created_at + interval '5 minutes' where conversation_id in (${q(id(6, 3))});
 update messages set read_at = created_at + interval '5 minutes' where conversation_id = ${q(id(6, 1))} and created_at < now() - interval '1 day';
 update messages set read_at = created_at + interval '5 minutes' where conversation_id = ${q(id(6, 2))} and sender = 'makelaar';
-update conversations c set last_message_at = (select max(created_at) from messages m where m.conversation_id = c.id) where c.id in (${[1, 2, 3, 4, 5].map((k) => q(id(6, k))).join(', ')});
+update conversations c set last_message_at = (select max(created_at) from messages m where m.conversation_id = c.id) where c.id in (${convs.map((c) => q(id(6, c.n))).join(', ')});
 
 -- 9. Favorieten en opgeslagen zoekopdrachten
 insert into favorites (user_id, listing_id) values
@@ -275,17 +384,22 @@ ${favRows};
 insert into saved_searches (id, email, filters, confirmed_at, last_sent_at) values
 ${searchRows};
 
+${extraSql}
 -- Klaar: een overzicht van wat er nu staat.
 select (select count(*) from offices where id in (${officeIds.map(q).join(', ')})) as kantoren,
        (select count(*) from listings where id::text like 'a0000002-%') as woningen,
        (select count(*) from leads where listing_id::text like 'a0000002-%') as leads,
        (select count(*) from viewings where id::text like 'a0000005-%') as bezichtigingen,
        (select count(*) from conversations where id::text like 'a0000006-%') as gesprekken,
-       (select count(*) from auth.users where email like '%@${DOMAIN}') as testaccounts;
+       (select count(*) from auth.users where email like '%@${DOMAIN}') as testaccounts,
+       (select count(*) from broker_requests where email like '%@${DOMAIN}') as aanmeldingen,
+       (select count(*) from feed_connections where id::text like 'a000000b-%') as koppelingen;
 `;
 
 const cleanup = `-- NNvastgoed — testgegevens verwijderen (hoort bij testdata.sql). Raakt alleen de testkantoren en accounts op @${DOMAIN}.
 delete from saved_searches where email like '%@${DOMAIN}';
+delete from broker_requests where email like '%@${DOMAIN}';
+delete from usage_events where unique_key like 'testdata:%';
 delete from offices where id in (${officeIds.map(q).join(', ')});   -- woningen, leads, bezichtigingen, gesprekken en beschikbaarheid volgen mee
 delete from auth.users where email like '%@${DOMAIN}';          -- profielen en favorieten volgen mee
 select (select count(*) from offices) as kantoren_over, (select count(*) from listings) as woningen_over, (select count(*) from auth.users) as accounts_over;

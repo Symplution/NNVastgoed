@@ -40,17 +40,30 @@ describe('testgegevens', () => {
     expect(await count(`select count(*) n from listings`)).toBe(75);
     expect(await count(`select count(*) n from listings where jsonb_array_length(photos) >= 3`)).toBe(75);
     expect(await count(`select count(*) n from offices`)).toBe(6);
-    expect(await count(`select count(*) n from leads`)).toBe(17);
-    expect(await count(`select count(*) n from viewings`)).toBe(20);
-    expect(await count(`select count(*) n from messages`)).toBe(17);
-    expect(await count(`select count(*) n from favorites`)).toBe(15);
-    expect(await count(`select count(*) n from auth.users where email like '%@nnv.test'`)).toBe(6);
+    expect(await count(`select count(*) n from leads`)).toBe(27);
+    expect(await count(`select count(*) n from viewings`)).toBe(28);
+    expect(await count(`select count(*) n from messages`)).toBe(26);
+    expect(await count(`select count(*) n from favorites`)).toBe(23);
+    expect(await count(`select count(*) n from auth.users where email like '%@nnv.test'`)).toBe(13);
   });
   it('heeft logo’s, video’s, plattegronden en 360°-foto’s', async () => {
     expect(await count(`select count(*) n from offices where logo_url like '/api/logo/%'`)).toBe(6);
     expect(await count(`select count(*) n from listings where video_url = '/voorbeeld-video.mp4'`)).toBeGreaterThan(8);
     expect(await count(`select count(*) n from listings where jsonb_array_length(floorplans) = 1`)).toBeGreaterThan(60);
     expect(await count(`select count(*) n from listings where jsonb_array_length(photos_360) = 1`)).toBeGreaterThan(10);
+  });
+  it('vult ook aanmeldingen, koppelingen en gebruik', async () => {
+    expect(await count(`select count(*) n from broker_requests where email like '%@nnv.test'`)).toBe(6);
+    expect(await count(`select count(distinct status) n from broker_requests`)).toBe(4);
+    expect(await count(`select count(*) n from feed_connections`)).toBe(4);
+    expect(await count(`select count(*) n from feed_runs`)).toBe(12);
+    expect(await count(`select count(*) n from feed_runs where rejected > 0`)).toBeGreaterThanOrEqual(1);
+    expect(await count(`select count(*) n from usage_events where unique_key like 'testdata:%'`)).toBe(14);
+    expect(await count(`select count(*) n from conversations`)).toBe(8);
+    expect(await count(`select count(*) n from saved_searches`)).toBe(6);
+    expect(await count(`select count(*) n from leads where listing_id is null or office_id is null`)).toBe(0);
+    expect(await count(`select count(*) n from viewings where listing_id is null`)).toBe(0);
+    expect(await count(`select count(*) n from favorites where listing_id is null`)).toBe(0);
   });
   it('geeft de testaccounts de juiste rol, en laat de eigenaar met rust', async () => {
     const r = await db.query<{ email: string; role: string; office: string | null }>(`select u.email, p.role, o.slug office from profiles p join auth.users u on u.id = p.id left join offices o on o.id = p.office_id`);
@@ -59,6 +72,9 @@ describe('testgegevens', () => {
     expect(by['anna@nnv.test'].role).toBe('seeker');
     expect(by['makelaar.groningen@nnv.test'].role).toBe('agent');
     expect(by['lezer.drenthe@nnv.test'].role).toBe('readonly');
+    expect(by['beheer@nnv.test'].role).toBe('admin');
+    expect(by['makelaar.hogeland@nnv.test'].office).toBe('hogeland-wonen');
+    expect(by['lars@nnv.test'].role).toBe('seeker');
   });
   it('heeft zichtbare woningen, toekomstige én voorbije bezichtigingen', async () => {
     expect(await count(`select count(*) n from listings where status = 'beschikbaar'`)).toBeGreaterThan(30);

@@ -53,7 +53,7 @@ curl -X POST https://<domein>/api/feeds/<koppeling-id> \
 - Juridische controle van de privacyverklaring en de algemene voorwaarden.
 
 ## Testgegevens
-`supabase/seed/testdata.sql` zet een complete testomgeving klaar: 6 kantoren, 75 woningen met foto's (koop, huur, nieuwbouw, bedrijfsruimte, ook concept/verkocht/ingetrokken), beschikbaarheid, leads, bezichtigingen, gesprekken, favorieten en testaccounts (`@nnv.test`, wachtwoord in het bestand). Herhaalbaar. Opruimen voor livegang: `supabase/seed/testdata_verwijderen.sql`. Opnieuw genereren: `npm run testdata`.
+`supabase/seed/testdata.sql` zet een complete testomgeving klaar: 6 kantoren, 75 woningen met foto's (koop, huur, nieuwbouw, bedrijfsruimte, ook concept/verkocht/ingetrokken), beschikbaarheid, leads, bezichtigingen, gesprekken, favorieten, opgeslagen zoekopdrachten, aanmeldingen van makelaars, koppelingen met aanroepen, gebruik en 13 testaccounts (zoekers, makelaars, alleen-lezen en een beheerder) (`@nnv.test`, wachtwoord in het bestand). Herhaalbaar. Opruimen voor livegang: `supabase/seed/testdata_verwijderen.sql`. Opnieuw genereren: `npm run testdata`.
 De kaart gebruikt MapLibre met OpenFreeMap (wereldwijd, vloeiend), met PDOK als terugval. De voorbeeldfoto's komen uit `/api/foto/<naam>-<n>` (illustraties).
 
 ## Video, logo en pdf

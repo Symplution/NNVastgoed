@@ -1,17 +1,21 @@
 -- NNvastgoed — TESTGEGEVENS (gegenereerd met "npm run testdata"; niet met de hand aanpassen)
 --
--- Zet een complete testomgeving in de database: kantoren, 75 woningen met foto's (koop, huur, nieuwbouw, bedrijfsruimte, met statussen),
--- beschikbaarheid, leads, bezichtigingen (voorbij en gepland), gesprekken met berichten, favorieten en zoekopdrachten, en testaccounts.
+-- Zet een complete testomgeving in de database: kantoren met logo's, 75 woningen met foto's (koop, huur, nieuwbouw, recreatie, bedrijfsruimte, met statussen),
+-- beschikbaarheid, leads, bezichtigingen (voorbij en gepland), gesprekken met berichten, favorieten, opgeslagen zoekopdrachten,
+-- aanmeldingen van makelaars, koppelingen met aanroepen, gebruik en testaccounts.
 --
 -- Testaccounts (wachtwoord voor allemaal: NNV-testaccount-2026):
---   Zoekers:   anna@nnv.test  piet@nnv.test  fleur@nnv.test          → inloggen via /inloggen (geen authenticator nodig)
---   Makelaars: makelaar.groningen@nnv.test (kantoor Martinihof), makelaar.friesland@nnv.test (Elfsteden), lezer.drenthe@nnv.test (alleen lezen, Brink & Es)
---              → inloggen via /login; de eerste keer stel je een authenticator-app in
+--   Zoekers:   anna@nnv.test  piet@nnv.test  fleur@nnv.test  lars@nnv.test  marloes@nnv.test     → inloggen via /inloggen (geen authenticator nodig)
+--   Makelaars: makelaar.groningen@nnv.test (Martinihof), makelaar.friesland@nnv.test (Elfsteden), makelaar.hogeland@nnv.test (Hogeland Wonen),
+--              makelaar.meerwaarde@nnv.test (Meerwaarde Friesland), makelaar.veenhuizen@nnv.test (Veenhuizen Vastgoed)
+--   Alleen lezen: lezer.drenthe@nnv.test (Brink & Es), lezer.groningen@nnv.test (Martinihof)
+--   Beheerder (alle kantoren): beheer@nnv.test
+--              → makelaars en beheerders loggen in via /login; de eerste keer stel je een authenticator-app in
 --   Jouw eigen account (eigenaar) ziet alle kantoren.
 -- Alle testadressen eindigen op @nnv.test: dat domein bestaat niet, er gaat dus nooit echte mail naartoe.
 --
 -- Herhaalbaar: eerdere testgegevens worden eerst verwijderd. Opruimen voor je live gaat: draai testdata_verwijderen.sql.
--- Vereist: je eigen account bestaat al (de eerste gebruiker wordt eigenaar) en migraties 0001 t/m 0007 zijn gedraaid.
+-- Vereist: je eigen account bestaat al (de eerste gebruiker wordt eigenaar) en migraties 0001 t/m 0012 zijn gedraaid.
 
 do $$ begin
   if (select count(*) from profiles) = 0 then
@@ -33,6 +37,8 @@ end $$;
 -- 1. Eerdere testgegevens weg (ook losse recreatiewoningen uit testdata_recreatie.sql)
 delete from listings where slug in ('oudemirdumerklif-12-oudemirdum', 'waddendijk-4-paesens-moddergat', 'oostergoweg-21-langweer', 'havenweg-3-lauwersoog', 'bosweg-8-diever', 'hunebedweg-15-borger', 'veenpad-2-erica', 'zeedijk-10-zoutkamp', 'burg-reedekerstraat-9-west-terschelling', 'dijkweg-1-makkum', 'hoofdweg-5-hollum', 'reeweg-8-schiermonnikoog', 'strandweg-2-lauwersoog', 'wijkweg-3-dwingeloo', 'meerweg-4-heeg', 'heidepad-6-gasselte');
 delete from saved_searches where email like '%@nnv.test';
+delete from broker_requests where email like '%@nnv.test';
+delete from usage_events where unique_key like 'testdata:%';
 delete from offices where id in ('a0000001-0000-4000-8000-000000000001', 'a0000001-0000-4000-8000-000000000002', 'a0000001-0000-4000-8000-000000000003', 'a0000001-0000-4000-8000-000000000004', 'a0000001-0000-4000-8000-000000000005', 'a0000001-0000-4000-8000-000000000006');
 delete from auth.users where email like '%@nnv.test';
 
@@ -44,9 +50,16 @@ begin
   ('a0000003-0000-4000-8000-000000000001', 'makelaar.groningen@nnv.test', 'Sanne Visser'),
   ('a0000003-0000-4000-8000-000000000002', 'makelaar.friesland@nnv.test', 'Bram de Boer'),
   ('a0000003-0000-4000-8000-000000000003', 'lezer.drenthe@nnv.test', 'Lotte Mulder'),
+  ('a0000003-0000-4000-8000-000000000004', 'beheer@nnv.test', 'Daan Prins'),
+  ('a0000003-0000-4000-8000-000000000005', 'makelaar.hogeland@nnv.test', 'Rik Smit'),
+  ('a0000003-0000-4000-8000-000000000006', 'makelaar.meerwaarde@nnv.test', 'Ilse Postma'),
+  ('a0000003-0000-4000-8000-000000000007', 'makelaar.veenhuizen@nnv.test', 'Joost Hilbrands'),
+  ('a0000003-0000-4000-8000-000000000008', 'lezer.groningen@nnv.test', 'Nina Kuipers'),
   ('a0000003-0000-4000-8000-00000000000b', 'anna@nnv.test', 'Anna de Vries'),
   ('a0000003-0000-4000-8000-00000000000c', 'piet@nnv.test', 'Piet Jansen'),
-  ('a0000003-0000-4000-8000-00000000000d', 'fleur@nnv.test', 'Fleur Bos')
+  ('a0000003-0000-4000-8000-00000000000d', 'fleur@nnv.test', 'Fleur Bos'),
+  ('a0000003-0000-4000-8000-00000000000e', 'lars@nnv.test', 'Lars Mulder'),
+  ('a0000003-0000-4000-8000-00000000000f', 'marloes@nnv.test', 'Marloes Visser')
   ) as t(id, email, name) loop
     insert into auth.users (instance_id, id, aud, role, email, encrypted_password, email_confirmed_at, recovery_sent_at, last_sign_in_at, raw_app_meta_data, raw_user_meta_data, created_at, updated_at, confirmation_token, email_change, email_change_token_new, recovery_token)
     values ('00000000-0000-0000-0000-000000000000', r.id::uuid, 'authenticated', 'authenticated', r.email, crypt('NNV-testaccount-2026', gen_salt('bf')), now(), now(), now(),
@@ -69,9 +82,16 @@ do $$ begin
   update profiles set full_name = 'Sanne Visser', phone = '050 123 45 67', role = 'agent', office_id = 'a0000001-0000-4000-8000-000000000001' where id = 'a0000003-0000-4000-8000-000000000001';
   update profiles set full_name = 'Bram de Boer', phone = '058 123 45 67', role = 'agent', office_id = 'a0000001-0000-4000-8000-000000000003' where id = 'a0000003-0000-4000-8000-000000000002';
   update profiles set full_name = 'Lotte Mulder', phone = '0592 12 34 56', role = 'readonly', office_id = 'a0000001-0000-4000-8000-000000000005' where id = 'a0000003-0000-4000-8000-000000000003';
+  update profiles set full_name = 'Daan Prins', phone = '06 40404040', role = 'admin', office_id = null where id = 'a0000003-0000-4000-8000-000000000004';
+  update profiles set full_name = 'Rik Smit', phone = '0595 12 34 56', role = 'agent', office_id = 'a0000001-0000-4000-8000-000000000002' where id = 'a0000003-0000-4000-8000-000000000005';
+  update profiles set full_name = 'Ilse Postma', phone = '0515 12 34 56', role = 'agent', office_id = 'a0000001-0000-4000-8000-000000000004' where id = 'a0000003-0000-4000-8000-000000000006';
+  update profiles set full_name = 'Joost Hilbrands', phone = '0591 12 34 56', role = 'agent', office_id = 'a0000001-0000-4000-8000-000000000006' where id = 'a0000003-0000-4000-8000-000000000007';
+  update profiles set full_name = 'Nina Kuipers', phone = '050 123 45 68', role = 'readonly', office_id = 'a0000001-0000-4000-8000-000000000001' where id = 'a0000003-0000-4000-8000-000000000008';
   update profiles set full_name = 'Anna de Vries', phone = '06 12345678' where id = 'a0000003-0000-4000-8000-00000000000b';
   update profiles set full_name = 'Piet Jansen', phone = '06 23456789' where id = 'a0000003-0000-4000-8000-00000000000c';
   update profiles set full_name = 'Fleur Bos', phone = '06 34567890' where id = 'a0000003-0000-4000-8000-00000000000d';
+  update profiles set full_name = 'Lars Mulder', phone = '06 45678901' where id = 'a0000003-0000-4000-8000-00000000000e';
+  update profiles set full_name = 'Marloes Visser', phone = '06 56789012' where id = 'a0000003-0000-4000-8000-00000000000f';
 end $$;
 
 -- 4. Beschikbaarheid voor bezichtigingen
@@ -446,7 +466,17 @@ insert into leads (listing_id, name, email, phone, message, kind, consent, creat
   ('a0000002-0000-4000-8000-00000000003e', 'Henk de Wit', 'henk.dewit@nnv.test', '0592 11 22 33', 'Kunnen we de tuin ook zien? We hebben twee honden.', 'bezichtiging', true, now() - interval '7 days' - interval '407 minutes'),
   ('a0000002-0000-4000-8000-000000000042', 'Sophie Hofstra', 'sophie.hofstra@nnv.test', null, 'Mag het chalet het hele jaar worden bewoond?', 'info', true, now() - interval '1 days' - interval '518 minutes'),
   ('a0000002-0000-4000-8000-000000000040', 'Bakkerij De Brink', 'info.debrink@nnv.test', '0528 33 44 55', 'Wat zijn de huurvoorwaarden en is horeca-gebruik toegestaan?', 'info', true, now() - interval '3 days' - interval '29 minutes'),
-  ('a0000002-0000-4000-8000-00000000001f', 'Eline Postma', 'eline.postma@nnv.test', null, 'Per wanneer is de woning beschikbaar?', 'info', true, now() - interval '6 days' - interval '444 minutes');
+  ('a0000002-0000-4000-8000-00000000001f', 'Eline Postma', 'eline.postma@nnv.test', null, 'Per wanneer is de woning beschikbaar?', 'info', true, now() - interval '6 days' - interval '444 minutes'),
+  ('a0000002-0000-4000-8000-000000000039', 'Karin Dijk', 'karin.dijk@nnv.test', '06 70707070', 'Is er aardbevingsschade geweest aan de boerderij en zijn er subsidiemogelijkheden?', 'info', true, now() - interval '1 days' - interval '370 minutes'),
+  ('a0000002-0000-4000-8000-00000000003a', 'Bas Schuurman', 'bas.s@nnv.test', '06 71717171', 'Wat zijn de verwachte verbouwkosten voor de keuken?', 'info', true, now() - interval '10 days' - interval '481 minutes'),
+  ('a0000002-0000-4000-8000-00000000002e', 'Femke Jorritsma', 'femke.j@nnv.test', '06 72727272', 'Mag ik de recreatiewoning het hele jaar verhuren aan toeristen?', 'info', true, now() - interval '0 days' - interval '555 minutes'),
+  ('a0000002-0000-4000-8000-00000000002f', 'Roel Bouma', 'roel.bouma@nnv.test', null, 'Zijn de kosten voor het park inbegrepen?', 'info', true, now() - interval '3 days' - interval '370 minutes'),
+  ('a0000002-0000-4000-8000-000000000045', 'Gerda Tuin', 'gerda.tuin@nnv.test', '06 73737373', 'Kunnen we dit weekend langskomen voor het chalet?', 'bezichtiging', true, now() - interval '1 days' - interval '370 minutes'),
+  ('a0000002-0000-4000-8000-000000000046', 'Sjoerd Smit', 'sjoerd.smit@nnv.test', '06 74747474', 'Wat is de maximale bewoningsduur per jaar?', 'info', true, now() - interval '8 days' - interval '407 minutes'),
+  ('a0000002-0000-4000-8000-000000000047', 'Yara El Idrissi', 'yara.e@nnv.test', '06 75757575', 'Is het chalet gemeubileerd en is een huisdier toegestaan?', 'info', true, now() - interval '2 days' - interval '555 minutes'),
+  ('a0000002-0000-4000-8000-00000000003b', 'Mees van der Berg', 'mees.vdberg@nnv.test', '06 76767676', 'Is de huur inclusief servicekosten?', 'info', true, now() - interval '4 days' - interval '29 minutes'),
+  ('a0000002-0000-4000-8000-00000000003d', 'Anouk Terpstra', 'anouk.t@nnv.test', '06 77777777', 'Kunnen we de bouwtekeningen inzien?', 'bezichtiging', true, now() - interval '0 days' - interval '518 minutes'),
+  ('a0000002-0000-4000-8000-000000000040', 'Pieter Bosma', 'pieter.bosma@nnv.test', '0528 11 22 44', 'Is het pand geschikt voor een kapsalon?', 'info', true, now() - interval '6 days' - interval '444 minutes');
 update leads set status = 'nieuw' where email = 'joris.kramer@nnv.test';
 update leads set status = 'nieuw' where email = 'lieke.smit@nnv.test';
 update leads set status = 'opgepakt' where email = 'm.elamrani@nnv.test';
@@ -464,6 +494,16 @@ update leads set status = 'afgehandeld' where email = 'henk.dewit@nnv.test';
 update leads set status = 'nieuw' where email = 'sophie.hofstra@nnv.test';
 update leads set status = 'opgepakt' where email = 'info.debrink@nnv.test';
 update leads set status = 'opgepakt' where email = 'eline.postma@nnv.test';
+update leads set status = 'nieuw' where email = 'karin.dijk@nnv.test';
+update leads set status = 'afgehandeld' where email = 'bas.s@nnv.test';
+update leads set status = 'nieuw' where email = 'femke.j@nnv.test';
+update leads set status = 'opgepakt' where email = 'roel.bouma@nnv.test';
+update leads set status = 'nieuw' where email = 'gerda.tuin@nnv.test';
+update leads set status = 'afgehandeld' where email = 'sjoerd.smit@nnv.test';
+update leads set status = 'nieuw' where email = 'yara.e@nnv.test';
+update leads set status = 'opgepakt' where email = 'mees.vdberg@nnv.test';
+update leads set status = 'nieuw' where email = 'anouk.t@nnv.test';
+update leads set status = 'nieuw' where email = 'pieter.bosma@nnv.test';
 
 -- 7. Bezichtigingen (voorbije tijden kan de site zelf niet inplannen; daarom gaat de controle hier even uit)
 alter table viewings disable trigger viewings_before_insert_trg;
@@ -487,7 +527,15 @@ insert into viewings (id, listing_id, office_id, seeker_id, name, email, phone, 
   ('a0000005-0000-4000-8000-000000000011', 'a0000002-0000-4000-8000-00000000003d', 'a0000001-0000-4000-8000-000000000004', 'a0000003-0000-4000-8000-00000000000c', 'Piet Jansen', 'piet@nnv.test', '06 23456789', 'Graag de kavel zien', ((pg_temp.wd(5) + time '11:00') at time zone 'Europe/Amsterdam'), ((pg_temp.wd(5) + time '11:00') at time zone 'Europe/Amsterdam') + interval '30 minutes', 'bevestigd', null, 'site', now() - interval '7 days'),
   ('a0000005-0000-4000-8000-000000000012', 'a0000002-0000-4000-8000-00000000003b', 'a0000001-0000-4000-8000-000000000003', 'a0000003-0000-4000-8000-00000000000c', 'Piet Jansen', 'piet@nnv.test', '06 23456789', null, ((pg_temp.wd(-5) + time '15:00') at time zone 'Europe/Amsterdam'), ((pg_temp.wd(-5) + time '15:00') at time zone 'Europe/Amsterdam') + interval '30 minutes', 'afgerond', null, 'site', now() - interval '7 days'),
   ('a0000005-0000-4000-8000-000000000013', 'a0000002-0000-4000-8000-00000000003f', 'a0000001-0000-4000-8000-000000000005', null, 'Lars Mulder', 'lars.mulder@nnv.test', '06 33330000', null, ((pg_temp.wd(1) + time '16:00') at time zone 'Europe/Amsterdam'), ((pg_temp.wd(1) + time '16:00') at time zone 'Europe/Amsterdam') + interval '30 minutes', 'bevestigd', null, 'site', now() - interval '3 days'),
-  ('a0000005-0000-4000-8000-000000000014', 'a0000002-0000-4000-8000-000000000002', 'a0000001-0000-4000-8000-000000000001', null, 'Telefonisch: familie Brouwer', 'brouwer@nnv.test', '050 987 65 43', 'Via de telefoon ingepland', ((pg_temp.wd(3) + time '15:30') at time zone 'Europe/Amsterdam'), ((pg_temp.wd(3) + time '15:30') at time zone 'Europe/Amsterdam') + interval '30 minutes', 'bevestigd', null, 'makelaar', now() - interval '5 days');
+  ('a0000005-0000-4000-8000-000000000014', 'a0000002-0000-4000-8000-000000000002', 'a0000001-0000-4000-8000-000000000001', null, 'Telefonisch: familie Brouwer', 'brouwer@nnv.test', '050 987 65 43', 'Via de telefoon ingepland', ((pg_temp.wd(3) + time '15:30') at time zone 'Europe/Amsterdam'), ((pg_temp.wd(3) + time '15:30') at time zone 'Europe/Amsterdam') + interval '30 minutes', 'bevestigd', null, 'makelaar', now() - interval '5 days'),
+  ('a0000005-0000-4000-8000-000000000015', 'a0000002-0000-4000-8000-000000000039', 'a0000001-0000-4000-8000-000000000002', 'a0000003-0000-4000-8000-00000000000f', 'Marloes Visser', 'marloes@nnv.test', '06 56789012', 'Met onze architect', ((pg_temp.wd(2) + time '13:30') at time zone 'Europe/Amsterdam'), ((pg_temp.wd(2) + time '13:30') at time zone 'Europe/Amsterdam') + interval '30 minutes', 'bevestigd', null, 'site', now() - interval '4 days'),
+  ('a0000005-0000-4000-8000-000000000016', 'a0000002-0000-4000-8000-000000000042', 'a0000001-0000-4000-8000-000000000004', 'a0000003-0000-4000-8000-00000000000e', 'Lars Mulder', 'lars@nnv.test', '06 45678901', null, ((pg_temp.wd(3) + time '10:00') at time zone 'Europe/Amsterdam'), ((pg_temp.wd(3) + time '10:00') at time zone 'Europe/Amsterdam') + interval '30 minutes', 'bevestigd', null, 'site', now() - interval '5 days'),
+  ('a0000005-0000-4000-8000-000000000017', 'a0000002-0000-4000-8000-00000000002e', 'a0000001-0000-4000-8000-000000000004', null, 'Femke Jorritsma', 'femke.j@nnv.test', '06 72727272', null, ((pg_temp.wd(4) + time '11:30') at time zone 'Europe/Amsterdam'), ((pg_temp.wd(4) + time '11:30') at time zone 'Europe/Amsterdam') + interval '30 minutes', 'bevestigd', null, 'site', now() - interval '6 days'),
+  ('a0000005-0000-4000-8000-000000000018', 'a0000002-0000-4000-8000-000000000045', 'a0000001-0000-4000-8000-000000000002', null, 'Gerda Tuin', 'gerda.tuin@nnv.test', '06 73737373', 'Met de hond', ((pg_temp.wd(5) + time '14:30') at time zone 'Europe/Amsterdam'), ((pg_temp.wd(5) + time '14:30') at time zone 'Europe/Amsterdam') + interval '30 minutes', 'bevestigd', null, 'site', now() - interval '7 days'),
+  ('a0000005-0000-4000-8000-000000000019', 'a0000002-0000-4000-8000-00000000003a', 'a0000001-0000-4000-8000-000000000002', null, 'Bas Schuurman', 'bas.s@nnv.test', '06 71717171', null, ((pg_temp.wd(-7) + time '10:30') at time zone 'Europe/Amsterdam'), ((pg_temp.wd(-7) + time '10:30') at time zone 'Europe/Amsterdam') + interval '30 minutes', 'afgerond', null, 'site', now() - interval '9 days'),
+  ('a0000005-0000-4000-8000-00000000001a', 'a0000002-0000-4000-8000-000000000038', 'a0000001-0000-4000-8000-000000000001', 'a0000003-0000-4000-8000-00000000000f', 'Marloes Visser', 'marloes@nnv.test', '06 56789012', null, ((pg_temp.wd(-3) + time '13:00') at time zone 'Europe/Amsterdam'), ((pg_temp.wd(-3) + time '13:00') at time zone 'Europe/Amsterdam') + interval '30 minutes', 'geannuleerd', 'zoeker', 'site', now() - interval '5 days'),
+  ('a0000005-0000-4000-8000-00000000001b', 'a0000002-0000-4000-8000-000000000037', 'a0000001-0000-4000-8000-000000000001', null, 'Tim Prins', 'tim.prins@nnv.test', null, null, ((pg_temp.wd(-1) + time '16:00') at time zone 'Europe/Amsterdam'), ((pg_temp.wd(-1) + time '16:00') at time zone 'Europe/Amsterdam') + interval '30 minutes', 'niet_verschenen', null, 'site', now() - interval '3 days'),
+  ('a0000005-0000-4000-8000-00000000001c', 'a0000002-0000-4000-8000-000000000047', 'a0000001-0000-4000-8000-000000000004', null, 'Yara El Idrissi', 'yara.e@nnv.test', '06 75757575', 'Ook voor mijn zus', ((pg_temp.wd(6) + time '09:30') at time zone 'Europe/Amsterdam'), ((pg_temp.wd(6) + time '09:30') at time zone 'Europe/Amsterdam') + interval '30 minutes', 'bevestigd', null, 'site', now() - interval '8 days');
 alter table viewings enable trigger viewings_before_insert_trg;
 
 -- 8. Gesprekken en berichten
@@ -497,7 +545,10 @@ insert into conversations (id, listing_id, office_id, seeker_id, created_at) val
   ('a0000006-0000-4000-8000-000000000002', 'a0000002-0000-4000-8000-00000000000b', 'a0000001-0000-4000-8000-000000000003', 'a0000003-0000-4000-8000-00000000000c', now() - interval '1620 minutes'),
   ('a0000006-0000-4000-8000-000000000003', 'a0000002-0000-4000-8000-000000000013', 'a0000001-0000-4000-8000-000000000005', 'a0000003-0000-4000-8000-00000000000d', now() - interval '11580 minutes'),
   ('a0000006-0000-4000-8000-000000000004', 'a0000002-0000-4000-8000-00000000003b', 'a0000001-0000-4000-8000-000000000003', 'a0000003-0000-4000-8000-00000000000c', now() - interval '4380 minutes'),
-  ('a0000006-0000-4000-8000-000000000005', 'a0000002-0000-4000-8000-000000000037', 'a0000001-0000-4000-8000-000000000001', 'a0000003-0000-4000-8000-00000000000b', now() - interval '1500 minutes');
+  ('a0000006-0000-4000-8000-000000000005', 'a0000002-0000-4000-8000-000000000037', 'a0000001-0000-4000-8000-000000000001', 'a0000003-0000-4000-8000-00000000000b', now() - interval '1500 minutes'),
+  ('a0000006-0000-4000-8000-000000000006', 'a0000002-0000-4000-8000-00000000003d', 'a0000001-0000-4000-8000-000000000004', 'a0000003-0000-4000-8000-00000000000e', now() - interval '2940 minutes'),
+  ('a0000006-0000-4000-8000-000000000007', 'a0000002-0000-4000-8000-000000000039', 'a0000001-0000-4000-8000-000000000002', 'a0000003-0000-4000-8000-00000000000f', now() - interval '4380 minutes'),
+  ('a0000006-0000-4000-8000-000000000008', 'a0000002-0000-4000-8000-000000000042', 'a0000001-0000-4000-8000-000000000004', 'a0000003-0000-4000-8000-00000000000e', now() - interval '1500 minutes');
 alter table conversations enable trigger conversations_before_insert_trg;
 insert into messages (id, conversation_id, sender, sender_id, body, created_at) values
   ('a0000007-0000-4000-8000-000000000001', 'a0000006-0000-4000-8000-000000000001', 'zoeker', 'a0000003-0000-4000-8000-00000000000b', 'Goedemiddag, is Hereweg 112 nog beschikbaar? En klopt het dat de tuin op het zuidwesten ligt?', now() - interval '7200 minutes'),
@@ -516,12 +567,21 @@ insert into messages (id, conversation_id, sender, sender_id, body, created_at) 
   ('a0000007-0000-4000-8000-00000000000e', 'a0000006-0000-4000-8000-000000000004', 'makelaar', 'a0000003-0000-4000-8000-000000000002', 'Goedemorgen Piet, per 1 november beschikbaar. Een kat is toegestaan.', now() - interval '4260 minutes'),
   ('a0000007-0000-4000-8000-00000000000f', 'a0000006-0000-4000-8000-000000000004', 'zoeker', 'a0000003-0000-4000-8000-00000000000c', 'Fijn, ik kwam gisteren al kijken en wil graag een huurcontract ontvangen.', now() - interval '240 minutes'),
   ('a0000007-0000-4000-8000-000000000010', 'a0000006-0000-4000-8000-000000000005', 'zoeker', 'a0000003-0000-4000-8000-00000000000b', 'Is de tuin rondom omheind? Wij hebben een jonge hond.', now() - interval '1440 minutes'),
-  ('a0000007-0000-4000-8000-000000000011', 'a0000006-0000-4000-8000-000000000005', 'makelaar', 'a0000003-0000-4000-8000-000000000001', 'Ja, de tuin is volledig omheind en heeft een afsluitbare poort.', now() - interval '1320 minutes');
+  ('a0000007-0000-4000-8000-000000000011', 'a0000006-0000-4000-8000-000000000005', 'makelaar', 'a0000003-0000-4000-8000-000000000001', 'Ja, de tuin is volledig omheind en heeft een afsluitbare poort.', now() - interval '1320 minutes'),
+  ('a0000007-0000-4000-8000-000000000012', 'a0000006-0000-4000-8000-000000000006', 'zoeker', 'a0000003-0000-4000-8000-00000000000e', 'Dag, zijn er nog kavels beschikbaar in het project en wanneer start de bouw?', now() - interval '2880 minutes'),
+  ('a0000007-0000-4000-8000-000000000013', 'a0000006-0000-4000-8000-000000000006', 'makelaar', 'a0000003-0000-4000-8000-000000000006', 'Goedemiddag Lars, er zijn nog twee kavels beschikbaar. De bouw start in het voorjaar. Ik stuur je de brochure.', now() - interval '2760 minutes'),
+  ('a0000007-0000-4000-8000-000000000014', 'a0000006-0000-4000-8000-000000000006', 'zoeker', 'a0000003-0000-4000-8000-00000000000e', 'Graag! En wat zijn de opleveringskosten?', now() - interval '300 minutes'),
+  ('a0000007-0000-4000-8000-000000000015', 'a0000006-0000-4000-8000-000000000007', 'zoeker', 'a0000003-0000-4000-8000-00000000000f', 'Is de boerderij aardbevingsbestendig versterkt?', now() - interval '4320 minutes'),
+  ('a0000007-0000-4000-8000-000000000016', 'a0000006-0000-4000-8000-000000000007', 'makelaar', 'a0000003-0000-4000-8000-000000000005', 'Ja, de versterking is in 2021 uitgevoerd. De documenten staan in het dossier.', now() - interval '4230 minutes'),
+  ('a0000007-0000-4000-8000-000000000017', 'a0000006-0000-4000-8000-000000000007', 'zoeker', 'a0000003-0000-4000-8000-00000000000f', 'Top, dank u wel. Ik plan een bezichtiging in.', now() - interval '4120 minutes'),
+  ('a0000007-0000-4000-8000-000000000018', 'a0000006-0000-4000-8000-000000000007', 'makelaar', 'a0000003-0000-4000-8000-000000000005', 'Prima, tot dan!', now() - interval '180 minutes'),
+  ('a0000007-0000-4000-8000-000000000019', 'a0000006-0000-4000-8000-000000000008', 'zoeker', 'a0000003-0000-4000-8000-00000000000e', 'Wat zijn de jaarlijkse parkkosten voor het chalet?', now() - interval '1440 minutes'),
+  ('a0000007-0000-4000-8000-00000000001a', 'a0000006-0000-4000-8000-000000000008', 'makelaar', 'a0000003-0000-4000-8000-000000000006', 'Die zijn € 1.850 per jaar, inclusief water en onderhoud van de gemeenschappelijke delen.', now() - interval '1200 minutes');
 -- Gelezen: gesprek 1 heeft een ongelezen antwoord van de makelaar, gesprek 2 een ongelezen vraag van de zoeker, gesprek 3 is gelezen.
 update messages set read_at = created_at + interval '5 minutes' where conversation_id in ('a0000006-0000-4000-8000-000000000003');
 update messages set read_at = created_at + interval '5 minutes' where conversation_id = 'a0000006-0000-4000-8000-000000000001' and created_at < now() - interval '1 day';
 update messages set read_at = created_at + interval '5 minutes' where conversation_id = 'a0000006-0000-4000-8000-000000000002' and sender = 'makelaar';
-update conversations c set last_message_at = (select max(created_at) from messages m where m.conversation_id = c.id) where c.id in ('a0000006-0000-4000-8000-000000000001', 'a0000006-0000-4000-8000-000000000002', 'a0000006-0000-4000-8000-000000000003', 'a0000006-0000-4000-8000-000000000004', 'a0000006-0000-4000-8000-000000000005');
+update conversations c set last_message_at = (select max(created_at) from messages m where m.conversation_id = c.id) where c.id in ('a0000006-0000-4000-8000-000000000001', 'a0000006-0000-4000-8000-000000000002', 'a0000006-0000-4000-8000-000000000003', 'a0000006-0000-4000-8000-000000000004', 'a0000006-0000-4000-8000-000000000005', 'a0000006-0000-4000-8000-000000000006', 'a0000006-0000-4000-8000-000000000007', 'a0000006-0000-4000-8000-000000000008');
 
 -- 9. Favorieten en opgeslagen zoekopdrachten
 insert into favorites (user_id, listing_id) values
@@ -539,11 +599,74 @@ insert into favorites (user_id, listing_id) values
   ('a0000003-0000-4000-8000-00000000000c', 'a0000002-0000-4000-8000-00000000003d'),
   ('a0000003-0000-4000-8000-00000000000c', 'a0000002-0000-4000-8000-00000000003b'),
   ('a0000003-0000-4000-8000-00000000000d', 'a0000002-0000-4000-8000-00000000003e'),
-  ('a0000003-0000-4000-8000-00000000000d', 'a0000002-0000-4000-8000-000000000048');
+  ('a0000003-0000-4000-8000-00000000000d', 'a0000002-0000-4000-8000-000000000048'),
+  ('a0000003-0000-4000-8000-00000000000e', 'a0000002-0000-4000-8000-00000000003d'),
+  ('a0000003-0000-4000-8000-00000000000e', 'a0000002-0000-4000-8000-000000000042'),
+  ('a0000003-0000-4000-8000-00000000000e', 'a0000002-0000-4000-8000-000000000047'),
+  ('a0000003-0000-4000-8000-00000000000e', 'a0000002-0000-4000-8000-000000000045'),
+  ('a0000003-0000-4000-8000-00000000000f', 'a0000002-0000-4000-8000-000000000039'),
+  ('a0000003-0000-4000-8000-00000000000f', 'a0000002-0000-4000-8000-00000000002e'),
+  ('a0000003-0000-4000-8000-00000000000f', 'a0000002-0000-4000-8000-000000000038'),
+  ('a0000003-0000-4000-8000-00000000000f', 'a0000002-0000-4000-8000-00000000002f');
 insert into saved_searches (id, email, filters, confirmed_at, last_sent_at) values
   ('a000000a-0000-4000-8000-000000000001', 'anna@nnv.test', '{"qs":"provincie=groningen&tot=450000"}'::jsonb, now() - interval '10 days', now()),
   ('a000000a-0000-4000-8000-000000000002', 'piet@nnv.test', '{"qs":"soort=huur&tot=1300&provincie=friesland"}'::jsonb, now() - interval '10 days', now()),
-  ('a000000a-0000-4000-8000-000000000003', 'fleur@nnv.test', '{"qs":"provincie=drenthe&type=vrijstaand"}'::jsonb, now() - interval '10 days', now());
+  ('a000000a-0000-4000-8000-000000000003', 'fleur@nnv.test', '{"qs":"provincie=drenthe&type=vrijstaand"}'::jsonb, now() - interval '10 days', now()),
+  ('a000000a-0000-4000-8000-000000000004', 'lars@nnv.test', '{"qs":"soort=recreatie&tot=250000"}'::jsonb, now() - interval '10 days', now()),
+  ('a000000a-0000-4000-8000-000000000005', 'marloes@nnv.test', '{"qs":"provincie=groningen&type=woonboerderij"}'::jsonb, now() - interval '10 days', now()),
+  ('a000000a-0000-4000-8000-000000000006', 'gast.zoeker@nnv.test', '{"qs":"soort=huur&provincie=friesland&tot=1500"}'::jsonb, now() - interval '10 days', now());
+
+-- 10. Aanmeldingen van makelaars (Beheer → Aanmeldingen)
+insert into broker_requests (office_name, city, province, kvk, nvm_member, contact_name, email, phone, software, listing_count, message, consent, created_at) values
+  ('Waddenkust Makelaars', 'Delfzijl', 'groningen', '12345678', true, 'Eva Hofman', 'eva.hofman@nnv.test', '0596 12 34 56', 'Realworks', 48, 'Wij willen graag ons aanbod koppelen en aansluiten als NVM-kantoor.', true, now() - interval '0 days' - interval '360 minutes'),
+  ('De Friese Hoeve', 'Heerenveen', 'friesland', '23456789', false, 'Gerrit Wiersma', 'gerrit.wiersma@nnv.test', '0513 12 34 56', 'Skarabee', 25, null, true, now() - interval '3 days' - interval '95 minutes'),
+  ('Hunebed Vastgoed', 'Borger', 'drenthe', null, false, 'Mirjam Kuiper', 'mirjam.kuiper@nnv.test', null, null, 8, 'Wij zijn gespecialiseerd in recreatiewoningen en zoeken een goed platform.', true, now() - interval '1 days' - interval '148 minutes'),
+  ('Lauwers Wonen', 'Zoutkamp', 'groningen', '34567890', false, 'Henk Dijkstra', 'henk.dijkstra@nnv.test', '0595 98 76 54', 'Eigen systeem', 12, 'Kunnen we de woningen ook handmatig invoeren?', true, now() - interval '14 days' - interval '689 minutes'),
+  ('Noordelijk Bedrijfsvastgoed', 'Assen', 'drenthe', '45678901', true, 'Anita Veenstra', 'anita.veenstra@nnv.test', '0592 22 33 44', 'Realworks', 60, 'Wij bieden vooral bedrijfsruimte en kantoren aan.', true, now() - interval '5 days' - interval '31 minutes'),
+  ('Eilandmakelaars Terschelling', 'West-Terschelling', 'friesland', '56789012', false, 'Jelle de Haan', 'jelle.dehaan@nnv.test', '0562 44 55 66', null, 5, null, true, now() - interval '20 days' - interval '84 minutes');
+update broker_requests set status = 'nieuw' where email = 'eva.hofman@nnv.test';
+update broker_requests set status = 'in_behandeling' where email = 'gerrit.wiersma@nnv.test';
+update broker_requests set status = 'nieuw' where email = 'mirjam.kuiper@nnv.test';
+update broker_requests set status = 'aangesloten' where email = 'henk.dijkstra@nnv.test';
+update broker_requests set status = 'in_behandeling' where email = 'anita.veenstra@nnv.test';
+update broker_requests set status = 'afgewezen' where email = 'jelle.dehaan@nnv.test';
+
+-- 11. Koppelingen en hun aanroepen (Beheer → Koppelingen). De sleutels zijn verzonnen testsleutels.
+insert into feed_connections (id, office_id, name, kind, secret_hash, secret_hint, active, last_run_at, last_status, last_received, last_upserted) values
+  ('a000000b-0000-4000-8000-000000000001', 'a0000001-0000-4000-8000-000000000001', 'Realworks (hoofdkantoor)', 'json', 'fef05b78e1e92851b9cd6996b14febcb57c43c749189aafde3068132395f43df', '…43df', true, now() - interval '25 minutes', 'ok', 31, 31),
+  ('a000000b-0000-4000-8000-000000000002', 'a0000001-0000-4000-8000-000000000002', 'Skarabee-export', 'xml', '0b544774d165009472359bc750a05e628cb2d4523ddc0012d1fb0240a750edb6', '…edb6', true, now() - interval '1560 minutes', 'gedeeltelijk', 12, 10),
+  ('a000000b-0000-4000-8000-000000000003', 'a0000001-0000-4000-8000-000000000003', 'Realworks Leeuwarden', 'json', '1f07f435148eb9f854bf0f7ac6d9415a9f0e28dca17f227f8a5941e7b35c8785', '…8785', true, now() - interval '300 minutes', 'ok', 22, 22),
+  ('a000000b-0000-4000-8000-000000000004', 'a0000001-0000-4000-8000-000000000005', 'Eigen systeem (proef)', 'json', 'e6bfbee4bc2c4b850dc888d79a722e1e99fb9420a87990f1c4ffa107ab7905e9', '…05e9', false, null, null, null, null);
+insert into feed_runs (id, connection_id, office_id, at, received, upserted, rejected, errors) values
+  ('a000000c-0000-4000-8000-000000000001', 'a000000b-0000-4000-8000-000000000001', 'a0000001-0000-4000-8000-000000000001', now() - interval '25 minutes', 31, 31, 0, '[]'::jsonb),
+  ('a000000c-0000-4000-8000-000000000002', 'a000000b-0000-4000-8000-000000000001', 'a0000001-0000-4000-8000-000000000001', now() - interval '1465 minutes', 30, 30, 0, '[]'::jsonb),
+  ('a000000c-0000-4000-8000-000000000003', 'a000000b-0000-4000-8000-000000000001', 'a0000001-0000-4000-8000-000000000001', now() - interval '2905 minutes', 31, 31, 0, '[]'::jsonb),
+  ('a000000c-0000-4000-8000-000000000004', 'a000000b-0000-4000-8000-000000000001', 'a0000001-0000-4000-8000-000000000001', now() - interval '4345 minutes', 30, 30, 0, '[]'::jsonb),
+  ('a000000c-0000-4000-8000-000000000005', 'a000000b-0000-4000-8000-000000000002', 'a0000001-0000-4000-8000-000000000002', now() - interval '1560 minutes', 12, 10, 2, '[{"index":3,"external_id":"RW-20431","reason":"Postcode ontbreekt"},{"index":7,"external_id":"RW-20488","reason":"De provincie ligt buiten Groningen, Friesland en Drenthe"}]'::jsonb),
+  ('a000000c-0000-4000-8000-000000000006', 'a000000b-0000-4000-8000-000000000002', 'a0000001-0000-4000-8000-000000000002', now() - interval '3000 minutes', 11, 11, 0, '[]'::jsonb),
+  ('a000000c-0000-4000-8000-000000000007', 'a000000b-0000-4000-8000-000000000002', 'a0000001-0000-4000-8000-000000000002', now() - interval '4440 minutes', 12, 12, 0, '[]'::jsonb),
+  ('a000000c-0000-4000-8000-000000000008', 'a000000b-0000-4000-8000-000000000002', 'a0000001-0000-4000-8000-000000000002', now() - interval '5880 minutes', 11, 11, 0, '[]'::jsonb),
+  ('a000000c-0000-4000-8000-000000000009', 'a000000b-0000-4000-8000-000000000003', 'a0000001-0000-4000-8000-000000000003', now() - interval '300 minutes', 22, 22, 0, '[]'::jsonb),
+  ('a000000c-0000-4000-8000-00000000000a', 'a000000b-0000-4000-8000-000000000003', 'a0000001-0000-4000-8000-000000000003', now() - interval '1740 minutes', 21, 21, 0, '[]'::jsonb),
+  ('a000000c-0000-4000-8000-00000000000b', 'a000000b-0000-4000-8000-000000000003', 'a0000001-0000-4000-8000-000000000003', now() - interval '3180 minutes', 22, 22, 0, '[]'::jsonb),
+  ('a000000c-0000-4000-8000-00000000000c', 'a000000b-0000-4000-8000-000000000003', 'a0000001-0000-4000-8000-000000000003', now() - interval '4620 minutes', 21, 21, 0, '[]'::jsonb);
+
+-- 12. Gebruik (verstuurde mails)
+insert into usage_events (kind, unique_key, office_id, units, detail, created_at) values
+  ('mail', 'testdata:mail:0', 'a0000001-0000-4000-8000-000000000001', 1, '{"subject":"Nieuw bericht over een woning"}'::jsonb, now() - interval '1 days'),
+  ('mail', 'testdata:mail:1', 'a0000001-0000-4000-8000-000000000002', 1, '{"subject":"Bezichtiging aangevraagd"}'::jsonb, now() - interval '3 days'),
+  ('mail', 'testdata:mail:2', 'a0000001-0000-4000-8000-000000000003', 1, '{"subject":"Bevestig je zoekopdracht"}'::jsonb, now() - interval '5 days'),
+  ('mail', 'testdata:mail:3', 'a0000001-0000-4000-8000-000000000004', 1, '{"subject":"Nieuw bericht over een woning"}'::jsonb, now() - interval '7 days'),
+  ('mail', 'testdata:mail:4', 'a0000001-0000-4000-8000-000000000005', 1, '{"subject":"Bezichtiging aangevraagd"}'::jsonb, now() - interval '9 days'),
+  ('mail', 'testdata:mail:5', 'a0000001-0000-4000-8000-000000000006', 1, '{"subject":"Bevestig je zoekopdracht"}'::jsonb, now() - interval '11 days'),
+  ('mail', 'testdata:mail:6', 'a0000001-0000-4000-8000-000000000001', 1, '{"subject":"Nieuw bericht over een woning"}'::jsonb, now() - interval '13 days'),
+  ('mail', 'testdata:mail:7', 'a0000001-0000-4000-8000-000000000002', 1, '{"subject":"Bezichtiging aangevraagd"}'::jsonb, now() - interval '15 days'),
+  ('mail', 'testdata:mail:8', 'a0000001-0000-4000-8000-000000000003', 1, '{"subject":"Bevestig je zoekopdracht"}'::jsonb, now() - interval '17 days'),
+  ('mail', 'testdata:mail:9', 'a0000001-0000-4000-8000-000000000004', 1, '{"subject":"Nieuw bericht over een woning"}'::jsonb, now() - interval '19 days'),
+  ('mail', 'testdata:mail:10', 'a0000001-0000-4000-8000-000000000005', 1, '{"subject":"Bezichtiging aangevraagd"}'::jsonb, now() - interval '21 days'),
+  ('mail', 'testdata:mail:11', 'a0000001-0000-4000-8000-000000000006', 1, '{"subject":"Bevestig je zoekopdracht"}'::jsonb, now() - interval '23 days'),
+  ('mail', 'testdata:mail:12', 'a0000001-0000-4000-8000-000000000001', 1, '{"subject":"Nieuw bericht over een woning"}'::jsonb, now() - interval '25 days'),
+  ('mail', 'testdata:mail:13', 'a0000001-0000-4000-8000-000000000002', 1, '{"subject":"Bezichtiging aangevraagd"}'::jsonb, now() - interval '27 days');
 
 -- Klaar: een overzicht van wat er nu staat.
 select (select count(*) from offices where id in ('a0000001-0000-4000-8000-000000000001', 'a0000001-0000-4000-8000-000000000002', 'a0000001-0000-4000-8000-000000000003', 'a0000001-0000-4000-8000-000000000004', 'a0000001-0000-4000-8000-000000000005', 'a0000001-0000-4000-8000-000000000006')) as kantoren,
@@ -551,4 +674,6 @@ select (select count(*) from offices where id in ('a0000001-0000-4000-8000-00000
        (select count(*) from leads where listing_id::text like 'a0000002-%') as leads,
        (select count(*) from viewings where id::text like 'a0000005-%') as bezichtigingen,
        (select count(*) from conversations where id::text like 'a0000006-%') as gesprekken,
-       (select count(*) from auth.users where email like '%@nnv.test') as testaccounts;
+       (select count(*) from auth.users where email like '%@nnv.test') as testaccounts,
+       (select count(*) from broker_requests where email like '%@nnv.test') as aanmeldingen,
+       (select count(*) from feed_connections where id::text like 'a000000b-%') as koppelingen;
