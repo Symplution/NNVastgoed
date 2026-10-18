@@ -2,7 +2,7 @@
 // woningen aan een weg die naar de voordeur loopt, en groot groen, lantaarns en een gezin op de voorgrond.
 // Vlakke vormen met zachte kleurverlopen op de donkere huiskleur. Alleen vormen en één woord op het bord; decoratief (aria-hidden).
 const LINE = '#7a1f14';
-const SKY_LINE = '#bfe6fb';
+const SKY_LINE = '#7a1f14';
 
 function Leaf({ x, y, s = 1 }: { x: number; y: number; s?: number }) {
   return (
@@ -25,8 +25,8 @@ function Bush({ x, y, r = 22, a = 'hz-lime', b = 'hz-teal' }: { x: number; y: nu
 function Lamp({ x, y, s = 1 }: { x: number; y: number; s?: number }) {
   return (
     <g transform={`translate(${x} ${y}) scale(${s})`}>
-      <rect x="-3" y="-120" width="6" height="120" rx="3" fill="#dff3ff" opacity=".9" />
-      <path d="M0 -120q0 -14 16 -14" stroke="#dff3ff" strokeWidth="6" fill="none" strokeLinecap="round" opacity=".9" />
+      <rect x="-3" y="-120" width="6" height="120" rx="3" fill="#7a1f14" opacity=".9" />
+      <path d="M0 -120q0 -14 16 -14" stroke="#7a1f14" strokeWidth="6" fill="none" strokeLinecap="round" opacity=".9" />
       <ellipse cx="22" cy="-132" rx="12" ry="6" fill="#ffe98a" /><ellipse cx="22" cy="-128" rx="26" ry="14" fill="#ffe98a" opacity=".22" />
     </g>
   );
@@ -59,21 +59,21 @@ export function HeroIllustration({ className = '' }: { className?: string }) {
         <linearGradient id="hz-lime" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stopColor="#c9ec6a" /><stop offset="1" stopColor="#7ccf4e" /></linearGradient>
         <linearGradient id="hz-leaf" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stopColor="#e6f9e4" /><stop offset="1" stopColor="#b9ecc0" /></linearGradient>
         <linearGradient id="hz-road" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stopColor="#f4e8d2" /><stop offset="1" stopColor="#cdb994" /></linearGradient>
-        <linearGradient id="hz-far" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stopColor="#2f86ad" stopOpacity=".55" /><stop offset="1" stopColor="#1d6a8f" stopOpacity=".2" /></linearGradient>
+        <linearGradient id="hz-far" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stopColor="#8fd3ea" stopOpacity=".9" /><stop offset="1" stopColor="#bfe8f4" stopOpacity=".5" /></linearGradient>
       </defs>
 
       {/* lucht: zon en wolken */}
       <circle cx="1236" cy="64" r="30" fill="url(#hz-glow)" /><circle cx="1236" cy="64" r="48" fill="#ffd45a" opacity=".16" />
-      <g fill="#fff"><g opacity=".5"><rect x="660" y="64" width="150" height="22" rx="11" /><rect x="700" y="46" width="80" height="26" rx="13" /></g><g opacity=".35"><rect x="1290" y="120" width="120" height="18" rx="9" /></g></g>
-      <g fill="#a9dcf7" opacity=".4"><rect x="1300" y="52" width="140" height="22" rx="11" /><rect x="1336" y="34" width="76" height="26" rx="13" /></g>
+      <g fill="#fff"><g opacity=".95"><rect x="660" y="64" width="150" height="22" rx="11" /><rect x="700" y="46" width="80" height="26" rx="13" /></g><g opacity=".8"><rect x="1290" y="120" width="120" height="18" rx="9" /></g></g>
+      <g fill="#a9dcf7" opacity=".9"><rect x="1300" y="52" width="140" height="22" rx="11" /><rect x="1336" y="34" width="76" height="26" rx="13" /></g>
 
       {/* ver weg: heuvels en een lijntekening van gebouwen */}
       <path d="M560 270C700 214 820 206 960 232C1100 258 1240 214 1380 222C1480 228 1560 246 1600 258V300H560Z" fill="url(#hz-far)" />
-      <g fill="none" stroke={SKY_LINE} strokeOpacity=".4" strokeWidth="2.5" strokeLinejoin="round" strokeLinecap="round">
+      <g fill="none" stroke={SKY_LINE} strokeOpacity=".45" strokeWidth="2.5" strokeLinejoin="round" strokeLinecap="round">
         <path d="M790 262V150h70V262M790 180h70M790 210h70M790 238h70M825 150V262" /><path d="M870 262V196l36-34 36 34V262" /><circle cx="906" cy="196" r="7" />
         <path d="M1250 262V170h62V262M1250 198h62M1250 226h62" />
       </g>
-      <g fill="#1a8aa0" opacity=".45"><ellipse cx="640" cy="258" rx="30" ry="36" /><ellipse cx="690" cy="262" rx="24" ry="28" /><ellipse cx="1510" cy="254" rx="34" ry="38" /><ellipse cx="1565" cy="258" rx="26" ry="30" /></g>
+      <g fill="#7fcfc4" opacity=".7"><ellipse cx="640" cy="258" rx="30" ry="36" /><ellipse cx="690" cy="262" rx="24" ry="28" /><ellipse cx="1510" cy="254" rx="34" ry="38" /><ellipse cx="1565" cy="258" rx="26" ry="30" /></g>
 
       {/* appartementen links */}
       <g>
