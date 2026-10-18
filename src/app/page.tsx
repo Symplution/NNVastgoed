@@ -19,7 +19,7 @@ export default async function Home() {
       <section className="relative overflow-hidden bg-gradient-to-b from-[#d9f0fb] to-[#eaf8fe] text-brand-dark">
         <HeroIllustration className="pointer-events-none absolute inset-x-0 bottom-0 hidden h-[24rem] w-full lg:block" />
         <div className="container-x relative z-10 pb-24 pt-16 sm:pt-24 lg:pb-[24rem]">
-          <h1 className="max-w-3xl text-4xl font-extrabold leading-tight tracking-tight sm:text-5xl">Vind je huis in het noorden</h1>
+          <h1 className="mx-auto max-w-3xl text-center text-4xl font-extrabold leading-tight tracking-tight sm:text-5xl">Vind je huis in het noorden</h1>
 
           <HeroSearch />
         </div>

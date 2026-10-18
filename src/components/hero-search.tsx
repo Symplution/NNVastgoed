@@ -15,7 +15,7 @@ export function HeroSearch() {
   const [tab, setTab] = useState<Tab>('koop');
   const steps = tab === 'huur' ? PRICE_STEPS.huur : PRICE_STEPS.koop;
   return (
-    <div className="mt-8 max-w-4xl rounded-2xl bg-white p-3 text-ink shadow-2xl">
+    <div className="mx-auto mt-8 max-w-4xl rounded-2xl bg-white p-3 text-ink shadow-2xl">
       <div role="tablist" aria-label="Wat zoek je?" className="flex gap-1 px-1 pb-3">
         {TABS.map((t) => (
           <button key={t} type="button" role="tab" aria-selected={tab === t} onClick={() => setTab(t)}
