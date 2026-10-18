@@ -31,6 +31,9 @@ export function ContactPanel({ listingId, officeName }: { listingId: string; off
   return (
     <form action={action} className="space-y-3">
       <input type="hidden" name="listingId" value={listingId} />
+      <div><label htmlFor="m-name" className="label">Naam</label><input id="m-name" name="name" required minLength={2} maxLength={120} defaultValue={user.name} autoComplete="name" className="field" /></div>
+      <div><label htmlFor="m-phone" className="label">Telefoonnummer</label><input id="m-phone" name="phone" type="tel" required minLength={8} maxLength={40} defaultValue={user.phone} autoComplete="tel" className="field" /></div>
+      <div><label htmlFor="m-email" className="label">E-mailadres</label><input id="m-email" name="email" type="email" required readOnly value={user.email} autoComplete="email" className="field bg-sand" aria-describedby="m-email-hint" /><p id="m-email-hint" className="mt-1 text-xs text-muted">Dit is het adres van je account.</p></div>
       <div><label htmlFor="m-body" className="label">Je bericht aan {officeName}</label><textarea id="m-body" name="body" required maxLength={4000} rows={5} defaultValue="Ik heb interesse in deze woning. Kunnen jullie me meer vertellen?" className="field" /></div>
       {state?.error && <p role="alert" className="rounded-lg bg-red-50 p-3 text-sm text-red-800">{state.error}</p>}
       <button disabled={pending} className="btn-accent w-full"><MessageSquare size={16} aria-hidden /> {pending ? 'Versturen…' : 'Stuur bericht'}</button>

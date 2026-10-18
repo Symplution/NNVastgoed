@@ -14,7 +14,7 @@ export function ContactForm({ listingId, officeName }: { listingId: string; offi
       <input type="hidden" name="kind" value="info" />
       <div><label htmlFor="c-name" className="label">Naam</label><input id="c-name" name="name" required minLength={2} maxLength={120} autoComplete="name" className="field" /></div>
       <div><label htmlFor="c-email" className="label">E-mailadres</label><input id="c-email" name="email" type="email" required autoComplete="email" className="field" /></div>
-      <div><label htmlFor="c-phone" className="label">Telefoon (optioneel)</label><input id="c-phone" name="phone" type="tel" maxLength={40} autoComplete="tel" className="field" /></div>
+      <div><label htmlFor="c-phone" className="label">Telefoonnummer</label><input id="c-phone" name="phone" type="tel" required minLength={8} maxLength={40} autoComplete="tel" className="field" /></div>
       <div><label htmlFor="c-msg" className="label">Bericht</label><textarea id="c-msg" name="message" required maxLength={2000} rows={4} defaultValue="Ik heb interesse in deze woning. Kunnen jullie contact met mij opnemen?" className="field" /></div>
       <label className="flex items-start gap-2 text-xs text-muted"><input type="checkbox" name="consent" required className="mt-0.5" /><span>Ik ga akkoord met de <a href="/privacy" className="underline">privacyverklaring</a>. Mijn gegevens gaan naar {officeName}.</span></label>
       {state?.error && <p role="alert" className="rounded-lg bg-red-50 p-3 text-sm text-red-800">{state.error}</p>}

@@ -8,6 +8,7 @@ import { getSeeker } from '@/lib/seeker';
 import { createAnonClient } from '@/lib/supabase/anon';
 import { createClient } from '@/lib/supabase/server';
 import { sendMail } from '@/lib/usage';
+import { validPhone } from '@/lib/lead-input';
 
 export type MsgState = { ok?: boolean; error?: string; conversationId?: string } | undefined;
 const UUID = /^[0-9a-f-]{36}$/i;
@@ -18,9 +19,16 @@ export async function sendSeekerMessage(_: MsgState, form: FormData): Promise<Ms
   if (!me) return { error: 'Log in om een bericht te sturen.' };
   const listingId = String(form.get('listingId') ?? '');
   const body = String(form.get('body') ?? '').trim();
+  const name = String(form.get('name') ?? '').trim().slice(0, 120);
+  const phone = String(form.get('phone') ?? '').trim();
   if (!UUID.test(listingId)) return { error: 'Deze woning is niet gevonden.' };
+  if (name.length < 2) return { error: 'Vul je naam in.' };
+  if (!validPhone(phone)) return { error: 'Vul je telefoonnummer in (minstens 8 cijfers).' };
+  if (!me.email) return { error: 'Je account heeft geen e-mailadres. Log opnieuw in.' };
   if (!body || body.length > 4000) return { error: 'Schrijf een bericht (maximaal 4000 tekens).' };
   const supabase = await createClient();
+  // Naam en telefoonnummer bewaren we in je profiel: zo ziet het kantoor wie je bent en hoeft het niet opnieuw.
+  await supabase.from('profiles').update({ full_name: name, phone }).eq('id', me.id);
 
   let { data: conv } = await supabase.from('conversations').select('id').eq('listing_id', listingId).eq('seeker_id', me.id).maybeSingle();
   if (!conv) {
@@ -37,7 +45,7 @@ export async function sendSeekerMessage(_: MsgState, form: FormData): Promise<Ms
     // Hoogstens één mail per gesprek per uur: het kantoor ziet de rest in het beheer.
     const hour = new Date().toISOString().slice(0, 13);
     await sendMail({ to: office.email, officeId: office.id, replyTo: me.email, key: `bericht:${conv!.id}:${hour}`, subject: `Nieuw bericht over ${address(l)}, ${l.city}`,
-      text: `${me.name} schrijft over ${address(l)}, ${l.city}:\n\n${body}\n\nAntwoorden kan in het beheer: ${siteUrl()}/beheer/berichten/${conv!.id}` });
+      text: `${name} (${me.email}, ${phone}) schrijft over ${address(l)}, ${l.city}:\n\n${body}\n\nAntwoorden kan in het beheer: ${siteUrl()}/beheer/berichten/${conv!.id}` });
   }
   revalidatePath('/mijn/berichten');
   return { ok: true, conversationId: conv!.id };

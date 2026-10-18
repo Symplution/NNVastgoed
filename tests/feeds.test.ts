@@ -64,13 +64,21 @@ describe('koppeling (XML)', () => {
 const form = (o: Record<string, string>) => { const f = new FormData(); Object.entries(o).forEach(([k, v]) => f.set(k, v)); return f; };
 
 describe('contactformulier', () => {
-  const ok = { listingId: 'abc-123', name: 'Anna', email: 'anna@x.nl', message: 'Hallo', consent: 'on' };
+  const ok = { listingId: 'abc-123', name: 'Anna', email: 'anna@x.nl', phone: '06 12345678', message: 'Hallo', consent: 'on' };
   it('accepteert een geldig verzoek', () => expect(validateLead(form(ok)).ok).toBe(true));
   it('eist toestemming, geldig e-mailadres en bericht', () => {
     expect(validateLead(form({ ...ok, consent: '' }))).toMatchObject({ ok: false, error: expect.stringContaining('privacy') });
     expect(validateLead(form({ ...ok, email: 'geen' }))).toMatchObject({ ok: false });
     expect(validateLead(form({ ...ok, message: '' }))).toMatchObject({ ok: false });
     expect(validateLead(form({ ...ok, listingId: "x'; drop" }))).toMatchObject({ ok: false });
+  });
+  it('eist naam, telefoonnummer en e-mailadres', () => {
+    expect(validateLead(form({ ...ok, name: '' }))).toMatchObject({ ok: false, error: expect.stringContaining('naam') });
+    expect(validateLead(form({ ...ok, phone: '' }))).toMatchObject({ ok: false, error: expect.stringContaining('telefoon') });
+    expect(validateLead(form({ ...ok, phone: '12345' }))).toMatchObject({ ok: false });
+    expect(validateLead(form({ ...ok, phone: 'bel maar' }))).toMatchObject({ ok: false });
+    expect(validateLead(form({ ...ok, email: '' }))).toMatchObject({ ok: false });
+    for (const phone of ['06 12345678', '+31 6 12345678', '(050) 123 45 67', '050-1234567']) expect(validateLead(form({ ...ok, phone })).ok).toBe(true);
   });
   it('herkent een bot aan het verborgen veld', () => expect(validateLead(form({ ...ok, website: 'http://spam' }))).toMatchObject({ ok: false, bot: true }));
 });
