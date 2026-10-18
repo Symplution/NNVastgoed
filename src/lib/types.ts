@@ -24,6 +24,8 @@ export interface Office {
   street?: string | null; postcode?: string | null; phone?: string | null; email: string; website?: string | null; description: string;
   /** Lid van de NVM; alleen NNV-beheer zet dit aan, na controle. */
   nvmMember: boolean;
+  /** Logo van het kantoor (https-adres), voor in het pdf-overzicht van een woning. */
+  logoUrl?: string | null;
 }
 
 export interface Listing {
@@ -37,6 +39,8 @@ export interface Listing {
   livingArea: number; plotArea?: number | null; rooms: number; bedrooms: number; bathrooms: number; buildYear?: number | null;
   propertyType: PropertyType; energyLabel?: EnergyLabel | null;
   description: string; features: string[]; photos: Photo[];
+  /** Eén video per woning (https-adres naar een mp4, webm of mov). */
+  videoUrl?: string | null;
   publishedAt?: string | null; updatedAt: string;
 }
 

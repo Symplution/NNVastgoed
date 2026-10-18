@@ -7,7 +7,7 @@ export interface ListingInput {
   status: string; street: string; house_number: string; house_suffix: string | null; postcode: string; city: string; province: string; neighbourhood: string | null;
   lat: number | null; lng: number | null; asking_price: number; price_type: 'k.k.' | 'v.o.n.' | 'p.m.'; living_area: number; plot_area: number | null;
   rooms: number; bedrooms: number; bathrooms: number; build_year: number | null; property_type: string; energy_label: string | null;
-  description: string; features: string[]; photos: Photo[];
+  description: string; features: string[]; photos: Photo[]; video_url: string | null;
 }
 export type ListingResult = { ok: true; value: ListingInput } | { ok: false; errors: string[] };
 
@@ -64,13 +64,16 @@ export function validateListing(f: FormData): ListingResult {
     need(photos.every((p) => /^https:\/\/\S+$/.test(p.url)), 'Foto’s moeten een https-adres hebben.');
   } catch { errors.push('De foto’s konden niet worden gelezen.'); }
 
+  const video = text(f, 'video_url');
+  need(!video || (video.length <= 500 && /^https:\/\/\S+\.(mp4|webm|mov|m4v)(\?\S*)?$/i.test(video)), 'De video moet een https-adres zijn naar een mp4-, webm- of mov-bestand.');
+
   if (errors.length) return { ok: false, errors };
   return {
     ok: true,
     value: {
       offer, category, new_build: newBuild, status, street, house_number: houseNumber, house_suffix: text(f, 'house_suffix') || null, postcode, city, province, neighbourhood: text(f, 'neighbourhood') || null,
       lat, lng, asking_price: price!, price_type: priceType, living_area: area!, plot_area: plot, rooms: rooms!, bedrooms, bathrooms, build_year: year,
-      property_type: type, energy_label: label || null, description, features, photos,
+      property_type: type, energy_label: label || null, description, features, photos, video_url: video || null,
     },
   };
 }

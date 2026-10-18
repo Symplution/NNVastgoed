@@ -55,3 +55,8 @@ curl -X POST https://<domein>/api/feeds/<koppeling-id> \
 ## Testgegevens
 `supabase/seed/testdata.sql` zet een complete testomgeving klaar: 6 kantoren, 48 woningen met foto's (koop, huur, nieuwbouw, bedrijfsruimte, ook concept/verkocht/ingetrokken), beschikbaarheid, leads, bezichtigingen, gesprekken, favorieten en testaccounts (`@nnv.test`, wachtwoord in het bestand). Herhaalbaar. Opruimen voor livegang: `supabase/seed/testdata_verwijderen.sql`. Opnieuw genereren: `npm run testdata`.
 De kaart gebruikt MapLibre met OpenFreeMap (wereldwijd, vloeiend), met PDOK als terugval. De voorbeeldfoto's komen uit `/api/foto/<naam>-<n>` (illustraties).
+
+## Video, logo en pdf
+- Per woning kan één video (MP4, WebM of MOV, tot 50 MB) worden geüpload of als https-adres worden toegevoegd (bucket `listing-videos`). Hij staat op de woningpagina onder de foto's.
+- Elk kantoor kan een logo uploaden (bucket `office-logos`, onder Mijn kantoor).
+- In het beheer staat bij elke woning een knop "Download pdf": een intern overzicht met beide logo's, alle foto's, de kenmerken, de volledige tekst en de contactgegevens van het kantoor (`src/lib/listing-pdf.ts`, route `/beheer/woningen/[id]/pdf`). Migratie `0009_media.sql`.

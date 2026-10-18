@@ -4,6 +4,7 @@ import { useActionState } from 'react';
 import { saveOffice } from '@/app/beheer/actions';
 import { PROVINCES, type Office } from '@/lib/types';
 import { provinceName } from '@/lib/regions';
+import { LogoEditor } from './logo-editor';
 import { Select } from './select';
 
 export function OfficeForm({ office, canSetNvm = false }: { office?: Office; canSetNvm?: boolean }) {
@@ -21,6 +22,7 @@ export function OfficeForm({ office, canSetNvm = false }: { office?: Office; can
       {f('phone', 'Telefoon', office?.phone, { type: 'tel' })}
       {f('email', 'E-mail (hier komen de leads binnen)', office?.email, { type: 'email', required: true })}
       {f('website', 'Website (https://…)', office?.website)}
+      <div className="sm:col-span-2"><span className="label">Logo</span><LogoEditor officeId={office?.id ?? null} initial={office?.logoUrl} /></div>
       <div className="sm:col-span-2"><label htmlFor="o-description" className="label">Over het kantoor</label><textarea id="o-description" name="description" rows={4} maxLength={2000} defaultValue={office?.description} className="field" /></div>
       {canSetNvm && <label className="flex items-center gap-2 text-sm sm:col-span-2"><input type="checkbox" name="nvm_member" defaultChecked={office?.nvmMember} /> Lid van de NVM (alleen aanvinken na controle van het lidmaatschap)</label>}
       {state?.errors && <ul role="alert" className="list-disc pl-5 text-sm text-red-700 sm:col-span-2">{state.errors.map((e) => <li key={e}>{e}</li>)}</ul>}

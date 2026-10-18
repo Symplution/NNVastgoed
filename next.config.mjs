@@ -6,6 +6,7 @@ const csp = [
   "style-src 'self' 'unsafe-inline'",
   // Woningfoto's komen uit Supabase Storage of van de mediaserver van het kantoor.
   "img-src 'self' data: blob: https:",
+  "media-src 'self' blob: https:",
   "font-src 'self' data:",
   "connect-src 'self' https://*.supabase.co wss://*.supabase.co https://tiles.openfreemap.org https://service.pdok.nl",
   // De kaart rekent in een achtergrondproces (blob) om soepel te blijven.

@@ -241,6 +241,29 @@ describe('foto-opslag', () => {
   });
 });
 
+describe('video en logo', () => {
+  const put = (u: string, bucket: string, o: string) => as(u, `insert into storage.objects (bucket_id, name) values ('${bucket}', '${o}/a.bin')`);
+  it('een makelaar zet een video en een logo alleen in de map van het eigen kantoor', async () => {
+    for (const bucket of ['listing-videos', 'office-logos']) {
+      await put(ids.agentA, bucket, office.a);
+      await expect(put(ids.agentA, bucket, office.b)).rejects.toThrow();
+      await expect(put(ids.lezerA, bucket, office.a)).rejects.toThrow();
+      await expect(as(null, `insert into storage.objects (bucket_id, name) values ('${bucket}', '${office.a}/b.bin')`)).rejects.toThrow();
+      await expect(as(ids.zoekerA, `insert into storage.objects (bucket_id, name) values ('${bucket}', '${office.a}/b.bin')`)).rejects.toThrow();
+      await expect(as(ids.agentA, `insert into storage.objects (bucket_id, name) values ('${bucket}', '${office.a}/c.bin')`, 'aal1')).rejects.toThrow();
+      expect(await as(ids.agentB, `delete from storage.objects where bucket_id = '${bucket}' and name like '${office.a}/%' returning 1`)).toHaveLength(0);
+    }
+  });
+  it('een video of logo moet een https-adres zijn, en de woning bewaart één video', async () => {
+    expect(await as(ids.agentA, `update listings set video_url = 'https://x.nl/v.mp4' where id = '${listing.pubA}' returning 1`)).toHaveLength(1);
+    await expect(as(ids.agentA, `update listings set video_url = 'javascript:alert(1)' where id = '${listing.pubA}'`)).rejects.toThrow();
+    await expect(as(ids.agentA, `update offices set logo_url = 'http://x.nl/l.png' where id = '${office.a}'`)).rejects.toThrow();
+    expect(await as(ids.agentA, `update offices set logo_url = 'https://x.nl/l.png' where id = '${office.a}' returning 1`)).toHaveLength(1);
+    expect(await as(ids.agentB, `update listings set video_url = 'https://x.nl/hack.mp4' where id = '${listing.pubA}' returning 1`)).toHaveLength(0);   // collega-kantoor
+    expect((await as(null, `select video_url from listings where id = '${listing.pubA}'`))[0].video_url).toBe('https://x.nl/v.mp4');   // openbaar zichtbaar
+  });
+});
+
 describe('usage', () => {
   it('alleen beheerders lezen het gebruik; schrijven kan niet vanuit de browser', async () => {
     await db.exec(`insert into usage_events (kind, unique_key) values ('mail', 'k1')`);

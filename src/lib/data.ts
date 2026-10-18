@@ -15,10 +15,10 @@ export const mapListing = (r: Row): Listing => ({
   street: r.street, houseNumber: r.house_number, houseSuffix: r.house_suffix, postcode: r.postcode, city: r.city, province: r.province, neighbourhood: r.neighbourhood,
   lat: r.lat, lng: r.lng, askingPrice: r.asking_price, priceType: r.price_type, livingArea: r.living_area, plotArea: r.plot_area,
   rooms: r.rooms, bedrooms: r.bedrooms, bathrooms: r.bathrooms, buildYear: r.build_year, propertyType: r.property_type, energyLabel: r.energy_label,
-  description: r.description ?? '', features: r.features ?? [], photos: r.photos ?? [], publishedAt: r.published_at, updatedAt: r.updated_at,
+  description: r.description ?? '', features: r.features ?? [], photos: r.photos ?? [], videoUrl: r.video_url ?? null, publishedAt: r.published_at, updatedAt: r.updated_at,
 });
 export const mapOffice = (r: Row): Office => ({
-  id: r.id, slug: r.slug, name: r.name, city: r.city, province: r.province, street: r.street, postcode: r.postcode, phone: r.phone, email: r.email, website: r.website, description: r.description ?? '', nvmMember: Boolean(r.nvm_member),
+  id: r.id, slug: r.slug, name: r.name, city: r.city, province: r.province, street: r.street, postcode: r.postcode, phone: r.phone, email: r.email, website: r.website, description: r.description ?? '', nvmMember: Boolean(r.nvm_member), logoUrl: r.logo_url ?? null,
 });
 
 const demoVisible = () => DEMO_LISTINGS.filter((l) => PUBLIC_STATUSES.includes(l.status));

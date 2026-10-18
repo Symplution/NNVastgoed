@@ -6,6 +6,7 @@ import { COMMERCIAL_TYPES, ENERGY_LABELS, HOME_TYPES, PROVINCES, STATUSES, type 
 import { provinceName } from '@/lib/regions';
 import { STATUS_LABEL, TYPE_LABEL } from '@/lib/format';
 import { PhotoEditor } from './photo-editor';
+import { VideoEditor } from './video-editor';
 import { Select } from './select';
 
 export function ListingForm({ listing, offices, officeId, canPickOffice }: { listing?: Listing; offices: Office[]; officeId: string | null; canPickOffice: boolean }) {
@@ -75,6 +76,11 @@ export function ListingForm({ listing, offices, officeId, canPickOffice }: { lis
         <legend className="mb-3 px-1 text-lg font-bold">Foto’s</legend>
         <PhotoEditor officeId={l?.officeId ?? officeId} initial={l?.photos ?? []} />
         {!l && canPickOffice && <p className="mt-2 text-xs text-muted">Uploaden werkt naar de map van je eigen kantoor. Als beheerder plak je een https-adres, of maak je de woning eerst aan en voeg je daarna foto’s toe.</p>}
+      </fieldset>
+
+      <fieldset className="card p-6">
+        <legend className="mb-3 px-1 text-lg font-bold">Video</legend>
+        <VideoEditor officeId={l?.officeId ?? officeId} initial={l?.videoUrl} />
       </fieldset>
 
       <div className="flex gap-3"><button disabled={pending} className="btn-primary">{pending ? 'Opslaan…' : 'Opslaan'}</button><a href="/beheer/woningen" className="btn-ghost">Annuleren</a></div>

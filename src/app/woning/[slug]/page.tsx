@@ -41,7 +41,7 @@ export default async function Woning({ params }: Props) {
   ];
   const ld = {
     '@context': 'https://schema.org', '@type': 'RealEstateListing', name: title, url: `${siteUrl()}/woning/${l.slug}`, datePosted: l.publishedAt ?? undefined,
-    image: l.photos.map((p) => p.url), description: l.description.slice(0, 500),
+    image: l.photos.map((p) => p.url), ...(l.videoUrl ? { video: { '@type': 'VideoObject', name: title, contentUrl: l.videoUrl, thumbnailUrl: l.photos[0]?.url, uploadDate: l.publishedAt ?? l.updatedAt } } : {}), description: l.description.slice(0, 500),
     offers: { '@type': 'Offer', price: l.askingPrice, priceCurrency: 'EUR', ...(l.offer === 'huur' ? { priceSpecification: { '@type': 'UnitPriceSpecification', price: l.askingPrice, priceCurrency: 'EUR', unitCode: 'MON' } } : {}), availability: l.status === 'verkocht' ? 'https://schema.org/SoldOut' : 'https://schema.org/InStock' },
     about: { '@type': 'SingleFamilyResidence', address: { '@type': 'PostalAddress', streetAddress: address(l), postalCode: l.postcode, addressLocality: l.city, addressRegion: provinceName(l.province), addressCountry: 'NL' }, floorSize: { '@type': 'QuantitativeValue', value: l.livingArea, unitCode: 'MTK' }, numberOfRooms: l.rooms },
   };
@@ -54,6 +54,12 @@ export default async function Woning({ params }: Props) {
       <div className="grid gap-8 lg:grid-cols-[1fr_22rem]">
         <div className="min-w-0 space-y-8">
           <Gallery photos={l.photos} title={title} />
+          {l.videoUrl && (
+            <section aria-label="Video van de woning">
+              {/* eslint-disable-next-line jsx-a11y/media-has-caption */}
+              <video src={l.videoUrl} controls preload="metadata" poster={l.photos[0]?.url} className="aspect-video w-full rounded-2xl bg-ink">Je browser kan deze video niet afspelen.</video>
+            </section>
+          )}
           <header className="flex flex-wrap items-start justify-between gap-4">
             <div>
               <p className="mb-2 flex flex-wrap gap-2">

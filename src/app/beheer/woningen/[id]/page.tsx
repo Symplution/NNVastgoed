@@ -1,7 +1,7 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
-import { ExternalLink } from 'lucide-react';
+import { ExternalLink, FileDown } from 'lucide-react';
 import { ListingForm } from '@/components/listing-form';
 import { canWrite, isManager, requireStaff } from '@/lib/auth';
 import { myListing, myOffices } from '@/lib/staff-data';
@@ -18,7 +18,10 @@ export default async function Bewerk({ params }: { params: Promise<{ id: string 
     <div>
       <div className="mb-6 flex flex-wrap items-center justify-between gap-3">
         <h1 className="text-2xl font-extrabold tracking-tight">{listing.street} {listing.houseNumber}, {listing.city}</h1>
-        <Link href={`/woning/${listing.slug}`} className="btn-ghost" target="_blank"><ExternalLink size={15} aria-hidden /> Bekijk op de site</Link>
+        <div className="flex flex-wrap gap-2">
+          <a href={`/beheer/woningen/${listing.id}/pdf`} className="btn-primary" download><FileDown size={15} aria-hidden /> Download pdf</a>
+          <Link href={`/woning/${listing.slug}`} className="btn-ghost" target="_blank"><ExternalLink size={15} aria-hidden /> Bekijk op de site</Link>
+        </div>
       </div>
       {listing.source === 'koppeling' && <p className="mb-6 rounded-xl bg-brand-soft p-4 text-sm text-brand-dark">Deze woning komt uit een koppeling. Wijzigingen die je hier doet worden bij de volgende aanroep van de koppeling overschreven.</p>}
       {write ? (
