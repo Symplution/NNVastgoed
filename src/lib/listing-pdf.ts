@@ -2,6 +2,7 @@ import { isIP } from 'node:net';
 import { PDFDocument, StandardFonts, rgb, type PDFFont, type PDFImage, type PDFPage } from 'pdf-lib';
 import sharp from 'sharp';
 import { exampleLogoSvg, exampleSvg } from './example-photo';
+import { colorFor } from './energy';
 import { siteUrl } from './env';
 import { OFFER_LABEL, STATUS_LABEL, TYPE_LABEL, address, formatDate, formatNumber, formatPrice } from './format';
 import { provinceName } from './regions';
@@ -58,6 +59,7 @@ async function loadLogo(url: string): Promise<Buffer | null> {
   try { return await sharp(src, { density: example ? 192 : 72 }).resize(520, 170, { fit: 'inside', withoutEnlargement: true }).png().toBuffer(); } catch { return null; }
 }
 
+const hex = (h: string) => rgb(parseInt(h.slice(1, 3), 16) / 255, parseInt(h.slice(3, 5), 16) / 255, parseInt(h.slice(5, 7), 16) / 255);
 const rrectPath = (w: number, h: number, r: number) => `M${r},0 H${w - r} Q${w},0 ${w},${r} V${h - r} Q${w},${h} ${w - r},${h} H${r} Q0,${h} 0,${h - r} V${r} Q0,0 ${r},0 Z`;
 
 class Doc {
@@ -204,7 +206,12 @@ export async function buildListingPdf({ listing: l, office, now = new Date(), va
     shown.slice(i, i + 3).forEach(([k, v], j) => {
       const x = M + j * colW;
       d.page.drawText(safeText(k.toUpperCase()), { x, y: d.y - 9, size: 7, font: d.bold, color: C.muted });
-      d.page.drawText(safeText(v), { x, y: d.y - 23, size: 11, font: d.bold, color: C.ink });
+      if (k === 'Energielabel') {
+        // Het label als gekleurde pijl, net als op de site.
+        const c = colorFor(v), w = d.bold.widthOfTextAtSize(safeText(v), 10.5) + 18;
+        d.page.drawSvgPath(`M0 0 H${w - 7} L${w} 7 L${w - 7} 14 H0 Z`, { x, y: d.y - 17, color: hex(c.bg) });
+        d.page.drawText(safeText(v), { x: x + 6, y: d.y - 27.5, size: 10.5, font: d.bold, color: hex(c.fg) });
+      } else d.page.drawText(safeText(v), { x, y: d.y - 23, size: 11, font: d.bold, color: C.ink });
     });
     d.y -= rowH;
   }

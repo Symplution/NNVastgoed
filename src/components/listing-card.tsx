@@ -1,3 +1,4 @@
+import { EnergyBadge } from './energy-label';
 import Link from 'next/link';
 import { Bed, Ruler, Home } from 'lucide-react';
 import type { Listing } from '@/lib/types';
@@ -31,7 +32,7 @@ export function ListingCard({ l, priority = false }: { l: Listing; priority?: bo
             <li className="inline-flex items-center gap-1.5"><Ruler size={15} aria-hidden /> {l.livingArea} m²</li>
             {l.category === 'woning' && <li className="inline-flex items-center gap-1.5"><Bed size={15} aria-hidden /> {l.bedrooms} slaapk.</li>}
             <li className="inline-flex items-center gap-1.5"><Home size={15} aria-hidden /> {TYPE_LABEL[l.propertyType]}</li>
-            {l.energyLabel && <li className="rounded bg-brand-soft px-1.5 text-xs font-bold leading-5 text-brand" title="Energielabel">{l.energyLabel}</li>}
+            {l.energyLabel && <li><EnergyBadge label={l.energyLabel} size="sm" /></li>}
           </ul>
         </div>
       </Link>

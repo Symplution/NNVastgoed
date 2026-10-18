@@ -61,6 +61,16 @@ export const ARTICLES: Article[] = [
     ],
   },
   {
+    slug: 'energielabel-uitleg', title: 'Energielabel: wat zegt het over een woning?', tag: 'Wonen', minutes: 3, date: '2026-10-10',
+    summary: 'Van A++++ tot G: zo lees je het label en wat het voor je energierekening betekent.',
+    body: [
+      'Een energielabel laat in één oogopslag zien hoe zuinig een woning is. A is het zuinigst (met plussen voor nog zuiniger), G het minst. Het label hangt af van onder meer de isolatie, het glas, de verwarming en of er zonnepanelen zijn.',
+      'Bij label A of B woon je meestal comfortabel met lage energiekosten. Label C ligt in het midden. Bij D tot en met G gaat er meer warmte verloren: de rekening is hoger en verduurzamen kan lonen, soms met een flinke investering.',
+      'Bij verkoop en verhuur moet een geldig energielabel worden getoond. Op NNvastgoed zie je het label bij elke woning in zijn eigen kleur. Klik op de (i) erachter voor uitleg per label.',
+      'Let bij een bezichtiging ook op wat het label niet laat zien: de leeftijd van de cv-ketel, vocht en de staat van het dak. Vraag de makelaar om de gegevens achter het label.',
+    ],
+  },
+  {
     slug: 'wonen-in-groningen', title: 'Wonen in Groningen: stad en Ommeland', tag: 'Regio', minutes: 3, date: '2026-08-10',
     summary: 'Levendig in de stad, ruimte en rust in de dorpen eromheen.',
     body: [

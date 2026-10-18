@@ -3,6 +3,7 @@ import type { ReactNode } from 'react';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { BedDouble, Calculator, Maximize, MapPin, Square, Zap } from 'lucide-react';
+import { EnergyLabelWithInfo } from '@/components/energy-label';
 import { ContactPanel } from '@/components/contact-panel';
 import { ListingTabs, OpenTabButton } from '@/components/listing-tabs';
 import { ListingMedia } from '@/components/listing-media';
@@ -37,10 +38,10 @@ export default async function Woning({ params }: Props) {
   const recreation = l.category === 'recreatie';
   const marker = toMarker(l);
   const bookable = ['beschikbaar', 'onder_bod', 'onder_voorbehoud'].includes(l.status);
-  const rows: [string, string | null][] = [
+  const rows: [string, ReactNode | null][] = [
     ['Status', STATUS_LABEL[l.status]], [l.offer === 'huur' ? 'Huurprijs' : 'Vraagprijs', formatPrice(l)], [commercial ? 'Soort bedrijfsruimte' : recreation ? 'Soort recreatiewoning' : 'Soort woning', TYPE_LABEL[l.propertyType]], ['Nieuwbouw', l.newBuild ? 'Ja' : null], ['Bouwjaar', l.buildYear ? String(l.buildYear) : null],
     [commercial ? 'Oppervlakte' : 'Woonoppervlakte', `${l.livingArea} m²`], ['Perceel', l.plotArea ? `${l.plotArea.toLocaleString('nl-NL')} m²` : null], [l.rooms ? 'Kamers' : '', l.rooms ? `${l.rooms} (waarvan ${l.bedrooms} slaapkamers)` : null],
-    [l.rooms ? 'Badkamers' : '', l.rooms ? String(l.bathrooms) : null], ['Energielabel', l.energyLabel ?? null], ['Buurt', l.neighbourhood ?? null], ['Aangeboden sinds', l.publishedAt ? formatDate(l.publishedAt) : null],
+    [l.rooms ? 'Badkamers' : '', l.rooms ? String(l.bathrooms) : null], ['Energielabel', l.energyLabel ? <EnergyLabelWithInfo key="energie" label={l.energyLabel} /> : null], ['Buurt', l.neighbourhood ?? null], ['Aangeboden sinds', l.publishedAt ? formatDate(l.publishedAt) : null],
   ];
   const published = l.publishedAt ? Date.parse(l.publishedAt) : 0;
   const isNew = published > 0 && Date.now() - published < 14 * 86_400_000 && l.status === 'beschikbaar';
@@ -48,11 +49,11 @@ export default async function Woning({ params }: Props) {
   const paras = l.description.trim().split(/\n\s*\n/);
   const headline = paras.length > 1 && paras[0].length <= 180 && !paras[0].includes('\n') ? paras[0] : null;
   const body = headline ? paras.slice(1).join('\n\n') : l.description.trim();
-  const facts: { icon: ReactNode; value: string; label: string }[] = [
+  const facts: { icon: ReactNode; value: ReactNode; label: string }[] = [
     { icon: <Maximize size={22} aria-hidden />, value: `${l.livingArea.toLocaleString('nl-NL')} m²`, label: commercial ? 'oppervlakte' : 'wonen' },
     ...(l.plotArea ? [{ icon: <Square size={22} aria-hidden />, value: `${l.plotArea.toLocaleString('nl-NL')} m²`, label: 'perceel' }] : []),
     ...(l.rooms ? [{ icon: <BedDouble size={22} aria-hidden />, value: String(l.bedrooms), label: l.bedrooms === 1 ? 'slaapkamer' : 'slaapkamers' }] : []),
-    ...(l.energyLabel ? [{ icon: <Zap size={22} aria-hidden />, value: l.energyLabel, label: 'energielabel' }] : []),
+    ...(l.energyLabel ? [{ icon: <Zap size={22} aria-hidden />, value: <EnergyLabelWithInfo key="e" label={l.energyLabel} />, label: 'energielabel' }] : []),
   ];
   const ld = {
     '@context': 'https://schema.org', '@type': 'RealEstateListing', name: title, url: `${siteUrl()}/woning/${l.slug}`, datePosted: l.publishedAt ?? undefined,
@@ -96,7 +97,7 @@ export default async function Woning({ params }: Props) {
           </div>
 
           <ul className="flex flex-wrap gap-x-8 gap-y-3 border-b border-line pb-8 text-[17px]">
-            {facts.map((f) => <li key={f.label} className="flex items-center gap-2.5 text-muted">{f.icon}<span><strong className="font-bold text-ink">{f.value}</strong> {f.label}</span></li>)}
+            {facts.map((f) => <li key={f.label} className="flex items-center gap-2.5 text-muted">{f.icon}<span className="inline-flex items-center gap-1.5"><strong className="font-bold text-ink">{f.value}</strong> {f.label}</span></li>)}
           </ul>
 
           {headline && <p className="rounded-lg bg-[#e4f4fd] px-6 py-5 text-lg text-brand-dark">{headline}</p>}
