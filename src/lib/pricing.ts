@@ -33,7 +33,10 @@ export const CUSTOM_CAMPAIGNS: { name: string; from: number }[] = [
 ];
 
 /** Een woning plaatsen: eenmalig per woning (koop, huur of nieuwbouw). */
-export const LISTING_FEE = { name: 'Woning plaatsen', amount: 29, note: 'Eenmalig per woning, zolang de woning online staat. Geen abonnement.' };
+export const REGISTRATION = { name: 'Registreren', note: 'Een kantoor aansluiten is gratis.' };
+export const LISTING_FEE = { name: 'Woning plaatsen', amount: 250, note: 'Eenmalig per woning, zolang de woning online staat. Geen abonnement.' };
+/** Een woning extra promoten: uitgelicht in het aanbod van de maand. */
+export const PROMO_FEE = { name: 'Aanbod van de maand', amount: 50, boost: 5, note: 'Per woning, voor een maand. Je woning staat uitgelicht op de homepage.' };
 
 /** Website, CRM en koppelingen volledig op maat ingericht voor één kantoor. */
 export const BESPOKE = {

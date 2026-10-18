@@ -1,6 +1,8 @@
 import Link from 'next/link';
 import { CalendarCheck, Inbox, MessageSquare, Network, Home } from 'lucide-react';
 import { requireStaff } from '@/lib/auth';
+import { Stappenplan } from '@/components/stappenplan';
+import { staffSteps } from '@/lib/onboarding';
 import { myConnections, myLeads, myListings, officeViewings, staffUnread } from '@/lib/staff-data';
 import { addDays, weekStart } from '@/lib/viewings';
 import { dayKey, formatDateTime } from '@/lib/format';
@@ -9,6 +11,7 @@ import { formatDate, STATUS_LABEL } from '@/lib/format';
 export default async function Overzicht() {
   const staff = await requireStaff();
   const now = new Date();
+  const steps = await staffSteps(staff);
   const [listings, leads, connections, upcoming, unread] = await Promise.all([myListings(), myLeads(), myConnections(), officeViewings(now.toISOString(), new Date(now.getTime() + 7 * 86_400_000).toISOString()), staffUnread()]);
   const today = upcoming.filter((v) => v.status === 'bevestigd' && dayKey(v.startsAt) === dayKey(now.toISOString()));
   const next = upcoming.filter((v) => v.status === 'bevestigd');
@@ -19,6 +22,7 @@ export default async function Overzicht() {
     <div className="space-y-8">
       <div><h1 className="text-2xl font-extrabold tracking-tight">Welkom, {staff.name}</h1>
         {!staff.officeId && !['owner', 'admin'].includes(staff.role) && <p role="status" className="mt-3 rounded-xl bg-amber-50 p-4 text-sm text-amber-900">Je account is nog niet aan een kantoor gekoppeld. Vraag de eigenaar van NNvastgoed om dat te doen; tot die tijd zie je hier niets.</p>}</div>
+      <Stappenplan title="Aan de slag met NNV" intro="In een paar stappen staat je kantoor online en ontvang je leads. Elke stap vinkt zichzelf af." steps={steps} />
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         <Link href="/beheer/bezichtigingen" className={stat}><CalendarCheck className="text-brand" size={20} aria-hidden /><p className="mt-2 text-3xl font-extrabold">{next.length}</p><p className="text-sm text-muted">bezichtigingen komende 7 dagen · {today.length} vandaag</p></Link>
         <Link href="/beheer/berichten" className={stat}><MessageSquare className="text-accent" size={20} aria-hidden /><p className="mt-2 text-3xl font-extrabold">{unread}</p><p className="text-sm text-muted">ongelezen {unread === 1 ? 'bericht' : 'berichten'}</p></Link>

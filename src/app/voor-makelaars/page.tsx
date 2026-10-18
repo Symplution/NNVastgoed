@@ -1,6 +1,6 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
-import { BellRing, CalendarCheck, Inbox, Megaphone, Network, Sparkles, Star, Store, Trophy, Map, Layers, Wand2, Home, Hammer } from 'lucide-react';
+import { ArrowRight, BellRing, CalendarCheck, Eye, Gift, Home, Inbox, Network, Sparkles } from 'lucide-react';
 
 export const metadata: Metadata = { title: 'Voor makelaars', description: 'Toon je woningaanbod aan woningzoekers in Groningen, Friesland en Drenthe. Koppel je kantoorsoftware of beheer je woningen zelf.' };
 
@@ -28,6 +28,20 @@ export default function VoorMakelaars() {
       <h1 className="mt-2 max-w-3xl text-4xl font-extrabold tracking-tight">Laat je aanbod zien aan iedereen die in het noorden zoekt</h1>
       <p className="mt-4 max-w-2xl text-lg text-muted">NNvastgoed (Noord Nederland Vastgoed) is dé plek voor woningzoekers in Groningen, Friesland en Drenthe. Jij houdt je eigen werkwijze; wij zorgen dat je aanbod er goed uitziet en dat reacties direct bij jou aankomen.</p>
 
+      <section className="mt-10" aria-labelledby="prijslijst">
+        <div className="overflow-hidden rounded-3xl bg-gradient-to-br from-brand-dark via-brand to-[#1c6a93] p-8 text-white sm:p-10">
+          <p className="text-sm font-semibold uppercase tracking-[0.16em] text-white/70">Prijslijst</p>
+          <h2 id="prijslijst" className="mt-2 max-w-2xl text-3xl font-extrabold tracking-tight">Eerlijke prijzen, zonder abonnement</h2>
+          <p className="mt-2 max-w-2xl text-white/85">Je betaalt alleen voor de woningen die je plaatst en promoot.</p>
+          <ul className="mt-7 grid gap-4 sm:grid-cols-3">
+            <li className="rounded-2xl bg-white/10 p-5 backdrop-blur"><Gift size={24} className="text-white/90" aria-hidden /><p className="mt-3 text-lg font-bold">Registreren</p><p className="mt-1 text-3xl font-extrabold">Gratis</p></li>
+            <li className="rounded-2xl bg-white/10 p-5 backdrop-blur"><Home size={24} className="text-white/90" aria-hidden /><p className="mt-3 text-lg font-bold">Woning plaatsen</p><p className="mt-1 text-sm text-white/80">Eenmalig per woning</p></li>
+            <li className="rounded-2xl bg-white/10 p-5 backdrop-blur"><Eye size={24} className="text-white/90" aria-hidden /><p className="mt-3 text-lg font-bold">Aanbod van de maand</p><p className="mt-1 text-sm text-white/80">Tot 5× vaker bekeken</p></li>
+          </ul>
+          <Link href="/voor-makelaars/prijzen" className="btn-accent mt-8 !px-7 !py-3 text-base">Bekijk prijzen <ArrowRight size={18} aria-hidden /></Link>
+        </div>
+      </section>
+
       <div className="mt-10 grid gap-6 sm:grid-cols-2">
         {[
           { Icon: Network, t: 'Koppel je systeem', d: 'Stuur je aanbod automatisch vanuit je kantoorsoftware of via je ICT-partner. Wijzigingen, prijsverlagingen en verkoop staan er direct.' },
@@ -39,30 +53,6 @@ export default function VoorMakelaars() {
           <div key={t} className="card flex gap-4 p-6"><span className="inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-brand-soft text-brand"><Icon size={22} aria-hidden /></span><div><h2 className="font-bold">{t}</h2><p className="mt-1 text-sm text-muted">{d}</p></div></div>
         ))}
       </div>
-
-      <section className="mt-14" aria-labelledby="pakketten">
-        <h2 id="pakketten" className="text-2xl font-extrabold tracking-tight">Pakketten</h2>
-        <p className="mt-2 max-w-2xl text-muted">Aansluiten is gratis en je betaalt eenmalig per geplaatste woning. Wil je dat je aanbod of kantoor extra opvalt, of een website en CRM volledig op maat, dan kies je uit deze pakketten.</p>
-        <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          {[
-            { Icon: Home, t: 'Woning plaatsen', d: 'Een woning online zetten met foto’s, kaart en bezichtigingen. Eenmalig per woning.' },
-            { Icon: Layers, t: 'NNV Compleet', d: 'De volledige presentatie van je object, met foto’s, kaart en bezichtigingsplanner. Per jaar.' },
-            { Icon: Star, t: 'NNV Premium', d: 'Alles van Compleet, met extra aandacht in de zoekresultaten. Per jaar.' },
-            { Icon: Megaphone, t: 'Blikvanger', d: 'Je object op een opvallende plek op de homepage. Per kwartaal.' },
-            { Icon: Trophy, t: 'Topositie', d: 'Bovenaan in de zoekresultaten, per week of per maand.' },
-            { Icon: Map, t: 'Regio in beeld', d: 'Zichtbaar in één, twee of alle drie de provincies. Per maand.' },
-            { Icon: Hammer, t: 'Volledig maatwerkpakket', d: 'Website, CRM en koppelingen volledig op maat voor jouw kantoor. Eenmalig.' },
-            { Icon: Store, t: 'Kantoorpakketten', d: 'Podiumplaats en Kantoorprofiel Pro, om je kantoor in de kijker te zetten.' },
-          ].map(({ Icon, t, d }) => (
-            <div key={t} className="card flex gap-4 p-5"><span className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-accent-soft text-accent-dark"><Icon size={20} aria-hidden /></span><div><h3 className="font-bold">{t}</h3><p className="mt-1 text-sm text-muted">{d}</p></div></div>
-          ))}
-        </div>
-        <div className="mt-6 flex flex-wrap items-center gap-4 rounded-2xl bg-sand p-5">
-          <span className="inline-flex h-10 w-10 items-center justify-center rounded-xl bg-white text-brand"><Wand2 size={20} aria-hidden /></span>
-          <p className="min-w-[14rem] flex-1 text-sm"><strong>Campagne op maat?</strong> Voor een kantoor of een groot project maken we een voorstel.</p>
-          <Link href="/voor-makelaars/prijzen" className="btn-primary">Bekijk prijzen</Link>
-        </div>
-      </section>
 
       <section className="mt-14" aria-labelledby="koppelen">
         <h2 id="koppelen" className="text-2xl font-extrabold tracking-tight">Zo koppel je</h2>
