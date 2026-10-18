@@ -41,12 +41,13 @@ async function fetchBytes(url: string, max = 10 * 1024 * 1024): Promise<Buffer |
 }
 
 /** Een foto als jpeg op de gevraagde maat (uitgesneden, nooit uitgerekt). De voorbeeldfoto's van de site komen rechtstreeks uit de code. */
-export async function loadPhoto(url: string, w: number, h: number): Promise<Buffer | null> {
+export async function loadPhoto(url: string, w: number, h: number, fit: 'cover' | 'contain' = 'cover'): Promise<Buffer | null> {
   try {
     const example = url.match(/^\/api\/foto\/([a-z0-9-]{1,90})$/);
     const src = example ? Buffer.from(exampleSvg(example[1])) : await fetchBytes(url);
     if (!src) return null;
-    return await sharp(src, { density: example ? 144 : 72 }).rotate().resize(w, h, { fit: 'cover' }).jpeg({ quality: 82 }).toBuffer();
+    return await sharp(src, { density: example ? 144 : 72 }).rotate()
+      .resize(w, h, { fit, background: '#ffffff' }).flatten({ background: '#ffffff' }).jpeg({ quality: 82 }).toBuffer();
   } catch { return null; }
 }
 async function loadLogo(url: string): Promise<Buffer | null> {
@@ -131,6 +132,7 @@ export async function buildListingPdf({ listing: l, office, now = new Date() }: 
   // Foto's en logo ophalen (de eerste is de hoofdfoto).
   const photos = l.photos.slice(0, 16);
   const [hero, ...rest] = await Promise.all(photos.map((p, i) => loadPhoto(p.url, i === 0 ? 1236 : 618, i === 0 ? 640 : 420)));
+  const plans = await Promise.all((l.floorplans ?? []).slice(0, 4).map((p) => loadPhoto(p.url, 1236, 800, 'contain')));
   const logoBuf = office.logoUrl ? await loadLogo(office.logoUrl) : null;
   const heroImg = await embed(hero ?? null, 'jpg');
   const logoImg = await embed(logoBuf, 'png');
@@ -240,6 +242,14 @@ export async function buildListingPdf({ listing: l, office, now = new Date() }: 
       }
       d.y -= h + 12;
     }
+  }
+
+  // ── Plattegronden ──
+  const planImgs = (await Promise.all(plans.map((b) => embed(b, 'jpg')))).filter((x): x is PDFImage => Boolean(x));
+  if (planImgs.length) {
+    d.heading(`Plattegrond${planImgs.length > 1 ? 'nen' : ''}`);
+    const w = A4.w - 2 * M, h = (w * 800) / 1236;
+    for (const img of planImgs) { d.ensure(h + 12); d.page.drawImage(img, { x: M, y: d.y - h, width: w, height: h }); d.page.drawRectangle({ x: M, y: d.y - h, width: w, height: h, borderColor: C.line, borderWidth: 0.8 }); d.y -= h + 12; }
   }
 
   // ── Voettekst op elke pagina ──

@@ -102,7 +102,9 @@ ${plant(745, 352, 1.1)}<rect x="722" y="140" width="6" height="212" fill="#33302
 export function exampleSvg(rawSeed: string): string {
   const seed = rawSeed.replace(/[^a-z0-9-]/g, '').slice(0, 90);
   const h = createHash('md5').update(seed.replace(/-\d$/, '')).digest();
-  const n = Math.min(7, Math.max(1, Number(seed.match(/-(\d)$/)?.[1] ?? 1)));
+  const n = Math.min(9, Math.max(1, Number(seed.match(/-(\d)$/)?.[1] ?? 1)));
+  if (n === 8) return floorplanSvg(h);
+  if (n === 9) return panoramaSvg(h);
   const tone = h[0] % 5, hue = (h[1] / 255) * 360;
   const bricks = [['#b8553a', '#8f3b26'], ['#a8482f', '#7d301d'], ['#c58a5c', '#9a6641'], ['#d9c3a0', '#b49b78'], ['#8c5a44', '#654030']][tone];
   const p: Pal = {
@@ -117,4 +119,31 @@ export function exampleSvg(rawSeed: string): string {
   const view = VIEWS[n - 1];
   const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 500" role="img" aria-label="Voorbeeldfoto: ${view}">${DEFS(p)}${scene[view](p, h)}<rect width="800" height="500" fill="url(#vig)"/><rect width="800" height="500" filter="url(#grain)"/><rect x="598" y="466" width="190" height="24" rx="12" fill="#101820" opacity=".45"/><text x="693" y="483" text-anchor="middle" font-family="system-ui, sans-serif" font-size="12" fill="#fff">Voorbeeldfoto · ${view}</text></svg>`;
   return svg;
+}
+
+/** Voorbeeld-plattegrond: een eenvoudige indeling van de begane grond. */
+function floorplanSvg(h: Buffer): string {
+  const w = 3 + (h[1] % 2);   // aantal kamers aan de achterkant
+  const rooms = ['Woonkamer', 'Keuken', 'Toilet', 'Hal', 'Bijkeuken', 'Slaapkamer'];
+  const cells = [[60, 70, 330, 220, 'Woonkamer'], [390, 70, 210, 130, 'Keuken'], [390, 200, 100, 90, 'Hal'], [490, 200, 110, 90, 'Toilet'], [60, 290, 190, 130, 'Slaapkamer'], [250, 290, 190, 130, 'Bijkeuken'], [440, 290, 160, 130, rooms[(h[2] % 2) ? 5 : 4]]] as const;
+  const shown = cells.slice(0, 4 + w);
+  return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 500" role="img" aria-label="Voorbeeld-plattegrond"><rect width="800" height="500" fill="#fff"/>
+<g fill="#f4f1ea" stroke="#33475b" stroke-width="5">${shown.map(([x, y, cw, ch]) => `<rect x="${x}" y="${y}" width="${cw}" height="${ch}"/>`).join('')}</g>
+<g stroke="#fff" stroke-width="9"><path d="M360 70V120M440 200H470M120 290H170M300 290H340"/></g>
+<g font-family="system-ui, sans-serif" font-size="15" font-weight="600" fill="#33475b" text-anchor="middle">${shown.map(([x, y, cw, ch, t]) => `<text x="${x + cw / 2}" y="${y + ch / 2}">${t}</text>`).join('')}</g>
+<g font-family="system-ui, sans-serif" font-size="12" fill="#5b6b78"><text x="60" y="52">Begane grond · voorbeeld</text></g>
+<rect x="660" y="60" width="90" height="4" fill="#33475b"/><text x="705" y="84" font-family="system-ui, sans-serif" font-size="11" fill="#5b6b78" text-anchor="middle">5 m</text></svg>`;
+}
+
+/** Voorbeeld-360°-foto: een breed beeld van de buurt, waar je doorheen kunt slepen. */
+function panoramaSvg(h: Buffer): string {
+  const houses = Array.from({ length: 9 }, (_, i) => {
+    const x = 60 + i * 260 + (h[i] % 40), w = 120 + (h[i + 9] % 50), ht = 100 + (h[i + 3] % 40);
+    const hue = ['#b8553a', '#a8482f', '#c58a5c', '#d9c3a0', '#8c5a44'][h[i + 5] % 5];
+    return `<rect x="${x}" y="${310 - ht}" width="${w}" height="${ht}" fill="${hue}"/><path d="M${x - 14} ${312 - ht} L${x + w / 2} ${250 - ht} L${x + w + 14} ${312 - ht}Z" fill="#4a3c3e"/><rect x="${x + 16}" y="${330 - ht}" width="26" height="30" fill="#dbeaf3"/><rect x="${x + w - 42}" y="${330 - ht}" width="26" height="30" fill="#dbeaf3"/>`;
+  }).join('');
+  const trees = Array.from({ length: 12 }, (_, i) => `<circle cx="${40 + i * 200 + (h[i] % 60)}" cy="${285 - (h[i + 4] % 20)}" r="${34 + (h[i + 2] % 18)}" fill="#4e8f4a" opacity=".92"/>`).join('');
+  return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 2400 500" role="img" aria-label="Voorbeeld 360°-foto"><defs><linearGradient id="s" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#7fb8e3"/><stop offset="1" stop-color="#eaf3f8"/></linearGradient><linearGradient id="g" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#7fae6a"/><stop offset="1" stop-color="#4f8a47"/></linearGradient></defs>
+<rect width="2400" height="500" fill="url(#s)"/><g fill="#fff" opacity=".7"><ellipse cx="300" cy="90" rx="120" ry="20"/><ellipse cx="1100" cy="70" rx="150" ry="18"/><ellipse cx="1900" cy="110" rx="130" ry="20"/></g>
+${trees}${houses}<rect y="310" width="2400" height="190" fill="url(#g)"/><path d="M0 400 H2400" stroke="#cfc6b8" stroke-width="46"/></svg>`;
 }

@@ -30,12 +30,12 @@ let li = 0;
 for (const l of base) {
   const lid = id(2, ++li); listingId.set(l.slug, lid);
   const days = Math.max(0, Math.round((new Date('2026-10-01T09:00:00Z').getTime() - new Date(l.publishedAt!).getTime()) / 86_400_000));
-  listingRows.push(`(${q(lid)}, ${q(OFFICE_ID.get(l.officeId)!)}, ${q(l.slug)}, ${q(l.status)}, ${q(l.offer)}, ${q(l.category)}, ${l.newBuild}, ${q(l.street)}, ${q(l.houseNumber)}, ${q(l.houseSuffix)}, ${q(l.postcode)}, ${q(l.city)}, ${q(l.province)}, ${q(l.neighbourhood)}, ${n(l.lat)}, ${n(l.lng)}, ${l.askingPrice}, ${q(l.priceType)}, ${l.livingArea}, ${n(l.plotArea)}, ${l.rooms}, ${l.bedrooms}, ${l.bathrooms}, ${n(l.buildYear)}, ${q(l.propertyType)}, ${q(l.energyLabel)}, ${q(l.description)}, ${arr(l.features)}, ${q(JSON.stringify(l.photos))}::jsonb, now() - interval '${days + 1} days')`);
+  listingRows.push(`(${q(lid)}, ${q(OFFICE_ID.get(l.officeId)!)}, ${q(l.slug)}, ${q(l.status)}, ${q(l.offer)}, ${q(l.category)}, ${l.newBuild}, ${q(l.street)}, ${q(l.houseNumber)}, ${q(l.houseSuffix)}, ${q(l.postcode)}, ${q(l.city)}, ${q(l.province)}, ${q(l.neighbourhood)}, ${n(l.lat)}, ${n(l.lng)}, ${l.askingPrice}, ${q(l.priceType)}, ${l.livingArea}, ${n(l.plotArea)}, ${l.rooms}, ${l.bedrooms}, ${l.bathrooms}, ${n(l.buildYear)}, ${q(l.propertyType)}, ${q(l.energyLabel)}, ${q(l.description)}, ${arr(l.features)}, ${q(JSON.stringify(l.photos))}::jsonb, ${q(JSON.stringify(l.floorplans ?? []))}::jsonb, ${q(JSON.stringify(l.photos360 ?? []))}::jsonb, now() - interval '${days + 1} days')`);
 }
 for (const e of extra) {
   const lid = id(2, ++li); listingId.set(e.slug, lid);
   const label = `${e.street} ${e.nr} ${e.city}`;
-  listingRows.push(`(${q(lid)}, ${q(OFFICE_ID.get(e.office)!)}, ${q(e.slug)}, ${q(e.status)}, 'koop', 'woning', false, ${q(e.street)}, ${q(e.nr)}, null, ${q(e.postcode)}, ${q(e.city)}, ${q(e.province)}, null, ${e.lat}, ${e.lng}, ${e.price}, 'k.k.', ${e.area}, 300, ${e.rooms}, ${e.bed}, 1, ${e.year}, ${q(e.type)}, 'C', ${q(`${e.headline}.\n\nDit is een testwoning om de status te kunnen proberen.`)}, ${arr(['Tuin', 'Berging'])}, ${q(JSON.stringify(photos(e.slug, false, label)))}::jsonb, now() - interval '20 days')`);
+  listingRows.push(`(${q(lid)}, ${q(OFFICE_ID.get(e.office)!)}, ${q(e.slug)}, ${q(e.status)}, 'koop', 'woning', false, ${q(e.street)}, ${q(e.nr)}, null, ${q(e.postcode)}, ${q(e.city)}, ${q(e.province)}, null, ${e.lat}, ${e.lng}, ${e.price}, 'k.k.', ${e.area}, 300, ${e.rooms}, ${e.bed}, 1, ${e.year}, ${q(e.type)}, 'C', ${q(`${e.headline}.\n\nDit is een testwoning om de status te kunnen proberen.`)}, ${arr(['Tuin', 'Berging'])}, ${q(JSON.stringify(photos(e.slug, false, label)))}::jsonb, '[]'::jsonb, '[]'::jsonb, now() - interval '20 days')`);
 }
 const L = (slug: string) => q(listingId.get(slug)!);
 
@@ -220,7 +220,7 @@ insert into viewing_blocks (id, office_id, starts_at, ends_at, reason) values
 ${blocks};
 
 -- 5. Woningen met foto's
-insert into listings (id, office_id, slug, status, offer, category, new_build, street, house_number, house_suffix, postcode, city, province, neighbourhood, lat, lng, asking_price, price_type, living_area, plot_area, rooms, bedrooms, bathrooms, build_year, property_type, energy_label, description, features, photos, published_at) values
+insert into listings (id, office_id, slug, status, offer, category, new_build, street, house_number, house_suffix, postcode, city, province, neighbourhood, lat, lng, asking_price, price_type, living_area, plot_area, rooms, bedrooms, bathrooms, build_year, property_type, energy_label, description, features, photos, floorplans, photos_360, published_at) values
 ${listingRows.join(',\n')};
 
 -- 6. Leads (via het formulier; de status passen we daarna aan)

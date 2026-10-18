@@ -50,6 +50,10 @@ const ROOMS = ['voorkant', 'tuin', 'woonkamer', 'keuken', 'slaapkamer', 'badkame
 export const photosFor = (address: string, commercial: boolean) =>
   (commercial ? [1, 2, 7] : [1, 2, 3, 4, 5, 6]).map((n) => ({ url: `/api/foto/${slugify(address)}-${n}`, alt: `${address}, ${n === 7 ? 'werkruimte' : ROOMS[n - 1]}` }));
 
+/** Voorbeeld-plattegrond (-8) en, voor een deel van de woningen, een 360°-foto (-9). */
+export const floorplansFor = (address: string) => [{ url: `/api/foto/${slugify(address)}-8`, alt: `${address}, plattegrond begane grond` }];
+export const photos360For = (address: string) => [{ url: `/api/foto/${slugify(address)}-9`, alt: `${address}, 360°-foto van de buurt` }];
+
 const stock = (type: PropertyType) => ['appartement', 'woonboot'].includes(type) ? ['Lift of vaste ligplaats', 'Berging', 'Dubbele beglazing'] : ['Tuin', 'Berging', 'Dubbele beglazing', 'Zonnepanelen'];
 const NOW = new Date('2026-10-01T09:00:00Z').getTime();
 
@@ -59,7 +63,7 @@ const BASE_LISTINGS: Listing[] = ROWS.map(([office, street, nr, postcode, city, 
   askingPrice: price, priceType: 'k.k.', livingArea: area, plotArea: plot, rooms, bedrooms: bed, bathrooms: bed > 3 ? 2 : 1, buildYear: year,
   propertyType: type, energyLabel: label,
   description: `${headline}.\n\nDit is een voorbeeldwoning uit de demo van NNvastgoed. In ${wijk}, ${city}, vind je deze ${type.replace(/-/g, ' ')} uit ${year} met ${area} m² woonoppervlak, ${rooms} kamers en ${bed} slaapkamers.\n\nDe indeling is praktisch en de ligging is ideaal: voorzieningen, openbaar vervoer en uitvalswegen liggen binnen handbereik. Neem contact op met ${DEMO_OFFICES.find((o) => o.id === office)!.name} voor een bezichtiging.`,
-  features: stock(type), photos: photosFor(`${street} ${nr} ${city}`, false),
+  features: stock(type), photos: photosFor(`${street} ${nr} ${city}`, false), floorplans: floorplansFor(`${street} ${nr} ${city}`), photos360: i % 3 === 0 ? photos360For(`${street} ${nr} ${city}`) : [],
   publishedAt: new Date(NOW - days * 86_400_000).toISOString(), updatedAt: new Date(NOW - days * 86_400_000).toISOString(),
 }));
 
@@ -105,7 +109,7 @@ const EXTRA_LISTINGS: Listing[] = EXTRA.map(([office, street, nr, postcode, city
     propertyType: type, energyLabel: label,
     description: `${headline}.\n\nDit is een voorbeeld uit de demo van NNvastgoed. ${commercial ? 'Het pand' : recreation ? 'De recreatiewoning' : 'De woning'} ligt in ${wijk}, ${city} en heeft ${area} m²${rooms ? ` met ${rooms} kamers` : ''}. Neem contact op met ${name} voor een bezichtiging.`,
     features: commercial ? ['Parkeren op eigen terrein', 'Glasvezel', 'Toegankelijk voor mindervaliden'] : recreation ? ['Eigen parkeerplek', 'Terras of veranda', 'Dichtbij natuur en water', 'Volledig gemeubileerd te koop'] : stock(type),
-    photos: photosFor(`${street} ${nr} ${city}`, commercial),
+    photos: photosFor(`${street} ${nr} ${city}`, commercial), floorplans: floorplansFor(`${street} ${nr} ${city}`), photos360: i % 4 === 0 ? photos360For(`${street} ${nr} ${city}`) : [],
     publishedAt: new Date(NOW - days * 86_400_000).toISOString(), updatedAt: new Date(NOW - days * 86_400_000).toISOString(),
   };
 });

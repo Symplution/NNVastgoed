@@ -7,7 +7,7 @@ export interface ListingInput {
   status: string; street: string; house_number: string; house_suffix: string | null; postcode: string; city: string; province: string; neighbourhood: string | null;
   lat: number | null; lng: number | null; asking_price: number; price_type: 'k.k.' | 'v.o.n.' | 'p.m.'; living_area: number; plot_area: number | null;
   rooms: number; bedrooms: number; bathrooms: number; build_year: number | null; property_type: string; energy_label: string | null;
-  description: string; features: string[]; photos: Photo[]; video_url: string | null;
+  description: string; features: string[]; photos: Photo[]; video_url: string | null; floorplans: Photo[]; photos_360: Photo[];
 }
 export type ListingResult = { ok: true; value: ListingInput } | { ok: false; errors: string[] };
 
@@ -56,13 +56,16 @@ export function validateListing(f: FormData): ListingResult {
   const features = text(f, 'features').split('\n').map((s) => s.trim()).filter(Boolean).slice(0, 60);
   need(features.every((x) => x.length <= 80), 'Een kenmerk is te lang (maximaal 80 tekens).');
 
-  let photos: Photo[] = [];
-  try {
-    const raw = JSON.parse(text(f, 'photos') || '[]');
-    if (!Array.isArray(raw)) throw new Error();
-    photos = raw.slice(0, 40).map((p: { url?: unknown; alt?: unknown }) => ({ url: String(p?.url ?? ''), ...(p?.alt ? { alt: String(p.alt).slice(0, 160) } : {}) }));
-    need(photos.every((p) => /^https:\/\/\S+$/.test(p.url)), 'Foto’s moeten een https-adres hebben.');
-  } catch { errors.push('De foto’s konden niet worden gelezen.'); }
+  const mediaList = (field: string, label: string, max: number): Photo[] => {
+    try {
+      const raw = JSON.parse(text(f, field) || '[]');
+      if (!Array.isArray(raw)) throw new Error();
+      const list: Photo[] = raw.slice(0, max).map((p: { url?: unknown; alt?: unknown }) => ({ url: String(p?.url ?? ''), ...(p?.alt ? { alt: String(p.alt).slice(0, 160) } : {}) }));
+      need(list.every((p) => /^https:\/\/\S+$/.test(p.url)), `${label} moeten een https-adres hebben.`);
+      return list;
+    } catch { errors.push(`De ${label.toLowerCase()} konden niet worden gelezen.`); return []; }
+  };
+  const photos = mediaList('photos', 'Foto’s', 40), floorplans = mediaList('floorplans', 'Plattegronden', 20), photos360 = mediaList('photos_360', '360°-foto’s', 20);
 
   const video = text(f, 'video_url');
   need(!video || (video.length <= 500 && /^https:\/\/\S+\.(mp4|webm|mov|m4v)(\?\S*)?$/i.test(video)), 'De video moet een https-adres zijn naar een mp4-, webm- of mov-bestand.');
@@ -73,7 +76,7 @@ export function validateListing(f: FormData): ListingResult {
     value: {
       offer, category, new_build: newBuild, status, street, house_number: houseNumber, house_suffix: text(f, 'house_suffix') || null, postcode, city, province, neighbourhood: text(f, 'neighbourhood') || null,
       lat, lng, asking_price: price!, price_type: priceType, living_area: area!, plot_area: plot, rooms: rooms!, bedrooms, bathrooms, build_year: year,
-      property_type: type, energy_label: label || null, description, features, photos, video_url: video || null,
+      property_type: type, energy_label: label || null, description, features, photos, video_url: video || null, floorplans, photos_360: photos360,
     },
   };
 }

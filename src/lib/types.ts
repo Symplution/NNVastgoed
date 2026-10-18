@@ -44,6 +44,8 @@ export interface Listing {
   description: string; features: string[]; photos: Photo[];
   /** Eén video per woning (https-adres naar een mp4, webm of mov). */
   videoUrl?: string | null;
+  /** Plattegronden en 360°-foto's (equirectangular, breed formaat), net als de foto's een lijst van { url, alt }. */
+  floorplans?: Photo[]; photos360?: Photo[];
   publishedAt?: string | null; updatedAt: string;
 }
 

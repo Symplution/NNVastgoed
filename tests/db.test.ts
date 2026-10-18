@@ -555,3 +555,14 @@ describe('aanmeldingen van makelaars', () => {
     await expect(as(null, req('spam@x.nl'))).rejects.toThrow(/Te veel/);
   });
 });
+
+describe('plattegronden en 360°-foto’s', () => {
+  it('zijn lijsten, en alleen het eigen kantoor wijzigt ze', async () => {
+    expect(await as(ids.agentA, `update listings set floorplans = '[{"url":"https://x.nl/p.jpg"}]', photos_360 = '[{"url":"https://x.nl/360.jpg"}]' where id = '${listing.pubA}' returning 1`)).toHaveLength(1);
+    await expect(as(ids.agentA, `update listings set floorplans = '{"url":"https://x.nl"}' where id = '${listing.pubA}'`)).rejects.toThrow();
+    expect(await as(ids.agentB, `update listings set floorplans = '[]' where id = '${listing.pubA}' returning 1`)).toHaveLength(0);
+    const r = await as(null, `select floorplans, photos_360 from listings where id = '${listing.pubA}'`);
+    expect(r[0].floorplans).toHaveLength(1);
+    expect(r[0].photos_360).toHaveLength(1);
+  });
+});

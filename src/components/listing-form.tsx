@@ -79,6 +79,18 @@ export function ListingForm({ listing, offices, officeId, canPickOffice }: { lis
       </fieldset>
 
       <fieldset className="card p-6">
+        <legend className="mb-3 px-1 text-lg font-bold">Plattegronden</legend>
+        <PhotoEditor officeId={l?.officeId ?? officeId} initial={l?.floorplans ?? []} name="floorplans" label="Plattegronden" main={false} />
+        <p className="mt-2 text-xs text-muted">Bijvoorbeeld begane grond en verdieping, als afbeelding (JPG, PNG of WebP).</p>
+      </fieldset>
+
+      <fieldset className="card p-6">
+        <legend className="mb-3 px-1 text-lg font-bold">360°-foto’s</legend>
+        <PhotoEditor officeId={l?.officeId ?? officeId} initial={l?.photos360 ?? []} name="photos_360" label="360°-foto’s" main={false} />
+        <p className="mt-2 text-xs text-muted">Panoramafoto’s in breed formaat (equirectangular, bijvoorbeeld 4096 × 2048). Bezoekers slepen om rond te kijken.</p>
+      </fieldset>
+
+      <fieldset className="card p-6">
         <legend className="mb-3 px-1 text-lg font-bold">Video</legend>
         <VideoEditor officeId={l?.officeId ?? officeId} initial={l?.videoUrl} />
       </fieldset>

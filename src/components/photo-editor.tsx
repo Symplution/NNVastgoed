@@ -6,7 +6,7 @@ import { createClient } from '@/lib/supabase/client';
 import type { Photo } from '@/lib/types';
 
 /** Foto’s van een woning: uploaden naar de eigen map in Supabase Storage, of een https-adres plakken. De volgorde bepaalt de hoofdfoto. */
-export function PhotoEditor({ officeId, initial }: { officeId: string | null; initial: Photo[] }) {
+export function PhotoEditor({ officeId, initial, name = 'photos', label = 'Foto’s', main = true }: { officeId: string | null; initial: Photo[]; name?: string; label?: string; main?: boolean }) {
   const [photos, setPhotos] = useState<Photo[]>(initial);
   const [url, setUrl] = useState('');
   const [busy, setBusy] = useState(false);
@@ -31,7 +31,7 @@ export function PhotoEditor({ officeId, initial }: { officeId: string | null; in
 
   return (
     <div>
-      <input type="hidden" name="photos" value={JSON.stringify(photos)} />
+      <input type="hidden" name={name} value={JSON.stringify(photos)} />
       {photos.length > 0 && (
         <ul className="grid grid-cols-2 gap-3 sm:grid-cols-4">
           {photos.map((p, i) => (
@@ -39,7 +39,7 @@ export function PhotoEditor({ officeId, initial }: { officeId: string | null; in
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img src={p.url} alt="" className="aspect-[4/3] w-full object-cover" />
               <div className="flex items-center justify-between gap-1 p-1.5 text-xs">
-                <span className="font-semibold text-muted">{i === 0 ? 'Hoofdfoto' : i + 1}</span>
+                <span className="font-semibold text-muted">{main && i === 0 ? 'Hoofdfoto' : i + 1}</span>
                 <span className="flex">
                   <button type="button" disabled={i === 0} onClick={() => move(i, -1)} aria-label="Naar voren" className="focus-ring rounded p-1 hover:bg-sand disabled:opacity-30"><ArrowUp size={14} /></button>
                   <button type="button" disabled={i === photos.length - 1} onClick={() => move(i, 1)} aria-label="Naar achteren" className="focus-ring rounded p-1 hover:bg-sand disabled:opacity-30"><ArrowDown size={14} /></button>
@@ -51,10 +51,10 @@ export function PhotoEditor({ officeId, initial }: { officeId: string | null; in
         </ul>
       )}
       <div className="mt-3 flex flex-wrap items-end gap-3">
-        <label className="btn-ghost cursor-pointer"><ImagePlus size={16} aria-hidden /> {busy ? 'Uploaden…' : 'Foto’s uploaden'}<input type="file" accept="image/jpeg,image/png,image/webp" multiple className="sr-only" disabled={busy} onChange={(e) => { void upload(e.target.files); e.target.value = ''; }} /></label>
+        <label className="btn-ghost cursor-pointer"><ImagePlus size={16} aria-hidden /> {busy ? 'Uploaden…' : `${label} uploaden`}<input type="file" accept="image/jpeg,image/png,image/webp" multiple className="sr-only" disabled={busy} onChange={(e) => { void upload(e.target.files); e.target.value = ''; }} /></label>
         <div className="flex flex-1 gap-2">
-          <label htmlFor="photo-url" className="sr-only">Adres van een foto</label>
-          <input id="photo-url" value={url} onChange={(e) => setUrl(e.target.value)} placeholder="https://…/foto.jpg" className="field min-w-[12rem]" />
+          <label htmlFor={`${name}-url`} className="sr-only">Adres van een afbeelding</label>
+          <input id={`${name}-url`} value={url} onChange={(e) => setUrl(e.target.value)} placeholder="https://…/foto.jpg" className="field min-w-[12rem]" />
           <button type="button" className="btn-ghost" onClick={() => { if (/^https:\/\/\S+$/.test(url.trim())) { setPhotos((p) => [...p, { url: url.trim() }]); setUrl(''); setError(''); } else setError('Een foto-adres begint met https://'); }}>Toevoegen</button>
         </div>
       </div>
