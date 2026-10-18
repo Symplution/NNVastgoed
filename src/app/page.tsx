@@ -35,9 +35,9 @@ export default async function Home() {
             { href: '/woningmarkt', Icon: BarChart3, t: 'Alles over de woningmarkt', d: 'Prijzen, kosten en tips' },
           ].map(({ href, Icon, t, d }) => (
             <li key={href}>
-              <Link href={href} className="card focus-ring flex h-full items-center gap-4 p-4 transition hover:-translate-y-0.5 hover:shadow-lg">
+              <Link href={href} className="card focus-ring flex h-full flex-col items-center gap-3 px-4 py-6 text-center transition hover:-translate-y-0.5 hover:shadow-lg">
                 <span className="inline-flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-accent-soft text-accent-dark"><Icon size={24} aria-hidden /></span>
-                <span><span className="block font-bold leading-snug">{t}</span><span className="block text-sm text-muted">{d}</span></span>
+                <span><span className="block font-bold leading-snug lg:min-h-[2.75rem]">{t}</span><span className="mt-1 block text-sm text-muted">{d}</span></span>
               </Link>
             </li>
           ))}
