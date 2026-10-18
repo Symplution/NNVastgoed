@@ -48,10 +48,10 @@ export default async function Home() {
       <section className="container-x mt-8 grid gap-4 sm:grid-cols-3" aria-label="Kies een provincie">
         {PROVINCES.map((p) => (
           <Link key={p} href={`/${p}`} className="card focus-ring group relative overflow-hidden p-6 transition hover:-translate-y-0.5 hover:shadow-lg">
-            <ProvinceFlag province={p} className="absolute right-5 top-5 h-20 w-20 shadow-md" />
+            <ProvinceFlag province={p} className="absolute right-4 top-4 h-28 w-28 shadow-md" />
             <MapPin size={20} aria-hidden style={{ color: PROVINCE_INFO[p].hue }} />
             <h2 className="mt-3 text-xl font-extrabold">{PROVINCE_INFO[p].name}</h2>
-            <p className="mt-1 pr-16 text-sm text-muted">{PROVINCE_INFO[p].tagline}</p>
+            <p className="mt-1 pr-24 text-sm text-muted">{PROVINCE_INFO[p].tagline}</p>
             <p className="mt-4 inline-flex items-center gap-1.5 text-sm font-semibold text-brand">{counts[p]} woningen <ArrowRight size={15} aria-hidden className="transition group-hover:translate-x-1" /></p>
           </Link>
         ))}
