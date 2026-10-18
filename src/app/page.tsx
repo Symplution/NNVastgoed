@@ -96,7 +96,7 @@ export default async function Home() {
           { Icon: Network, t: 'Rechtstreeks van de makelaar', d: 'Kantoren koppelen hun eigen systeem. Wijzigingen en prijsaanpassingen staan er direct.' },
           { Icon: CalendarCheck, t: 'Plan je bezichtiging zelf', d: 'Kies online een moment dat de makelaar heeft vrijgemaakt. Meteen bevestigd, zonder bellen.' },
         ].map(({ Icon, t, d }) => (
-          <div key={t}><span className="inline-flex h-11 w-11 items-center justify-center rounded-xl bg-brand-soft text-brand"><Icon size={22} aria-hidden /></span><h3 className="mt-4 font-bold">{t}</h3><p className="mt-1.5 text-sm text-muted">{d}</p></div>
+          <div key={t} className="mx-auto flex max-w-sm flex-col items-center text-center"><span className="inline-flex h-12 w-12 items-center justify-center rounded-xl bg-brand-soft text-brand"><Icon size={24} aria-hidden /></span><h3 className="mt-4 font-bold">{t}</h3><p className="mt-1.5 text-sm text-muted">{d}</p></div>
         ))}
       </section>
 
