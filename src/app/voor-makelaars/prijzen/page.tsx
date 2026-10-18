@@ -1,13 +1,10 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import { ArrowLeft, ArrowRight, Check, Eye, Gift, Home, Receipt, Sparkles } from 'lucide-react';
-import { CUSTOM_CAMPAIGNS, LISTING_FEE, OBJECT_TYPES, OFFICE_PRICES, PRICE_GROUPS, PROMO_FEE, REGISTRATION, euro } from '@/lib/pricing';
+import { LISTING_FEE, PROMO_FEE, REGISTRATION, euro } from '@/lib/pricing';
 
 // Bewust niet in de sitemap, de footer of de zoekresultaten: alleen bereikbaar via "Bekijk prijzen" bij de makelaarspagina.
 export const metadata: Metadata = { title: 'Prijzen voor makelaars', description: 'Registreren is gratis. Een woning plaatsen kost € 250 en promoten in het aanbod van de maand € 50 (excl. btw).', robots: { index: false, follow: false } };
-
-const th = 'px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider text-muted';
-const td = 'px-4 py-3 text-sm';
 
 function Bullets({ items }: { items: string[] }) {
   return <ul className="mt-6 space-y-2.5 text-[15px]">{items.map((x) => <li key={x} className="flex gap-2.5"><Check size={18} className="mt-0.5 shrink-0 text-green-600" aria-hidden />{x}</li>)}</ul>;
@@ -72,36 +69,6 @@ export default function Prijzen() {
             <div className="flex justify-between border-t border-brand/20 pt-2 text-lg font-extrabold"><dt>Totaal (excl. btw)</dt><dd className="text-brand">{euro(total)}</dd></div>
           </dl>
         </section>
-
-        <details className="group mt-12 rounded-2xl border border-line">
-          <summary className="focus-ring flex cursor-pointer list-none items-center justify-between rounded-2xl px-6 py-4 font-bold marker:hidden">Overige opties voor bedrijfsruimte en kantoren<span aria-hidden className="text-muted transition group-open:rotate-180">⌄</span></summary>
-          <div className="space-y-8 px-6 pb-6">
-            <div className="overflow-x-auto rounded-2xl border border-line bg-white">
-              <table className="w-full min-w-[44rem] border-collapse">
-                <thead><tr className="border-b border-line bg-sand/60"><th className={th}>Product</th><th className={th}>Looptijd</th>{OBJECT_TYPES.map((t) => <th key={t} className={`${th} text-right`}>{t}</th>)}</tr></thead>
-                {PRICE_GROUPS.map((g) => (
-                  <tbody key={g.title} className="border-b border-line last:border-0">
-                    <tr><th colSpan={2 + OBJECT_TYPES.length} className="bg-brand-soft/50 px-4 py-2 text-left text-xs font-bold uppercase tracking-wider text-brand">{g.title}</th></tr>
-                    {g.rows.map((r) => (
-                      <tr key={`${r.name}${r.period}`} className="border-t border-line/70">
-                        <td className={td}><span className="font-semibold">{r.name}</span>{r.note && <span className="block text-xs text-muted">{r.note}</span>}</td>
-                        <td className={`${td} text-muted`}>{r.period}</td>
-                        {r.prices.map((p, i) => <td key={i} className={`${td} text-right tabular-nums`}>{p === null ? <span className="text-muted" aria-label="niet beschikbaar">–</span> : <span className="font-semibold">{euro(p)}</span>}</td>)}
-                      </tr>
-                    ))}
-                  </tbody>
-                ))}
-              </table>
-            </div>
-            <div className="overflow-x-auto rounded-2xl border border-line bg-white">
-              <table className="w-full min-w-[28rem] border-collapse">
-                <thead><tr className="border-b border-line bg-sand/60"><th className={th}>Kantoor</th><th className={th}>Looptijd</th><th className={`${th} text-right`}>Prijs</th></tr></thead>
-                <tbody>{OFFICE_PRICES.map((r) => <tr key={r.name} className="border-t border-line/70 first:border-0"><td className={td}><span className="font-semibold">{r.name}</span><span className="block text-xs text-muted">{r.note}</span></td><td className={`${td} text-muted`}>{r.period}</td><td className={`${td} text-right font-semibold tabular-nums`}>{euro(r.price)}</td></tr>)}</tbody>
-              </table>
-            </div>
-            <div className="grid gap-4 sm:grid-cols-2">{CUSTOM_CAMPAIGNS.map((c) => <div key={c.name} className="card p-5"><p className="font-bold">{c.name}</p><p className="mt-1 text-sm text-muted">Vanaf, excl. btw</p><p className="text-2xl font-extrabold tabular-nums text-brand">{euro(c.from)}</p></div>)}</div>
-          </div>
-        </details>
 
         <div className="mt-12 flex flex-col items-start gap-4 rounded-3xl bg-gradient-to-br from-brand-dark to-brand p-8 text-white sm:flex-row sm:items-center sm:justify-between">
           <div><h2 className="text-2xl font-extrabold">Registreer jouw makelaardij</h2><p className="mt-1 text-white/85">Registreren is gratis. Wij nemen binnen twee werkdagen contact met je op.</p></div>
