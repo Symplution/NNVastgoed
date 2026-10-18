@@ -17,6 +17,13 @@ describe('pdf-overzicht van een woning', () => {
     const doc = await PDFDocument.load(await buildListingPdf({ listing: odd, office: { ...office, phone: null, website: null, logoUrl: null } }));
     expect(doc.getPageCount()).toBeGreaterThanOrEqual(2);
   }, 60_000);
+  it('de brochure voor bezoekers is een geldig pdf-bestand met het logo van een voorbeeldkantoor', async () => {
+    const withVideo = { ...listing, videoUrl: '/voorbeeld-video.mp4' };
+    const bytes = await buildListingPdf({ listing: withVideo, office: DEMO_OFFICES[0], variant: 'publiek' });
+    expect(Buffer.from(bytes.slice(0, 5)).toString()).toBe('%PDF-');
+    expect((await PDFDocument.load(bytes)).getTitle()).toContain('brochure');
+    expect(DEMO_OFFICES[0].logoUrl).toBe('/api/logo/martinihof-makelaars');
+  }, 60_000);
   it('weigert onveilige adressen bij het ophalen van foto’s', () => {
     for (const u of ['http://x.nl/a.jpg', 'https://localhost/a.jpg', 'https://127.0.0.1/a.jpg', 'https://169.254.169.254/latest', 'https://[::1]/a.jpg', 'https://db.internal/a.jpg', 'ftp://x.nl/a.jpg', 'geen url']) expect(isFetchableUrl(u)).toBe(false);
     expect(isFetchableUrl('https://abc.supabase.co/storage/v1/object/public/listing-photos/x.jpg')).toBe(true);

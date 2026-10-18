@@ -1,13 +1,14 @@
 'use client';
 
-import { ChevronLeft, ChevronRight, Copy, Grid2x2, Images, LayoutPanelTop, Play, Rotate3d, Share2, Video, X } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Copy, FileDown, Grid2x2, Images, LayoutPanelTop, Play, Rotate3d, Share2, Video, X } from 'lucide-react';
 import { useCallback, useEffect, useRef, useState, type ReactNode } from 'react';
 import type { Photo } from '@/lib/types';
 import { SaveButton } from './save-button';
 
-type Kind = 'foto' | 'plattegrond' | 'video' | '360';
-const LABEL: Record<Kind, string> = { foto: 'Foto’s', plattegrond: 'Plattegrond', video: 'Video', '360': '360° foto’s' };
-const ICON: Record<Kind, ReactNode> = { foto: <Images size={18} aria-hidden />, plattegrond: <LayoutPanelTop size={18} aria-hidden />, video: <Video size={18} aria-hidden />, '360': <Rotate3d size={18} aria-hidden /> };
+type Kind = 'foto' | 'plattegrond' | '360';
+type Slide = Photo & { video?: boolean };
+const LABEL: Record<Kind, string> = { foto: 'Foto’s', plattegrond: 'Plattegrond', '360': '360° foto’s' };
+const ICON: Record<Kind, ReactNode> = { foto: <Images size={18} aria-hidden />, plattegrond: <LayoutPanelTop size={18} aria-hidden />, '360': <Rotate3d size={18} aria-hidden /> };
 type View = { kind: Kind; i: number } | 'alle' | null;
 
 /** Een 360°-foto: een breed beeld dat je met de muis of je vinger langs sleept. */
@@ -38,14 +39,17 @@ function Panorama({ url, alt }: { url: string; alt: string }) {
 }
 
 /** De media bovenaan een woning: een mozaïek met de hoofdfoto, video en foto's, en onderaan knoppen voor foto's, plattegrond, video en 360°. */
-export function ListingMedia({ listingId, title, photos, floorplans = [], photos360 = [], videoUrl }: { listingId: string; title: string; photos: Photo[]; floorplans?: Photo[]; photos360?: Photo[]; videoUrl?: string | null }) {
+export function ListingMedia({ listingId, title, brochureHref, photos, floorplans = [], photos360 = [], videoUrl }: { listingId: string; title: string; brochureHref?: string; photos: Photo[]; floorplans?: Photo[]; photos360?: Photo[]; videoUrl?: string | null }) {
   const [view, setView] = useState<View>(null);
   const [note, setNote] = useState('');
-  const lists: Record<Kind, Photo[]> = { foto: photos, plattegrond: floorplans, video: videoUrl ? [{ url: videoUrl }] : [], '360': photos360 };
-  const kinds = (['foto', 'plattegrond', 'video', '360'] as Kind[]).filter((k) => lists[k].length > 0);
+  // De video staat altijd op de tweede plek tussen de foto's (na de hoofdfoto).
+  const videoAt = videoUrl ? Math.min(1, photos.length) : -1;
+  const slides: Slide[] = videoUrl ? [...photos.slice(0, videoAt), { url: videoUrl, video: true }, ...photos.slice(videoAt)] : photos;
+  const lists: Record<Kind, Slide[]> = { foto: slides, plattegrond: floorplans, '360': photos360 };
+  const kinds = (['foto', 'plattegrond', '360'] as Kind[]).filter((k) => lists[k].length > 0);
   const open = (kind: Kind, i = 0) => setView({ kind, i });
   const close = useCallback(() => setView(null), []);
-  const step = useCallback((d: number) => setView((v) => (v && v !== 'alle' ? { ...v, i: (v.i + d + lists[v.kind].length) % lists[v.kind].length } : v)), [photos.length, floorplans.length, photos360.length]); // eslint-disable-line react-hooks/exhaustive-deps
+  const step = useCallback((d: number) => setView((v) => (v && v !== 'alle' ? { ...v, i: (v.i + d + lists[v.kind].length) % lists[v.kind].length } : v)), [slides.length, floorplans.length, photos360.length]); // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {
     if (!view) return;
@@ -63,11 +67,11 @@ export function ListingMedia({ listingId, title, photos, floorplans = [], photos
     } catch { /* gesloten of niet toegestaan */ }
   }
 
-  // De vier kleine vakken: eerst de video, dan de volgende foto's, dan plattegrond en 360°.
-  type Tile = { kind: Kind; i: number; url: string; alt?: string };
+  // De vier kleine vakken: de video (altijd als eerste), dan de volgende foto's, dan plattegrond en 360°.
+  type Tile = { kind: Kind; i: number; url: string; alt?: string; video?: boolean };
   const tiles: Tile[] = [
-    ...(videoUrl ? [{ kind: 'video' as Kind, i: 0, url: photos[1]?.url ?? photos[0]?.url ?? '' }] : []),
-    ...photos.slice(1).map((p, k) => ({ kind: 'foto' as Kind, i: k + 1, url: p.url, alt: p.alt })),
+    ...(videoUrl ? [{ kind: 'foto' as Kind, i: videoAt, url: photos[1]?.url ?? photos[0]?.url ?? '', video: true }] : []),
+    ...photos.slice(videoUrl ? 2 : 1).map((p, k) => ({ kind: 'foto' as Kind, i: k + (videoUrl ? 3 : 1), url: p.url, alt: p.alt })),
     ...floorplans.slice(0, 1).map((p) => ({ kind: 'plattegrond' as Kind, i: 0, url: p.url, alt: p.alt })),
     ...photos360.slice(0, 1).map((p) => ({ kind: '360' as Kind, i: 0, url: p.url, alt: p.alt })),
   ].slice(0, 4);
@@ -87,10 +91,10 @@ export function ListingMedia({ listingId, title, photos, floorplans = [], photos
           {[0, 1, 2, 3].map((n) => {
             const t = tiles[n];
             return t ? (
-              <button key={n} type="button" onClick={() => open(t.kind, t.i)} aria-label={t.kind === 'video' ? 'Video afspelen' : `${LABEL[t.kind]} bekijken`} className="focus-ring relative hidden overflow-hidden bg-sand sm:block">
+              <button key={n} type="button" onClick={() => open(t.kind, t.i)} aria-label={t.video ? 'Video afspelen' : `${LABEL[t.kind]} bekijken`} className="focus-ring relative hidden overflow-hidden bg-sand sm:block">
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img src={t.url} alt={t.alt ?? ''} className={`h-full w-full object-cover transition hover:scale-[1.03] ${t.kind === 'plattegrond' ? 'bg-white object-contain p-2' : ''}`} />
-                {t.kind === 'video' && <span className="absolute inset-0 flex items-center justify-center bg-black/10"><span className="flex h-16 w-16 items-center justify-center rounded-full bg-ink/80 text-white"><Play size={28} fill="currentColor" aria-hidden /></span></span>}
+                {t.video && <span className="absolute inset-0 flex items-center justify-center bg-black/10"><span className="flex h-16 w-16 items-center justify-center rounded-full bg-ink/80 text-white"><Play size={28} fill="currentColor" aria-hidden /></span></span>}
                 {t.kind === '360' && <span className="absolute inset-0 flex items-center justify-center bg-black/10"><span className="flex h-14 w-14 items-center justify-center rounded-full bg-ink/80 text-white"><Rotate3d size={26} aria-hidden /></span></span>}
               </button>
             ) : <div key={n} className="hidden bg-sand sm:block" aria-hidden />;
@@ -105,8 +109,10 @@ export function ListingMedia({ listingId, title, photos, floorplans = [], photos
 
       <div className="mt-3 flex flex-wrap items-center gap-x-1 gap-y-1 border-b border-line pb-3">
         {kinds.map((k) => (
-          <button key={k} type="button" onClick={() => open(k, 0)} className={btn}>{ICON[k]} {LABEL[k]} {k !== 'video' && <span className="font-normal text-muted">{lists[k].length}</span>}</button>
+          <button key={k} type="button" onClick={() => open(k, 0)} className={btn}>{ICON[k]} {LABEL[k]} <span className="font-normal text-muted">{k === 'foto' ? photos.length : lists[k].length}</span></button>
         ))}
+        {videoUrl && <button type="button" onClick={() => open('foto', videoAt)} className={btn}><Video size={18} aria-hidden /> Video</button>}
+        {brochureHref && <a href={brochureHref} download className={btn}><FileDown size={18} aria-hidden /> Brochure (pdf)</a>}
         <span className="grow" />
         <button type="button" onClick={() => setView('alle')} className={btn}><Grid2x2 size={18} aria-hidden /> Alle media</button>
       </div>
@@ -118,7 +124,7 @@ export function ListingMedia({ listingId, title, photos, floorplans = [], photos
               {kinds.map((k) => <button key={k} type="button" onClick={() => open(k, 0)} aria-pressed={view !== 'alle' && view.kind === k} className={`focus-ring inline-flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-sm font-semibold ${view !== 'alle' && view.kind === k ? 'bg-white text-ink' : 'text-white/85 hover:bg-white/15'}`}>{ICON[k]} {LABEL[k]}</button>)}
               <button type="button" onClick={() => setView('alle')} aria-pressed={view === 'alle'} className={`focus-ring inline-flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-sm font-semibold ${view === 'alle' ? 'bg-white text-ink' : 'text-white/85 hover:bg-white/15'}`}><Grid2x2 size={18} aria-hidden /> Alle media</button>
             </div>
-            {view !== 'alle' && lists[view.kind].length > 1 && view.kind !== 'video' && <span className="text-sm text-white/75">{view.i + 1} / {lists[view.kind].length}</span>}
+            {view !== 'alle' && lists[view.kind].length > 1 && <span className="text-sm text-white/75">{view.i + 1} / {lists[view.kind].length}</span>}
             <button type="button" onClick={close} aria-label="Sluiten" className="focus-ring rounded-full p-2 hover:bg-white/15"><X size={22} aria-hidden /></button>
           </div>
           <div className="relative min-h-0 flex-1">
@@ -131,24 +137,24 @@ export function ListingMedia({ listingId, title, photos, floorplans = [], photos
                       {lists[k].map((p, i) => (
                         <button key={p.url + i} type="button" onClick={() => open(k, i)} className="focus-ring relative aspect-[4/3] overflow-hidden rounded-lg bg-white/10">
                           {/* eslint-disable-next-line @next/next/no-img-element */}
-                          {k === 'video' ? <span className="flex h-full items-center justify-center"><Play size={36} aria-hidden /></span> : <img src={p.url} alt={p.alt ?? ''} loading="lazy" className={`h-full w-full ${k === 'plattegrond' ? 'bg-white object-contain p-2' : 'object-cover'}`} />}
+                          {p.video ? <span className="flex h-full items-center justify-center bg-ink"><Play size={36} aria-hidden /></span> : <img src={p.url} alt={p.alt ?? ''} loading="lazy" className={`h-full w-full ${k === 'plattegrond' ? 'bg-white object-contain p-2' : 'object-cover'}`} />}
                         </button>
                       ))}
                     </div>
                   </section>
                 ))}
               </div>
-            ) : view.kind === 'video' ? (
-              <div className="flex h-full items-center justify-center px-4">
-                {/* eslint-disable-next-line jsx-a11y/media-has-caption */}
-                <video src={lists.video[0].url} controls autoPlay playsInline className="max-h-full max-w-full rounded-lg bg-black" />
-              </div>
             ) : view.kind === '360' ? (
               <div className="h-full"><Panorama key={view.i} url={lists['360'][view.i].url} alt={lists['360'][view.i].alt ?? `${title}, 360° foto`} /></div>
             ) : (
               <div className="flex h-full items-center justify-center px-14">
-                {/* eslint-disable-next-line @next/next/no-img-element */}
+                {lists[view.kind][view.i].video ? (
+                  // eslint-disable-next-line jsx-a11y/media-has-caption
+                  <video key={view.i} src={lists[view.kind][view.i].url} controls autoPlay playsInline className="h-full max-h-full w-full max-w-5xl rounded-lg bg-black object-contain" />
+                ) : (
+                // eslint-disable-next-line @next/next/no-img-element
                 <img src={lists[view.kind][view.i].url} alt={lists[view.kind][view.i].alt ?? `${title}, ${LABEL[view.kind].toLowerCase()} ${view.i + 1}`} className={`max-h-full max-w-full rounded-lg object-contain ${view.kind === 'plattegrond' ? 'bg-white' : ''}`} />
+                )}
               </div>
             )}
             {view !== 'alle' && lists[view.kind].length > 1 && (view.kind === 'foto' || view.kind === 'plattegrond' || view.kind === '360') && (

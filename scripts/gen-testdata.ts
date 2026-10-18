@@ -30,12 +30,12 @@ let li = 0;
 for (const l of base) {
   const lid = id(2, ++li); listingId.set(l.slug, lid);
   const days = Math.max(0, Math.round((new Date('2026-10-01T09:00:00Z').getTime() - new Date(l.publishedAt!).getTime()) / 86_400_000));
-  listingRows.push(`(${q(lid)}, ${q(OFFICE_ID.get(l.officeId)!)}, ${q(l.slug)}, ${q(l.status)}, ${q(l.offer)}, ${q(l.category)}, ${l.newBuild}, ${q(l.street)}, ${q(l.houseNumber)}, ${q(l.houseSuffix)}, ${q(l.postcode)}, ${q(l.city)}, ${q(l.province)}, ${q(l.neighbourhood)}, ${n(l.lat)}, ${n(l.lng)}, ${l.askingPrice}, ${q(l.priceType)}, ${l.livingArea}, ${n(l.plotArea)}, ${l.rooms}, ${l.bedrooms}, ${l.bathrooms}, ${n(l.buildYear)}, ${q(l.propertyType)}, ${q(l.energyLabel)}, ${q(l.description)}, ${arr(l.features)}, ${q(JSON.stringify(l.photos))}::jsonb, ${q(JSON.stringify(l.floorplans ?? []))}::jsonb, ${q(JSON.stringify(l.photos360 ?? []))}::jsonb, now() - interval '${days + 1} days')`);
+  listingRows.push(`(${q(lid)}, ${q(OFFICE_ID.get(l.officeId)!)}, ${q(l.slug)}, ${q(l.status)}, ${q(l.offer)}, ${q(l.category)}, ${l.newBuild}, ${q(l.street)}, ${q(l.houseNumber)}, ${q(l.houseSuffix)}, ${q(l.postcode)}, ${q(l.city)}, ${q(l.province)}, ${q(l.neighbourhood)}, ${n(l.lat)}, ${n(l.lng)}, ${l.askingPrice}, ${q(l.priceType)}, ${l.livingArea}, ${n(l.plotArea)}, ${l.rooms}, ${l.bedrooms}, ${l.bathrooms}, ${n(l.buildYear)}, ${q(l.propertyType)}, ${q(l.energyLabel)}, ${q(l.description)}, ${arr(l.features)}, ${q(JSON.stringify(l.photos))}::jsonb, ${q(JSON.stringify(l.floorplans ?? []))}::jsonb, ${q(JSON.stringify(l.photos360 ?? []))}::jsonb, ${q(l.videoUrl ?? null)}, now() - interval '${days + 1} days')`);
 }
 for (const e of extra) {
   const lid = id(2, ++li); listingId.set(e.slug, lid);
   const label = `${e.street} ${e.nr} ${e.city}`;
-  listingRows.push(`(${q(lid)}, ${q(OFFICE_ID.get(e.office)!)}, ${q(e.slug)}, ${q(e.status)}, 'koop', 'woning', false, ${q(e.street)}, ${q(e.nr)}, null, ${q(e.postcode)}, ${q(e.city)}, ${q(e.province)}, null, ${e.lat}, ${e.lng}, ${e.price}, 'k.k.', ${e.area}, 300, ${e.rooms}, ${e.bed}, 1, ${e.year}, ${q(e.type)}, 'C', ${q(`${e.headline}.\n\nDit is een testwoning om de status te kunnen proberen.`)}, ${arr(['Tuin', 'Berging'])}, ${q(JSON.stringify(photos(e.slug, false, label)))}::jsonb, '[]'::jsonb, '[]'::jsonb, now() - interval '20 days')`);
+  listingRows.push(`(${q(lid)}, ${q(OFFICE_ID.get(e.office)!)}, ${q(e.slug)}, ${q(e.status)}, 'koop', 'woning', false, ${q(e.street)}, ${q(e.nr)}, null, ${q(e.postcode)}, ${q(e.city)}, ${q(e.province)}, null, ${e.lat}, ${e.lng}, ${e.price}, 'k.k.', ${e.area}, 300, ${e.rooms}, ${e.bed}, 1, ${e.year}, ${q(e.type)}, 'C', ${q(`${e.headline}.\n\nDit is een testwoning om de status te kunnen proberen.`)}, ${arr(['Tuin', 'Berging'])}, ${q(JSON.stringify(photos(e.slug, false, label)))}::jsonb, '[]'::jsonb, '[]'::jsonb, null, now() - interval '20 days')`);
 }
 const L = (slug: string) => q(listingId.get(slug)!);
 
@@ -67,6 +67,12 @@ const leads: { l: string; name: string; email: string; phone: string | null; msg
   { l: 'kloosterveen-fase-4-nr-6-assen', name: 'Rick Veenstra', email: `rick.veenstra@${DOMAIN}`, phone: '06 89012345', msg: 'Wanneer is de oplevering en wat zijn de termijnen?', kind: 'info', status: 'nieuw', days: 5 },
   { l: 'hoofdstraat-18-emmen', name: 'Hanneke Pol', email: `hanneke.pol@${DOMAIN}`, phone: '06 90123456', msg: 'Kunnen we er volgende week langs?', kind: 'bezichtiging', status: 'afgehandeld', days: 12 },
   { l: 'torenlaan-3-assen', name: 'Daan Wiersma', email: `daan.w@${DOMAIN}`, phone: '06 01234567', msg: 'Zijn huisdieren toegestaan en wat is de waarborgsom?', kind: 'info', status: 'nieuw', days: 1 },
+  { l: 'zuiderpark-8-groningen', name: 'Marloes Visser', email: `marloes.visser@${DOMAIN}`, phone: '06 11110000', msg: 'Is een bezichtiging in het weekend mogelijk? Wij zoeken een woning met grote tuin.', kind: 'bezichtiging', status: 'nieuw', days: 0 },
+  { l: 'kerkstraat-21-haren', name: 'Tim Prins', email: `tim.prins@${DOMAIN}`, phone: null, msg: 'Is de woning geschikt voor een gezin met drie kinderen?', kind: 'info', status: 'opgepakt', days: 2 },
+  { l: 'oudvaart-14-sneek', name: 'Ilse van Dijk', email: `ilse.vandijk@${DOMAIN}`, phone: '06 22220000', msg: 'Wanneer is de oplevering en zijn er nog kavels beschikbaar?', kind: 'info', status: 'nieuw', days: 1 },
+  { l: 'gieterstraat-9-gieten', name: 'Henk de Wit', email: `henk.dewit@${DOMAIN}`, phone: '0592 11 22 33', msg: 'Kunnen we de tuin ook zien? We hebben twee honden.', kind: 'bezichtiging', status: 'afgehandeld', days: 7 },
+  { l: 'dijkweg-1-makkum', name: 'Sophie Hofstra', email: `sophie.hofstra@${DOMAIN}`, phone: null, msg: 'Mag het chalet het hele jaar worden bewoond?', kind: 'info', status: 'nieuw', days: 1 },
+  { l: 'hoofdstraat-61-hoogeveen', name: 'Bakkerij De Brink', email: `info.debrink@${DOMAIN}`, phone: '0528 33 44 55', msg: 'Wat zijn de huurvoorwaarden en is horeca-gebruik toegestaan?', kind: 'info', status: 'opgepakt', days: 3 },
   { l: 'paterswoldseweg-45-groningen', name: 'Eline Postma', email: `eline.postma@${DOMAIN}`, phone: null, msg: 'Per wanneer is de woning beschikbaar?', kind: 'info', status: 'opgepakt', days: 6 },
 ];
 const leadRows = leads.map((x) => `  (${L(x.l)}, ${q(x.name)}, ${q(x.email)}, ${q(x.phone)}, ${q(x.msg)}, ${q(x.kind)}, now() - interval '${x.days} days' - interval '${(x.name.length * 37) % 600} minutes')`).join(',\n');
@@ -87,6 +93,12 @@ const viewings: V[] = [
   { l: 'brinkstraat-31-assen', day: 2, time: '14:00', min: 30, name: 'Sanne Dijkstra', email: `sanne.d@${DOMAIN}`, phone: null, note: null, status: 'bevestigd' },
   { l: 'zuidlaarderweg-16-zuidlaren', day: 5, time: '10:00', min: 30, name: 'Fleur Bos', email: `fleur@${DOMAIN}`, phone: '06 34567890', note: 'Ruime tuin graag zien', seeker: F, status: 'bevestigd' },
   { l: 'hoofdstraat-18-emmen', day: 1, time: '15:00', min: 30, name: 'Hanneke Pol', email: `hanneke.pol@${DOMAIN}`, phone: '06 90123456', note: null, status: 'bevestigd' },
+  { l: 'zuiderpark-8-groningen', day: 2, time: '10:30', min: 30, name: 'Marloes Visser', email: `marloes.visser@${DOMAIN}`, phone: '06 11110000', note: 'Met mijn partner', status: 'bevestigd' },
+  { l: 'kerkstraat-21-haren', day: 3, time: '09:30', min: 30, name: 'Anna de Vries', email: `anna@${DOMAIN}`, phone: '06 12345678', note: null, seeker: A, status: 'bevestigd' },
+  { l: 'gieterstraat-9-gieten', day: 4, time: '14:00', min: 30, name: 'Fleur Bos', email: `fleur@${DOMAIN}`, phone: '06 34567890', note: 'Met mijn ouders', seeker: F, status: 'bevestigd' },
+  { l: 'oudvaart-14-sneek', day: 5, time: '11:00', min: 30, name: 'Piet Jansen', email: `piet@${DOMAIN}`, phone: '06 23456789', note: 'Graag de kavel zien', seeker: P, status: 'bevestigd' },
+  { l: 'zuidergrachtswal-12-leeuwarden', day: -5, time: '15:00', min: 30, name: 'Piet Jansen', email: `piet@${DOMAIN}`, phone: '06 23456789', note: null, seeker: P, status: 'afgerond' },
+  { l: 'plantsoen-4-meppel', day: 1, time: '16:00', min: 30, name: 'Lars Mulder', email: `lars.mulder@${DOMAIN}`, phone: '06 33330000', note: null, status: 'bevestigd' },
   { l: 'hereweg-112-groningen', day: 3, time: '15:30', min: 30, name: 'Telefonisch: familie Brouwer', email: `brouwer@${DOMAIN}`, phone: '050 987 65 43', note: 'Via de telefoon ingepland', status: 'bevestigd', source: 'makelaar' },
 ];
 const dayExpr = (d: number) => (d < 0 ? `pg_temp.wd(${d})` : `pg_temp.wd(${d})`);
@@ -116,6 +128,15 @@ const convs = [
     ['makelaar', 'Ja hoor, plan gerust een nieuw moment in.', 8 * 24 * 60 - 30],
     ['zoeker', 'Dank u wel, gedaan.', 8 * 24 * 60 - 120],
   ], read: 'alles-gelezen' },
+  { n: 4, l: 'zuidergrachtswal-12-leeuwarden', seeker: P, office: 'o3', staffN: 2, msgs: [
+    ['zoeker', 'Dag, is het appartement per direct beschikbaar en mag er een kat in?', 3 * 24 * 60],
+    ['makelaar', 'Goedemorgen Piet, per 1 november beschikbaar. Een kat is toegestaan.', 3 * 24 * 60 - 60],
+    ['zoeker', 'Fijn, ik kwam gisteren al kijken en wil graag een huurcontract ontvangen.', 4 * 60],
+  ], read: 'kantoor-ongelezen' },
+  { n: 5, l: 'zuiderpark-8-groningen', seeker: A, office: 'o1', staffN: 1, msgs: [
+    ['zoeker', 'Is de tuin rondom omheind? Wij hebben een jonge hond.', 24 * 60],
+    ['makelaar', 'Ja, de tuin is volledig omheind en heeft een afsluitbare poort.', 22 * 60],
+  ], read: 'zoeker-ongelezen' },
 ] as const;
 const convRows = convs.map((c) => `  (${q(id(6, c.n))}, ${L(c.l)}, ${q(OFFICE_ID.get(c.office)!)}, ${user(c.seeker)}, now() - interval '${c.msgs[0][2] + 60} minutes')`).join(',\n');
 let mi = 0;
@@ -125,7 +146,7 @@ const msgRows = convs.flatMap((c) => c.msgs.map((m) => {
 })).join(',\n');
 
 // ── favorieten en zoekopdrachten ──
-const favs: [number, string][] = [[A, 'hereweg-112-groningen'], [A, 'nieuwe-ebbingestraat-34-groningen'], [A, 'meerstad-zuid-kavel-12-groningen'], [A, 'torenlaan-3-assen'], [P, 'oldehoofsterkerkhof-5-leeuwarden'], [P, 'havenstraat-14-joure'], [P, 'zuiderhaven-1-harlingen'], [F, 'brinkstraat-31-assen'], [F, 'zuidlaarderweg-16-zuidlaren']];
+const favs: [number, string][] = [[A, 'hereweg-112-groningen'], [A, 'nieuwe-ebbingestraat-34-groningen'], [A, 'meerstad-zuid-kavel-12-groningen'], [A, 'torenlaan-3-assen'], [P, 'oldehoofsterkerkhof-5-leeuwarden'], [P, 'havenstraat-14-joure'], [P, 'zuiderhaven-1-harlingen'], [F, 'brinkstraat-31-assen'], [F, 'zuidlaarderweg-16-zuidlaren'], [A, 'zuiderpark-8-groningen'], [A, 'dijkweg-1-makkum'], [P, 'oudvaart-14-sneek'], [P, 'zuidergrachtswal-12-leeuwarden'], [F, 'gieterstraat-9-gieten'], [F, 'heidepad-6-gasselte']];
 const favRows = favs.map(([u, s]) => `  (${user(u)}, ${L(s)})`).join(',\n');
 const searches = [
   { n: 1, email: `anna@${DOMAIN}`, qs: 'provincie=groningen&tot=450000' },
@@ -147,7 +168,7 @@ for (const [oi, o] of officeIds.entries()) {
 const blocks = `  (${q(id(9, 1))}, ${q(officeIds[0])}, pg_temp.wd(7)::timestamp at time zone 'Europe/Amsterdam', (pg_temp.wd(8) + 1)::timestamp at time zone 'Europe/Amsterdam', 'Teamdag (test)'),
   (${q(id(9, 2))}, ${q(officeIds[2])}, (pg_temp.wd(3) + time '12:00') at time zone 'Europe/Amsterdam', (pg_temp.wd(3) + time '13:00') at time zone 'Europe/Amsterdam', 'Lunch (test)')`;
 
-const officeRows = DEMO_OFFICES.map((o, i) => `  (${q(OFFICE_ID.get(o.id)!)}, ${q(o.slug)}, ${q(o.name)}, ${q(o.city)}, ${q(o.province)}, ${q(o.street)}, ${q(o.postcode)}, ${q(o.phone)}, ${q(o.email.replace(/@.*/, `@${DOMAIN}`))}, ${q(o.website)}, ${q(o.description)}, ${o.nvmMember})`).join(',\n');
+const officeRows = DEMO_OFFICES.map((o, i) => `  (${q(OFFICE_ID.get(o.id)!)}, ${q(o.slug)}, ${q(o.name)}, ${q(o.city)}, ${q(o.province)}, ${q(o.street)}, ${q(o.postcode)}, ${q(o.phone)}, ${q(o.email.replace(/@.*/, `@${DOMAIN}`))}, ${q(o.website)}, ${q(o.description)}, ${o.nvmMember}, ${q(o.logoUrl ?? null)})`).join(',\n');
 
 const staffUpdates = staff.map((s) => `  update profiles set full_name = ${q(s.name)}, phone = ${q(s.phone)}, role = '${s.role}', office_id = ${q(OFFICE_ID.get(s.office)!)} where id = ${q(id(3, s.n))};`).join('\n');
 const seekerUpdates = seekers.map((s) => `  update profiles set full_name = ${q(s.name)}, phone = ${q(s.phone)} where id = ${q(id(3, s.n))};`).join('\n');
@@ -205,7 +226,7 @@ begin
 end $$;
 
 -- 3. Kantoren
-insert into offices (id, slug, name, city, province, street, postcode, phone, email, website, description, nvm_member) values
+insert into offices (id, slug, name, city, province, street, postcode, phone, email, website, description, nvm_member, logo_url) values
 ${officeRows};
 
 do $$ begin
@@ -220,7 +241,7 @@ insert into viewing_blocks (id, office_id, starts_at, ends_at, reason) values
 ${blocks};
 
 -- 5. Woningen met foto's
-insert into listings (id, office_id, slug, status, offer, category, new_build, street, house_number, house_suffix, postcode, city, province, neighbourhood, lat, lng, asking_price, price_type, living_area, plot_area, rooms, bedrooms, bathrooms, build_year, property_type, energy_label, description, features, photos, floorplans, photos_360, published_at) values
+insert into listings (id, office_id, slug, status, offer, category, new_build, street, house_number, house_suffix, postcode, city, province, neighbourhood, lat, lng, asking_price, price_type, living_area, plot_area, rooms, bedrooms, bathrooms, build_year, property_type, energy_label, description, features, photos, floorplans, photos_360, video_url, published_at) values
 ${listingRows.join(',\n')};
 
 -- 6. Leads (via het formulier; de status passen we daarna aan)
@@ -245,7 +266,7 @@ ${msgRows};
 update messages set read_at = created_at + interval '5 minutes' where conversation_id in (${q(id(6, 3))});
 update messages set read_at = created_at + interval '5 minutes' where conversation_id = ${q(id(6, 1))} and created_at < now() - interval '1 day';
 update messages set read_at = created_at + interval '5 minutes' where conversation_id = ${q(id(6, 2))} and sender = 'makelaar';
-update conversations c set last_message_at = (select max(created_at) from messages m where m.conversation_id = c.id) where c.id in (${[1, 2, 3].map((k) => q(id(6, k))).join(', ')});
+update conversations c set last_message_at = (select max(created_at) from messages m where m.conversation_id = c.id) where c.id in (${[1, 2, 3, 4, 5].map((k) => q(id(6, k))).join(', ')});
 
 -- 9. Favorieten en opgeslagen zoekopdrachten
 insert into favorites (user_id, listing_id) values

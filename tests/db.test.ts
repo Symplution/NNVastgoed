@@ -258,6 +258,9 @@ describe('video en logo', () => {
     expect(await as(ids.agentA, `update listings set video_url = 'https://x.nl/v.mp4' where id = '${listing.pubA}' returning 1`)).toHaveLength(1);
     await expect(as(ids.agentA, `update listings set video_url = 'javascript:alert(1)' where id = '${listing.pubA}'`)).rejects.toThrow();
     await expect(as(ids.agentA, `update offices set logo_url = 'http://x.nl/l.png' where id = '${office.a}'`)).rejects.toThrow();
+    expect(await as(ids.agentA, `update listings set video_url = '/voorbeeld-video.mp4' where id = '${listing.pubA}' returning 1`)).toHaveLength(1);   // adres op de eigen site (testgegevens)
+    await expect(as(ids.agentA, `update listings set video_url = '//evil.nl/v.mp4' where id = '${listing.pubA}'`)).rejects.toThrow();
+    await as(ids.agentA, `update listings set video_url = 'https://x.nl/v.mp4' where id = '${listing.pubA}'`);
     expect(await as(ids.agentA, `update offices set logo_url = 'https://x.nl/l.png' where id = '${office.a}' returning 1`)).toHaveLength(1);
     expect(await as(ids.agentB, `update listings set video_url = 'https://x.nl/hack.mp4' where id = '${listing.pubA}' returning 1`)).toHaveLength(0);   // collega-kantoor
     expect((await as(null, `select video_url from listings where id = '${listing.pubA}'`))[0].video_url).toBe('https://x.nl/v.mp4');   // openbaar zichtbaar

@@ -37,14 +37,20 @@ describe('testgegevens', () => {
   it('lopen op het echte schema, ook twee keer achter elkaar', async () => {
     await db.exec(seed());
     await db.exec(seed());
-    expect(await count(`select count(*) n from listings`)).toBe(58);
-    expect(await count(`select count(*) n from listings where jsonb_array_length(photos) >= 3`)).toBe(58);
+    expect(await count(`select count(*) n from listings`)).toBe(70);
+    expect(await count(`select count(*) n from listings where jsonb_array_length(photos) >= 3`)).toBe(70);
     expect(await count(`select count(*) n from offices`)).toBe(6);
-    expect(await count(`select count(*) n from leads`)).toBe(11);
-    expect(await count(`select count(*) n from viewings`)).toBe(14);
-    expect(await count(`select count(*) n from messages`)).toBe(12);
-    expect(await count(`select count(*) n from favorites`)).toBe(9);
+    expect(await count(`select count(*) n from leads`)).toBe(17);
+    expect(await count(`select count(*) n from viewings`)).toBe(20);
+    expect(await count(`select count(*) n from messages`)).toBe(17);
+    expect(await count(`select count(*) n from favorites`)).toBe(15);
     expect(await count(`select count(*) n from auth.users where email like '%@nnv.test'`)).toBe(6);
+  });
+  it('heeft logo’s, video’s, plattegronden en 360°-foto’s', async () => {
+    expect(await count(`select count(*) n from offices where logo_url like '/api/logo/%'`)).toBe(6);
+    expect(await count(`select count(*) n from listings where video_url = '/voorbeeld-video.mp4'`)).toBeGreaterThan(8);
+    expect(await count(`select count(*) n from listings where jsonb_array_length(floorplans) = 1`)).toBeGreaterThan(60);
+    expect(await count(`select count(*) n from listings where jsonb_array_length(photos_360) = 1`)).toBeGreaterThan(10);
   });
   it('geeft de testaccounts de juiste rol, en laat de eigenaar met rust', async () => {
     const r = await db.query<{ email: string; role: string; office: string | null }>(`select u.email, p.role, o.slug office from profiles p join auth.users u on u.id = p.id left join offices o on o.id = p.office_id`);

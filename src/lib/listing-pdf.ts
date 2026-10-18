@@ -1,7 +1,8 @@
 import { isIP } from 'node:net';
 import { PDFDocument, StandardFonts, rgb, type PDFFont, type PDFImage, type PDFPage } from 'pdf-lib';
 import sharp from 'sharp';
-import { exampleSvg } from './example-photo';
+import { exampleLogoSvg, exampleSvg } from './example-photo';
+import { siteUrl } from './env';
 import { OFFER_LABEL, STATUS_LABEL, TYPE_LABEL, address, formatDate, formatNumber, formatPrice } from './format';
 import { provinceName } from './regions';
 import type { Listing, Office } from './types';
@@ -51,9 +52,10 @@ export async function loadPhoto(url: string, w: number, h: number, fit: 'cover' 
   } catch { return null; }
 }
 async function loadLogo(url: string): Promise<Buffer | null> {
-  const src = await fetchBytes(url, 4 * 1024 * 1024);
+  const example = url.match(/^\/api\/logo\/([a-z0-9-]{1,60})$/);
+  const src = example ? Buffer.from(exampleLogoSvg(example[1])) : await fetchBytes(url, 4 * 1024 * 1024);
   if (!src) return null;
-  try { return await sharp(src).resize(520, 170, { fit: 'inside', withoutEnlargement: true }).png().toBuffer(); } catch { return null; }
+  try { return await sharp(src, { density: example ? 192 : 72 }).resize(520, 170, { fit: 'inside', withoutEnlargement: true }).png().toBuffer(); } catch { return null; }
 }
 
 const rrectPath = (w: number, h: number, r: number) => `M${r},0 H${w - r} Q${w},0 ${w},${r} V${h - r} Q${w},${h} ${w - r},${h} H${r} Q0,${h} 0,${h - r} V${r} Q0,0 ${r},0 Z`;
@@ -121,12 +123,13 @@ function wrap(text: string, font: PDFFont, size: number, max: number): string[] 
   return out;
 }
 
-export interface PdfInput { listing: Listing; office: Office; now?: Date }
+/** `intern`: voor het kantoor zelf. `publiek`: de brochure die bezoekers van de woningpagina downloaden. */
+export interface PdfInput { listing: Listing; office: Office; now?: Date; variant?: 'intern' | 'publiek' }
 
-export async function buildListingPdf({ listing: l, office, now = new Date() }: PdfInput): Promise<Uint8Array> {
+export async function buildListingPdf({ listing: l, office, now = new Date(), variant = 'intern' }: PdfInput): Promise<Uint8Array> {
   const title = `${address(l)}, ${l.city}`;
   const d = await Doc.create(title);
-  d.pdf.setTitle(`${title} (overzicht)`); d.pdf.setAuthor(office.name); d.pdf.setProducer('NNvastgoed'); d.pdf.setCreator('NNvastgoed'); d.pdf.setCreationDate(now);
+  d.pdf.setTitle(variant === 'publiek' ? `${title} (brochure)` : `${title} (overzicht)`); d.pdf.setAuthor(office.name); d.pdf.setProducer('NNvastgoed'); d.pdf.setCreator('NNvastgoed'); d.pdf.setCreationDate(now);
   const embed = async (buf: Buffer | null, kind: 'jpg' | 'png'): Promise<PDFImage | null> => (buf ? (kind === 'png' ? d.pdf.embedPng(buf) : d.pdf.embedJpg(buf)).catch(() => null) : null);
 
   // Foto's en logo ophalen (de eerste is de hoofdfoto).
@@ -223,8 +226,8 @@ export async function buildListingPdf({ listing: l, office, now = new Date() }: 
   // ── Video ──
   if (l.videoUrl) {
     d.heading('Video');
-    d.text('Bij deze woning hoort een video. Bekijk hem op de woningpagina of via dit adres:', { size: 10 });
-    d.text(l.videoUrl, { size: 9, color: C.brand });
+    d.text(`Bij deze woning hoort een video. Bekijk hem op de woningpagina (${siteUrl()}/woning/${l.slug}) of via dit adres:`, { size: 10 });
+    d.text(l.videoUrl.startsWith('/') ? `${siteUrl()}${l.videoUrl}` : l.videoUrl, { size: 9, color: C.brand });
   }
 
   // ── Alle foto's ──
@@ -260,7 +263,7 @@ export async function buildListingPdf({ listing: l, office, now = new Date() }: 
     pg.drawText(safeText(contact), { x: M, y: 49, size: 8.5, font: d.bold, color: C.brand });
     pg.drawText(safeText([addr, office.website?.replace(/^https:\/\//, '')].filter(Boolean).join('  ·  ')), { x: M, y: 37, size: 8, font: d.reg, color: C.muted });
     pg.drawText(`Pagina ${i + 1} van ${n}`, { x: A4.w - M - d.reg.widthOfTextAtSize(`Pagina ${i + 1} van ${n}`, 8), y: 49, size: 8, font: d.reg, color: C.muted });
-    const note = `Intern overzicht · ${stamp} · Niet voor publicatie`;
+    const note = variant === 'publiek' ? `Brochure · ${stamp} · Aan deze brochure kunnen geen rechten worden ontleend` : `Intern overzicht · ${stamp} · Niet voor publicatie`;
     pg.drawText(note, { x: A4.w - M - d.reg.widthOfTextAtSize(note, 7.5), y: 37, size: 7.5, font: d.reg, color: C.muted });
   });
 

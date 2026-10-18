@@ -147,3 +147,14 @@ function panoramaSvg(h: Buffer): string {
 <rect width="2400" height="500" fill="url(#s)"/><g fill="#fff" opacity=".7"><ellipse cx="300" cy="90" rx="120" ry="20"/><ellipse cx="1100" cy="70" rx="150" ry="18"/><ellipse cx="1900" cy="110" rx="130" ry="20"/></g>
 ${trees}${houses}<rect y="310" width="2400" height="190" fill="url(#g)"/><path d="M0 400 H2400" stroke="#cfc6b8" stroke-width="46"/></svg>`;
 }
+
+/** Voorbeeldlogo voor een kantoor (testgegevens): een monogram met de naam, afgeleid van de naam in het adres. */
+export function exampleLogoSvg(rawSeed: string): string {
+  const seed = rawSeed.replace(/[^a-z0-9-]/g, '').slice(0, 60);
+  const h = createHash('md5').update(seed).digest();
+  const words = seed.split('-').filter(Boolean).map((w) => w[0].toUpperCase() + w.slice(1));
+  const initials = (words[0]?.[0] ?? 'N') + (words[1]?.[0] ?? '');
+  const hue = (h[0] / 255) * 360, bg = `hsl(${hue} 55% 28%)`, accent = `hsl(${(hue + 40) % 360} 85% 58%)`;
+  const name = words.join(' ').slice(0, 28).replace(/&/g, '&amp;');
+  return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 520 170" role="img" aria-label="Voorbeeldlogo ${name}"><rect width="520" height="170" fill="#fff"/><rect x="14" y="14" width="142" height="142" rx="30" fill="${bg}"/><path d="M40 92 85 54 130 92" fill="none" stroke="${accent}" stroke-width="9" stroke-linecap="round" stroke-linejoin="round"/><text x="85" y="132" text-anchor="middle" font-family="system-ui, sans-serif" font-size="34" font-weight="800" fill="#fff">${initials}</text><text x="176" y="84" font-family="system-ui, sans-serif" font-size="30" font-weight="800" fill="${bg}">${words[0] ?? ''}</text><text x="176" y="122" font-family="system-ui, sans-serif" font-size="24" font-weight="600" fill="#5b6b78">${words.slice(1).join(' ')}</text></svg>`;
+}

@@ -67,7 +67,7 @@ export default async function Woning({ params }: Props) {
         <Link href={commercial ? '/bedrijfsruimte' : recreation ? '/recreatie' : l.offer === 'huur' ? '/huur' : '/koop'} className="hover:underline">{commercial ? 'Bedrijfsruimte' : recreation ? 'Recreatie' : l.offer === 'huur' ? 'Huur' : 'Koop'}</Link> / <Link href={`/${l.province}`} className="hover:underline">{provinceName(l.province)}</Link> / <span>{l.city}</span>
       </nav>
 
-      <ListingMedia listingId={l.id} title={title} photos={l.photos} floorplans={l.floorplans ?? []} photos360={l.photos360 ?? []} videoUrl={l.videoUrl} />
+      <ListingMedia listingId={l.id} title={title} brochureHref={`/woning/${l.slug}/pdf`} photos={l.photos} floorplans={l.floorplans ?? []} photos360={l.photos360 ?? []} videoUrl={l.videoUrl} />
 
       <div className="mt-8 grid gap-10 lg:grid-cols-[1fr_24rem]">
         <div className="min-w-0 space-y-8">

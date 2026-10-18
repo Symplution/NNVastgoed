@@ -2,7 +2,7 @@ import { slugify } from './format';
 import { categoryOfType, type Listing, type Office, type Province, type PropertyType, type EnergyLabel, type ListingStatus } from './types';
 
 // Voorbeeldgegevens voor de demomodus (DEMO_MODE=1, alleen buiten productie). Alle kantoren en woningen zijn verzonnen.
-export const DEMO_OFFICES: Office[] = [
+const RAW_OFFICES: Office[] = [
   { id: 'o1', slug: 'martinihof-makelaars', name: 'Martinihof Makelaars', city: 'Groningen', province: 'groningen', street: 'Oude Ebbingestraat 12', postcode: '9712 HA', phone: '050 123 45 67', email: 'info@martinihof.example', website: 'https://martinihof.example', description: 'Al veertig jaar dé makelaar voor de stad Groningen en de Ommelanden. Van studio tot herenhuis.', nvmMember: true },
   { id: 'o2', slug: 'hogeland-wonen', name: 'Hogeland Wonen', city: 'Uithuizen', province: 'groningen', street: 'Hoofdstraat 8', postcode: '9981 AA', phone: '0595 12 34 56', email: 'contact@hogelandwonen.example', website: 'https://hogelandwonen.example', description: 'Specialist in woonboerderijen, terpwoningen en dorpshuizen aan de Waddenkust.', nvmMember: false },
   { id: 'o3', slug: 'elfsteden-makelaardij', name: 'Elfsteden Makelaardij', city: 'Leeuwarden', province: 'friesland', street: 'Nieuwestad 41', postcode: '8911 CJ', phone: '058 123 45 67', email: 'info@elfstedenmakelaardij.example', website: 'https://elfstedenmakelaardij.example', description: 'Makelaar in Leeuwarden en omstreken, met een eigen vestiging aan de Friese meren.', nvmMember: true },
@@ -10,6 +10,7 @@ export const DEMO_OFFICES: Office[] = [
   { id: 'o5', slug: 'brink-en-es-makelaars', name: 'Brink & Es Makelaars', city: 'Assen', province: 'drenthe', street: 'Brinkstraat 20', postcode: '9401 HT', phone: '0592 12 34 56', email: 'info@brinkenes.example', website: 'https://brinkenes.example', description: 'Persoonlijke makelaardij in midden-Drenthe: Assen, Roden, Zuidlaren en de Drentsche Aa.', nvmMember: true },
   { id: 'o6', slug: 'veenhuizen-vastgoed', name: 'Veenhuizen Vastgoed', city: 'Emmen', province: 'drenthe', street: 'Marktplein 5', postcode: '7811 AB', phone: '0591 12 34 56', email: 'info@veenhuizenvastgoed.example', website: 'https://veenhuizenvastgoed.example', description: 'Woningen in Zuidoost-Drenthe: Emmen, Coevorden, Hoogeveen en de Veenkoloniën.', nvmMember: false },
 ];
+export const DEMO_OFFICES: Office[] = RAW_OFFICES.map((o) => ({ ...o, logoUrl: `/api/logo/${o.slug}` }));
 
 type Row = [office: string, street: string, nr: string, postcode: string, city: string, province: Province, wijk: string, price: number, area: number, plot: number | null, rooms: number, bed: number, year: number, type: PropertyType, label: EnergyLabel, status: ListingStatus, days: number, lat: number, lng: number, headline: string];
 
@@ -54,6 +55,9 @@ export const photosFor = (address: string, commercial: boolean) =>
 export const floorplansFor = (address: string) => [{ url: `/api/foto/${slugify(address)}-8`, alt: `${address}, plattegrond begane grond` }];
 export const photos360For = (address: string) => [{ url: `/api/foto/${slugify(address)}-9`, alt: `${address}, 360°-foto van de buurt` }];
 
+/** Een korte voorbeeldvideo (public/voorbeeld-video.mp4) voor een deel van de woningen. */
+export const DEMO_VIDEO = '/voorbeeld-video.mp4';
+
 const stock = (type: PropertyType) => ['appartement', 'woonboot'].includes(type) ? ['Lift of vaste ligplaats', 'Berging', 'Dubbele beglazing'] : ['Tuin', 'Berging', 'Dubbele beglazing', 'Zonnepanelen'];
 const NOW = new Date('2026-10-01T09:00:00Z').getTime();
 
@@ -63,7 +67,7 @@ const BASE_LISTINGS: Listing[] = ROWS.map(([office, street, nr, postcode, city, 
   askingPrice: price, priceType: 'k.k.', livingArea: area, plotArea: plot, rooms, bedrooms: bed, bathrooms: bed > 3 ? 2 : 1, buildYear: year,
   propertyType: type, energyLabel: label,
   description: `${headline}.\n\nDit is een voorbeeldwoning uit de demo van NNvastgoed. In ${wijk}, ${city}, vind je deze ${type.replace(/-/g, ' ')} uit ${year} met ${area} m² woonoppervlak, ${rooms} kamers en ${bed} slaapkamers.\n\nDe indeling is praktisch en de ligging is ideaal: voorzieningen, openbaar vervoer en uitvalswegen liggen binnen handbereik. Neem contact op met ${DEMO_OFFICES.find((o) => o.id === office)!.name} voor een bezichtiging.`,
-  features: stock(type), photos: photosFor(`${street} ${nr} ${city}`, false), floorplans: floorplansFor(`${street} ${nr} ${city}`), photos360: i % 3 === 0 ? photos360For(`${street} ${nr} ${city}`) : [],
+  features: stock(type), photos: photosFor(`${street} ${nr} ${city}`, false), floorplans: floorplansFor(`${street} ${nr} ${city}`), photos360: i % 3 === 0 ? photos360For(`${street} ${nr} ${city}`) : [], videoUrl: i % 3 === 1 ? DEMO_VIDEO : null,
   publishedAt: new Date(NOW - days * 86_400_000).toISOString(), updatedAt: new Date(NOW - days * 86_400_000).toISOString(),
 }));
 
@@ -95,6 +99,18 @@ const EXTRA: Extra[] = [
   ['o6', 'Veenpad', '2', '7887 AB', 'Erica', 'drenthe', 'Veenkoloniën', 149500, 52, 3, 2, 1996, 'vakantiebungalow', 'D', 'koop', false, 15, 52.7494, 6.9269, 'Betaalbare vakantiebungalow op een groen park'],
   ['o2', 'Zeedijk', '10', '9974 RB', 'Zoutkamp', 'groningen', 'Waddenkust', 249000, 66, 3, 2, 2009, 'recreatiewoning', 'B', 'koop', false, 6, 53.3347, 6.2961, 'Recreatiewoning met uitzicht over de Waddenzee'],
   ['o3', 'Burg. Reedekerstraat', '9', '8881 EA', 'West-Terschelling', 'friesland', 'Terschelling', 389000, 74, 4, 3, 2000, 'recreatiewoning', 'C', 'koop', false, 3, 53.3586, 5.2194, 'Vakantiehuis op Terschelling, vijf minuten van het strand'],
+  ['o1', 'Zuiderpark', '8', '9724 AB', 'Groningen', 'groningen', 'Zuiderpark', 575000, 170, 6, 4, 1938, 'herenhuis', 'C', 'koop', false, 2, 53.2022, 6.5732, 'Statige villa nabij het Zuiderpark met een grote tuin'],
+  ['o1', 'Kerkstraat', '21', '9751 AB', 'Haren', 'groningen', 'Dorp', 465000, 150, 5, 3, 2001, 'vrijstaand', 'A', 'koop', false, 4, 53.1735, 6.6055, 'Vrijstaand wonen in Haren, op fietsafstand van de stad'],
+  ['o2', 'Wierdeweg', '7', '9988 PB', 'Usquert', 'groningen', 'Dorp', 235000, 145, 6, 3, 1920, 'woonboerderij', 'F', 'koop', false, 6, 53.4093, 6.6097, 'Woonboerderij op de wierde met uitzicht over de Waddenkust'],
+  ['o2', 'Molenweg', '3', '9672 AA', 'Winschoten', 'groningen', 'Centrum', 189000, 112, 4, 2, 1972, 'hoekwoning', 'D', 'koop', false, 9, 53.1438, 7.0352, 'Hoekwoning met grote berging nabij de Beersterhoogte'],
+  ['o3', 'Zuidergrachtswal', '12', '8933 AD', 'Leeuwarden', 'friesland', 'Huizum', 1450, 96, 4, 2, 2009, 'appartement', 'A', 'huur', false, 3, 53.1925, 5.7881, 'Ruim appartement met twee slaapkamers en een balkon'],
+  ['o3', 'Bonifatiusplein', '1', '8911 EC', 'Leeuwarden', 'friesland', 'Binnenstad', 1250, 70, 3, 2, 1990, 'appartement', 'B', 'huur', false, 5, 53.2003, 5.7945, 'Appartement in het hart van Leeuwarden, bij de Oldehove'],
+  ['o4', 'Oudvaart', '14', '8601 AA', 'Sneek', 'friesland', 'Waterfront', 495000, 165, 6, 4, 2018, 'vrijstaand', 'A+++', 'koop', true, 7, 53.0318, 5.6602, 'Nieuwbouwvilla aan het water, energieneutraal opgeleverd'],
+  ['o5', 'Gieterstraat', '9', '9461 AA', 'Gieten', 'drenthe', 'Dorp', 345000, 138, 5, 3, 1985, 'vrijstaand', 'C', 'koop', false, 10, 53.0042, 6.7611, 'Vrijstaand huis met ruime tuin tussen de Drentse bossen'],
+  ['o5', 'Plantsoen', '4', '7941 AB', 'Meppel', 'drenthe', 'Centrum', 275000, 118, 5, 3, 1999, 'hoekwoning', 'B', 'koop', false, 12, 52.6954, 6.1920, 'Gezinswoning dichtbij het station van Meppel'],
+  ['o6', 'Hoofdstraat', '61', '7901 EE', 'Hoogeveen', 'drenthe', 'Centrum', 2800, 180, 0, 0, 1975, 'winkelruimte', 'C', 'huur', false, 8, 52.7233, 6.4766, 'Winkelruimte met etalage in het winkelhart van Hoogeveen'],
+  ['o6', 'Verlengde Stationsweg', '2', '7811 BB', 'Emmen', 'drenthe', 'Centrum', 325000, 320, 0, 0, 1995, 'kantoorruimte', 'B', 'koop', false, 14, 52.7857, 6.8985, 'Kantoorpand met eigen parkeerterrein nabij het station'],
+  ['o4', 'Dijkweg', '1', '8754 JA', 'Makkum', 'friesland', 'Waterfront', 215000, 60, 3, 2, 2015, 'chalet', 'B', 'koop', false, 4, 53.0529, 5.4025, 'Chalet vlak achter de dijk, met uitzicht over het IJsselmeer'],
   ['o5', 'Heidepad', '6', '9453 PA', 'Gasselte', 'drenthe', 'Hondsrug', 650, 50, 3, 2, 2010, 'chalet', 'B', 'huur', false, 8, 52.9956, 6.8244, 'Chalet te huur op het Drentse Hondsrug, ook voor langere periode'],
 ];
 
@@ -109,7 +125,7 @@ const EXTRA_LISTINGS: Listing[] = EXTRA.map(([office, street, nr, postcode, city
     propertyType: type, energyLabel: label,
     description: `${headline}.\n\nDit is een voorbeeld uit de demo van NNvastgoed. ${commercial ? 'Het pand' : recreation ? 'De recreatiewoning' : 'De woning'} ligt in ${wijk}, ${city} en heeft ${area} m²${rooms ? ` met ${rooms} kamers` : ''}. Neem contact op met ${name} voor een bezichtiging.`,
     features: commercial ? ['Parkeren op eigen terrein', 'Glasvezel', 'Toegankelijk voor mindervaliden'] : recreation ? ['Eigen parkeerplek', 'Terras of veranda', 'Dichtbij natuur en water', 'Volledig gemeubileerd te koop'] : stock(type),
-    photos: photosFor(`${street} ${nr} ${city}`, commercial), floorplans: floorplansFor(`${street} ${nr} ${city}`), photos360: i % 4 === 0 ? photos360For(`${street} ${nr} ${city}`) : [],
+    photos: photosFor(`${street} ${nr} ${city}`, commercial), floorplans: floorplansFor(`${street} ${nr} ${city}`), photos360: i % 4 === 0 ? photos360For(`${street} ${nr} ${city}`) : [], videoUrl: i % 2 === 0 ? DEMO_VIDEO : null,
     publishedAt: new Date(NOW - days * 86_400_000).toISOString(), updatedAt: new Date(NOW - days * 86_400_000).toISOString(),
   };
 });
