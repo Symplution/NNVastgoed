@@ -28,16 +28,16 @@ export default async function Home() {
       <section className="container-x relative z-10 mt-8" aria-label="Snel naar">
         <ul className="grid gap-3 sm:grid-cols-2 lg:grid-cols-5">
           {[
-            { href: '/bedrijfsruimte', Icon: Building2, t: 'Zoek een bedrijfsruimte', d: 'Kantoor, hal, winkel of horeca' },
-            { href: '/makelaars?nvm=1', Icon: ShieldCheck, t: 'Zoek een NVM-makelaar', d: 'Aangesloten kantoren in het noorden' },
-            { href: '/huur', Icon: KeyRound, t: 'Zoek een huurwoning', d: 'Met de huur per maand' },
-            { href: '/recreatie', Icon: Palmtree, t: 'Zoek een recreatiewoning', d: 'Chalet, bungalow of vakantiehuis' },
-            { href: '/woningmarkt', Icon: BarChart3, t: 'Alles over de woningmarkt', d: 'Prijzen, kosten en tips' },
+            { href: '/bedrijfsruimte', Icon: Building2, t: 'Bedrijfsruimte', d: 'Kantoor, hal, winkel of horeca' },
+            { href: '/makelaars?nvm=1', Icon: ShieldCheck, t: 'NVM-makelaar', d: 'Aangesloten kantoren in het noorden' },
+            { href: '/huur', Icon: KeyRound, t: 'Huurwoningen', d: 'Met de huur per maand' },
+            { href: '/recreatie', Icon: Palmtree, t: 'Recreatiewoningen', d: 'Chalet, bungalow of vakantiehuis' },
+            { href: '/woningmarkt', Icon: BarChart3, t: 'Woningmarkt', d: 'Prijzen, kosten en tips' },
           ].map(({ href, Icon, t, d }) => (
             <li key={href}>
               <Link href={href} className="card focus-ring flex h-full flex-col items-center gap-3 px-4 py-6 text-center transition hover:-translate-y-0.5 hover:shadow-lg">
                 <span className="inline-flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-accent-soft text-accent-dark"><Icon size={24} aria-hidden /></span>
-                <span><span className="block font-bold leading-snug lg:min-h-[2.75rem]">{t}</span><span className="mt-1 block text-sm text-muted">{d}</span></span>
+                <span><span className="block whitespace-nowrap font-bold leading-snug">{t}</span><span className="mt-1 block text-sm text-muted">{d}</span></span>
               </Link>
             </li>
           ))}
