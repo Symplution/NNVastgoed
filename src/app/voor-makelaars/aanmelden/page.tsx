@@ -12,7 +12,7 @@ const STEPS = [
   { Icon: Network, t: 'Zet je aanbod online', d: 'Voer woningen zelf in, of koppel je kantoorsoftware zodat je aanbod automatisch binnenkomt en bijgewerkt blijft.' },
 ];
 const FAQ = [
-  ['Wat kost het?', 'Registreren is gratis. Je betaalt eenmalig per geplaatste woning, en je kunt een woning extra laten opvallen in het aanbod van de maand. Alle prijzen zie je onder Bekijk prijzen op de pagina Voor makelaars, en ze zijn exclusief btw.'],
+  ['Wat kost het?', 'Registreren is gratis. Je betaalt eenmalig per geplaatste woning, en je kunt een woning extra laten opvallen als Topper van de maand. Alle prijzen zie je onder Bekijk prijzen op de pagina Voor makelaars, en ze zijn exclusief btw.'],
   ['Voor wie is het?', 'Voor makelaarskantoren met woningen, nieuwbouw, huur of bedrijfsruimte in Groningen, Friesland en Drenthe. Wel of niet NVM maakt niet uit; NVM-kantoren krijgen wel een eigen label.'],
   ['Moet ik mijn software koppelen?', 'Nee. Je kunt woningen ook zelf invoeren. Een koppeling is handig bij veel aanbod: je ziet na elke aanroep wat is verwerkt en wat is afgewezen.'],
   ['Wat gebeurt er met de leads?', 'Elk contactverzoek en elke bezichtiging komt in je beheer en in je inbox, met de woning erbij. Gesprekken met zoekers lopen via het berichtenoverzicht.'],

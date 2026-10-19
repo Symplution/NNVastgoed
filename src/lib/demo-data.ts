@@ -136,3 +136,7 @@ const EXTRA_LISTINGS: Listing[] = EXTRA.map(([office, street, nr, postcode, city
 });
 
 export const DEMO_LISTINGS: Listing[] = [...BASE_LISTINGS, ...EXTRA_LISTINGS];
+
+/** Vier koopwoningen zijn Topper van de maand (in de demo en in de testdata). */
+export const DEMO_TOPPER_SLUGS = DEMO_LISTINGS.filter((l) => l.offer === 'koop' && l.category === 'woning' && l.status === 'beschikbaar' && l.photos.length).filter((_, i) => i % 3 === 0).slice(0, 4).map((l) => l.slug);
+for (const l of DEMO_LISTINGS) if (DEMO_TOPPER_SLUGS.includes(l.slug)) l.topperUntil = new Date(Date.now() + 20 * 86_400_000).toISOString().slice(0, 10);

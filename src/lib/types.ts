@@ -42,6 +42,10 @@ export interface Listing {
   livingArea: number; plotArea?: number | null; rooms: number; bedrooms: number; bathrooms: number; buildYear?: number | null;
   propertyType: PropertyType; energyLabel?: EnergyLabel | null;
   description: string; features: string[]; photos: Photo[];
+  /** Topper van de maand: tot en met deze datum (yyyy-mm-dd) staat de woning uitgelicht op de homepage. */
+  topperUntil?: string | null;
+  /** Wanneer de makelaar Topper van de maand aanvroeg (alleen in het beheer gevuld). */
+  topperRequestedAt?: string | null;
   /** Eén video per woning (https-adres naar een mp4, webm of mov). */
   videoUrl?: string | null;
   /** Plattegronden en 360°-foto's (equirectangular, breed formaat), net als de foto's een lijst van { url, alt }. */

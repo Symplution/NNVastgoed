@@ -569,3 +569,51 @@ describe('plattegronden en 360°-foto’s', () => {
     expect(r[0].photos_360).toHaveLength(1);
   });
 });
+
+describe('statistieken per woning', () => {
+  const track = (kind: string, id: string) => `select public.track_listings('${kind}', array['${id}']::uuid[])`;
+  it('een bezoeker telt een weergave, maar alleen voor een woning die online staat', async () => {
+    await as(null, track('view', listing.pubA)); await as(null, track('view', listing.pubA)); await as(null, track('impression', listing.pubA)); await as(null, track('brochure', listing.pubA));
+    await as(null, track('view', listing.conceptA));
+    const r = await as(ids.agentA, `select impressions, views, brochures from listing_stats_daily where listing_id = '${listing.pubA}'`);
+    expect(r).toEqual([{ impressions: 1, views: 2, brochures: 1 }]);
+    expect(await as(ids.agentA, `select 1 from listing_stats_daily where listing_id = '${listing.conceptA}'`)).toHaveLength(0);
+    await expect(as(null, track('klik', listing.pubA))).rejects.toThrow(/Onbekende soort/);
+  });
+  it('alleen het eigen kantoor leest de cijfers, na de tweede inlogstap; een bezoeker, zoeker en collega-kantoor niet', async () => {
+    await expect(as(null, `select 1 from listing_stats_daily`)).rejects.toThrow(/permission denied/);
+    expect(await as(ids.zoekerA, `select 1 from listing_stats_daily`)).toHaveLength(0);
+    expect(await as(ids.agentB, `select 1 from listing_stats_daily where listing_id = '${listing.pubA}'`)).toHaveLength(0);
+    expect(await as(ids.agentA, `select 1 from listing_stats_daily where listing_id = '${listing.pubA}'`, 'aal1')).toHaveLength(0);
+    expect(await as(ids.lezerA, `select 1 from listing_stats_daily where listing_id = '${listing.pubA}'`)).toHaveLength(1);
+    expect(await as(ids.owner, `select 1 from listing_stats_daily where listing_id = '${listing.pubA}'`)).toHaveLength(1);
+  });
+  it('niemand schrijft de cijfers zelf, ook geen makelaar', async () => {
+    await expect(as(ids.agentA, `update listing_stats_daily set views = 9999 where listing_id = '${listing.pubA}'`)).rejects.toThrow(/permission denied/);
+    await expect(as(ids.agentA, `insert into listing_stats_daily (listing_id, office_id) values ('${listing.pubA}', '${office.a}')`)).rejects.toThrow(/permission denied/);
+    await expect(as(ids.agentA, `delete from listing_stats_daily`)).rejects.toThrow(/permission denied/);
+  });
+  it('een hartje telt als bewaard, en de totalen zijn per kantoor', async () => {
+    const before = Number((await as(ids.agentA, `select saves from public.listing_stats_totals(30) where listing_id = '${listing.pubA}'`))[0].saves);
+    await as(ids.zoekerB, `insert into favorites (user_id, listing_id) values ('${ids.zoekerB}', '${listing.pubA}')`);
+    await as(null, track('view', listing.pubB));
+    const a = await as(ids.agentA, `select * from public.listing_stats_totals(30)`);
+    expect(a).toHaveLength(1);
+    expect(a[0]).toMatchObject({ listing_id: listing.pubA, views: 2, saves: before + 1 });
+    expect((await as(ids.agentB, `select * from public.listing_stats_totals(null)`)).map((x) => x.listing_id)).toEqual([listing.pubB]);
+  });
+});
+
+describe('topper van de maand', () => {
+  it('een makelaar kan een topper alleen aanvragen; een beheerder activeert', async () => {
+    expect(await as(ids.agentA, `update listings set topper_requested_at = now(), topper_until = current_date + 30 where id = '${listing.pubA}' returning topper_requested_at`)).toHaveLength(1);
+    expect((await db.query<Row>(`select topper_until, topper_requested_at is not null as aangevraagd from listings where id = '${listing.pubA}'`)).rows[0]).toEqual({ topper_until: null, aangevraagd: true });
+    expect(await as(ids.owner, `update listings set topper_until = current_date + 30 where id = '${listing.pubA}' returning 1`)).toHaveLength(1);
+    expect(await as(null, `select 1 from listings where topper_until >= current_date`)).toHaveLength(1);
+  });
+  it('een nieuwe woning van een makelaar begint nooit als topper', async () => {
+    const r = await as(ids.agentA, `insert into listings (office_id, slug, status, street, house_number, postcode, city, province, asking_price, living_area, rooms, property_type, topper_until)
+      values ('${office.a}', 'zelf-topper', 'concept', 'x', '1', '9711 AA', 'Groningen', 'groningen', 1, 1, 1, 'overig', current_date + 30) returning topper_until`);
+    expect(r[0].topper_until).toBeNull();
+  });
+});

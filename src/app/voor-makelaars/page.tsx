@@ -32,11 +32,11 @@ export default function VoorMakelaars() {
         <div className="overflow-hidden rounded-3xl bg-gradient-to-br from-brand-dark via-brand to-[#1c6a93] p-8 text-white sm:p-10">
           <p className="text-sm font-semibold uppercase tracking-[0.16em] text-white/70">Prijslijst</p>
           <h2 id="prijslijst" className="mt-2 max-w-2xl text-3xl font-extrabold tracking-tight">Eerlijke prijzen, zonder abonnement</h2>
-          <p className="mt-2 max-w-2xl text-white/85">Je betaalt alleen voor de woningen die je plaatst en promoot.</p>
+          <p className="mt-2 max-w-2xl text-white/85">Geen pakketten en geen abonnement: je betaalt alleen per woning.</p>
           <ul className="mt-7 grid gap-4 sm:grid-cols-3">
             <li className="rounded-2xl bg-white/10 p-5 backdrop-blur"><Gift size={24} className="text-white/90" aria-hidden /><p className="mt-3 text-lg font-bold">Registreren</p><p className="mt-1 text-3xl font-extrabold">Gratis</p></li>
             <li className="rounded-2xl bg-white/10 p-5 backdrop-blur"><Home size={24} className="text-white/90" aria-hidden /><p className="mt-3 text-lg font-bold">Woning plaatsen</p><p className="mt-1 text-sm text-white/80">Eenmalig per woning</p></li>
-            <li className="rounded-2xl bg-white/10 p-5 backdrop-blur"><Eye size={24} className="text-white/90" aria-hidden /><p className="mt-3 text-lg font-bold">Aanbod van de maand</p><p className="mt-1 text-sm text-white/80">Tot 5× vaker bekeken</p></li>
+            <li className="rounded-2xl bg-white/10 p-5 backdrop-blur"><Eye size={24} className="text-white/90" aria-hidden /><p className="mt-3 text-lg font-bold">Topper van de maand</p><p className="mt-1 text-sm text-white/80">Extra per woning, voor een maand</p></li>
           </ul>
           <Link href="/voor-makelaars/prijzen" className="btn-accent mt-8 !px-7 !py-3 text-base">Bekijk prijzen <ArrowRight size={18} aria-hidden /></Link>
         </div>

@@ -46,6 +46,12 @@ describe('testgegevens', () => {
     expect(await count(`select count(*) n from favorites`)).toBe(23);
     expect(await count(`select count(*) n from auth.users where email like '%@nnv.test'`)).toBe(13);
   });
+  it('heeft toppers van de maand en statistieken van de laatste 30 dagen', async () => {
+    expect(await count(`select count(*) n from listings where topper_until >= current_date`)).toBe(4);
+    expect(await count(`select count(distinct listing_id) n from listing_stats_daily`)).toBeGreaterThan(50);
+    expect(await count(`select count(*) n from listing_stats_daily where views > impressions`)).toBe(0);
+    expect(await count(`select coalesce(max(day - (current_date - 29)), 0) n from listing_stats_daily`)).toBe(29);
+  });
   it('heeft logo’s, video’s, plattegronden en 360°-foto’s', async () => {
     expect(await count(`select count(*) n from offices where logo_url like '/api/logo/%'`)).toBe(6);
     expect(await count(`select count(*) n from listings where video_url = '/voorbeeld-video.mp4'`)).toBeGreaterThan(8);

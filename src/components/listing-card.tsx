@@ -5,19 +5,22 @@ import type { Listing } from '@/lib/types';
 import { address, formatPrice, STATUS_LABEL, TYPE_LABEL } from '@/lib/format';
 import { provinceName } from '@/lib/regions';
 import { SaveButton } from './save-button';
+import { TrackImpression } from './track-listing';
 
 const BADGE: Record<string, string> = {
   onder_bod: 'bg-accent-soft text-accent-dark', onder_voorbehoud: 'bg-accent-soft text-accent-dark', verkocht: 'bg-ink text-white',
 };
 
-export function ListingCard({ l, priority = false }: { l: Listing; priority?: boolean }) {
+export function ListingCard({ l, priority = false, preview = false }: { l: Listing; priority?: boolean; preview?: boolean }) {
   const photo = l.photos[0];
+  const topper = Boolean(l.topperUntil && l.topperUntil >= new Date().toISOString().slice(0, 10));
   return (
     <article className="card group relative overflow-hidden transition hover:-translate-y-0.5 hover:shadow-lg">
       <Link href={`/woning/${l.slug}`} className="focus-ring block rounded-2xl" aria-label={`${address(l)}, ${l.city}, ${formatPrice(l)}`}>
         <div className="relative aspect-[4/3] overflow-hidden bg-sand">
           {photo && /* eslint-disable-next-line @next/next/no-img-element */ <img src={photo.url} alt={photo.alt ?? `${address(l)}, ${l.city}`} loading={priority ? 'eager' : 'lazy'} className="h-full w-full object-cover transition duration-500 group-hover:scale-105" />}
-          {!BADGE[l.status] && l.publishedAt && Date.now() - new Date(l.publishedAt).getTime() < 7 * 86_400_000 && <span className="pill absolute left-3 top-3 bg-accent text-white">Nieuw</span>}
+          {topper && !BADGE[l.status] && <span className="pill absolute left-3 top-3 bg-[#ff9a1f] text-white">Topper</span>}
+          {!topper && !BADGE[l.status] && l.publishedAt && Date.now() - new Date(l.publishedAt).getTime() < 7 * 86_400_000 && <span className="pill absolute left-3 top-3 bg-accent text-white">Nieuw</span>}
           {BADGE[l.status] && <span className={`pill absolute left-3 top-3 ${BADGE[l.status]}`}>{STATUS_LABEL[l.status]}</span>}
           <span className="absolute bottom-3 left-3 flex gap-1.5">
             {l.offer === 'huur' && <span className="pill bg-white/95 text-brand shadow">Te huur</span>}
@@ -37,6 +40,7 @@ export function ListingCard({ l, priority = false }: { l: Listing; priority?: bo
         </div>
       </Link>
       <div className="absolute right-3 top-3"><SaveButton id={l.id} /></div>
+      {!preview && <TrackImpression id={l.id} />}
     </article>
   );
 }

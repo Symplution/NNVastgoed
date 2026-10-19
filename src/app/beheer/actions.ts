@@ -9,6 +9,7 @@ import { validateListing } from '@/lib/listing-input';
 import { slugify } from '@/lib/format';
 import { geocodeAddress } from '@/lib/geo';
 import { resolveProvince } from '@/lib/regions';
+import { TOPPER_FEE } from '@/lib/pricing';
 
 export type SaveState = { errors?: string[]; secret?: { id: string; value: string }; ok?: string } | undefined;
 const refresh = () => revalidatePath('/', 'layout');
@@ -49,6 +50,26 @@ export async function deleteListing(form: FormData) {
   await (await createClient()).from('listings').delete().eq('id', id);
   refresh();
   redirect('/beheer/woningen');
+}
+
+/** Een makelaar vraagt Topper van de maand aan voor een woning van het eigen kantoor (RLS bepaalt welke). */
+export async function requestTopper(form: FormData) {
+  const staff = await requireStaff();
+  const id = uuid(form.get('id'));
+  if (!canWrite(staff) || !id) return;
+  await (await createClient()).from('listings').update({ topper_requested_at: new Date().toISOString() }).eq('id', id);
+  refresh();
+}
+
+/** Alleen eigenaar of beheerder zet een topper aan (een maand) of uit; de database dwingt dat ook af. */
+export async function setTopper(form: FormData) {
+  const staff = await requireStaff();
+  const id = uuid(form.get('id'));
+  if (!isManager(staff.role) || !id) return;
+  const on = form.get('aan') === '1';
+  const until = new Date(Date.now() + TOPPER_FEE.days * 86_400_000).toISOString().slice(0, 10);
+  await (await createClient()).from('listings').update(on ? { topper_until: until, topper_requested_at: null } : { topper_until: null, topper_requested_at: null }).eq('id', id);
+  refresh();
 }
 
 export async function setLeadStatus(form: FormData) {

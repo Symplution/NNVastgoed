@@ -1,6 +1,7 @@
 'use client';
 
 import { ChevronLeft, ChevronRight, Copy, FileDown, Grid2x2, Images, LayoutPanelTop, Play, Rotate3d, Share2, Video, X } from 'lucide-react';
+import { track } from './track-listing';
 import { useCallback, useEffect, useRef, useState, type ReactNode } from 'react';
 import type { Photo } from '@/lib/types';
 import { SaveButton } from './save-button';
@@ -112,7 +113,7 @@ export function ListingMedia({ listingId, title, brochureHref, photos, floorplan
           <button key={k} type="button" onClick={() => open(k, 0)} className={btn}>{ICON[k]} {LABEL[k]} <span className="font-normal text-muted">{k === 'foto' ? photos.length : lists[k].length}</span></button>
         ))}
         {videoUrl && <button type="button" onClick={() => open('foto', videoAt)} className={btn}><Video size={18} aria-hidden /> Video</button>}
-        {brochureHref && <a href={brochureHref} download className={btn}><FileDown size={18} aria-hidden /> Brochure (pdf)</a>}
+        {brochureHref && <a href={brochureHref} download className={btn} onClick={() => track('brochure', listingId)}><FileDown size={18} aria-hidden /> Brochure (pdf)</a>}
         <span className="grow" />
         <button type="button" onClick={() => setView('alle')} className={btn}><Grid2x2 size={18} aria-hidden /> Alle media</button>
       </div>

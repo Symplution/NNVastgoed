@@ -1,4 +1,4 @@
-import { LISTING_FEE, PROMO_FEE, euro } from './pricing';
+import { LISTING_FEE, TOPPER_FEE, euro } from './pricing';
 import type { Staff } from './auth';
 import { allProfiles, myConnections, myListings, myOffices, viewingRules } from './staff-data';
 import { myFavorites, myThreads, myViewings } from './seeker-data';
@@ -15,7 +15,7 @@ export async function staffSteps(staff: Staff): Promise<Step[]> {
     { id: 'woning', title: 'Plaats je eerste woning', text: `Voer een woning in met foto's, video en plattegrond, of laat hem via de koppeling binnenkomen. Plaatsen kost eenmalig ${euro(LISTING_FEE.amount)} per woning (excl. btw).`, href: '/beheer/woningen/nieuw', cta: 'Woning plaatsen', done: listings.length > 0 },
     { id: 'bezichtigingen', title: 'Stel je bezichtigingen in', text: 'Kies op welke dagen en tijden zoekers zelf een bezichtiging kunnen plannen, zonder dat je hoeft te bellen.', href: '/beheer/bezichtigingen/beschikbaarheid', cta: 'Beschikbaarheid instellen', done: rules.length > 0 },
     ...(staff.role === 'owner' ? [{ id: 'team', title: 'Nodig je collega’s uit', text: 'Geef je collega’s een account, zodat ze leads, berichten en bezichtigingen kunnen opvolgen.', href: '/beheer/gebruikers', cta: 'Gebruikers beheren', done: profiles.filter((p) => p.active).length > 1, optional: true } satisfies Step] : []),
-    { id: 'promoten', title: 'Promoot je woning in het aanbod van de maand', text: `Laat je woning uitgelicht op de homepage staan en tot ${PROMO_FEE.boost}× vaker bekeken worden, voor ${euro(PROMO_FEE.amount)} per woning (excl. btw).`, href: '/voor-makelaars/prijzen', cta: 'Prijzen bekijken', done: false, optional: true },
+    { id: 'promoten', title: 'Maak een woning Topper van de maand', text: `Laat een woning een maand uitgelicht op de homepage staan, voor ${euro(TOPPER_FEE.amount)} extra per woning (excl. btw). In de statistieken zie je wat het oplevert.`, href: '/beheer/woningen', cta: 'Woning kiezen', done: listings.some((l) => l.topperUntil), optional: true },
   ];
   return steps;
 }

@@ -152,3 +152,43 @@ export async function brokerRequests(): Promise<BrokerRequestRow[]> {
   const { data } = await (await createClient()).from('broker_requests').select('*').order('created_at', { ascending: false }).limit(300);
   return (data ?? []).map((r: Row) => ({ id: r.id, officeName: r.office_name, city: r.city, province: r.province, kvk: r.kvk, nvm: r.nvm_member, contactName: r.contact_name, email: r.email, phone: r.phone, software: r.software, listingCount: r.listing_count, message: r.message, status: r.status, createdAt: r.created_at }));
 }
+
+// ───────────────────────── Statistieken per woning ─────────────────────────
+export interface StatTotals { impressions: number; views: number; saves: number; brochures: number }
+export const NO_STATS: StatTotals = { impressions: 0, views: 0, saves: 0, brochures: 0 };
+export const STAT_PERIODS = { '7': { days: 7, label: 'Laatste 7 dagen' }, '30': { days: 30, label: 'Laatste 30 dagen' }, alles: { days: null, label: 'Sinds plaatsing' } } as const;
+export type StatPeriod = keyof typeof STAT_PERIODS;
+export const parsePeriod = (v: unknown): StatPeriod => (v === '7' || v === 'alles' ? v : '30');
+
+/** Totalen per woning; de database geeft alleen woningen van het eigen kantoor terug. */
+export async function statTotals(days: number | null): Promise<Map<string, StatTotals>> {
+  const { data } = await (await createClient()).rpc('listing_stats_totals', { p_days: days });
+  return new Map((data ?? []).map((r: Row) => [r.listing_id as string, { impressions: Number(r.impressions), views: Number(r.views), saves: Number(r.saves), brochures: Number(r.brochures) }]));
+}
+
+export interface StatDay extends StatTotals { day: string }
+/** Cijfers per dag voor één woning, oplopend, met de dagen zonder weergaven op nul. */
+export async function listingStatDays(id: string, days: number | null): Promise<StatDay[]> {
+  const { data } = await (await createClient()).from('listing_stats_daily').select('day, impressions, views, saves, brochures').eq('listing_id', id).order('day');
+  const byDay = new Map((data ?? []).map((r: Row) => [r.day as string, { day: r.day as string, impressions: r.impressions, views: r.views, saves: r.saves, brochures: r.brochures } as StatDay]));
+  const dayStr = (d: Date) => d.toISOString().slice(0, 10);
+  const end = new Date();
+  const first = days ? new Date(end.getTime() - (days - 1) * 86_400_000) : new Date(`${[...byDay.keys()][0] ?? dayStr(end)}T00:00:00Z`);
+  const out: StatDay[] = [];
+  for (let t = first.getTime(); dayStr(new Date(t)) <= dayStr(end) && out.length < 400; t += 86_400_000) {
+    const k = dayStr(new Date(t));
+    out.push(byDay.get(k) ?? { day: k, ...NO_STATS });
+  }
+  return out;
+}
+
+/** Berichten en bezichtigingen voor één woning in dezelfde periode (live uit leads en viewings). */
+export async function listingResponses(id: string, days: number | null): Promise<{ leads: number; viewings: number }> {
+  const supabase = await createClient();
+  const since = days ? new Date(Date.now() - days * 86_400_000).toISOString() : null;
+  let l = supabase.from('leads').select('id', { count: 'exact', head: true }).eq('listing_id', id);
+  let v = supabase.from('viewings').select('id', { count: 'exact', head: true }).eq('listing_id', id).neq('status', 'geannuleerd');
+  if (since) { l = l.gte('created_at', since); v = v.gte('created_at', since); }
+  const [a, b] = await Promise.all([l, v]);
+  return { leads: a.count ?? 0, viewings: b.count ?? 0 };
+}

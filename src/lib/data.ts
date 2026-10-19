@@ -15,7 +15,7 @@ export const mapListing = (r: Row): Listing => ({
   street: r.street, houseNumber: r.house_number, houseSuffix: r.house_suffix, postcode: r.postcode, city: r.city, province: r.province, neighbourhood: r.neighbourhood,
   lat: r.lat, lng: r.lng, askingPrice: r.asking_price, priceType: r.price_type, livingArea: r.living_area, plotArea: r.plot_area,
   rooms: r.rooms, bedrooms: r.bedrooms, bathrooms: r.bathrooms, buildYear: r.build_year, propertyType: r.property_type, energyLabel: r.energy_label,
-  description: r.description ?? '', features: r.features ?? [], photos: r.photos ?? [], videoUrl: r.video_url ?? null, floorplans: r.floorplans ?? [], photos360: r.photos_360 ?? [], publishedAt: r.published_at, updatedAt: r.updated_at,
+  description: r.description ?? '', features: r.features ?? [], photos: r.photos ?? [], topperUntil: r.topper_until ?? null, topperRequestedAt: r.topper_requested_at ?? null, videoUrl: r.video_url ?? null, floorplans: r.floorplans ?? [], photos360: r.photos_360 ?? [], publishedAt: r.published_at, updatedAt: r.updated_at,
 });
 export const mapOffice = (r: Row): Office => ({
   id: r.id, slug: r.slug, name: r.name, city: r.city, province: r.province, street: r.street, postcode: r.postcode, phone: r.phone, email: r.email, website: r.website, description: r.description ?? '', nvmMember: Boolean(r.nvm_member), logoUrl: r.logo_url ?? null,
@@ -93,6 +93,15 @@ export async function latestListings(n: number, province?: Province, mode: Mode 
   const f: SearchFilters = { mode, types: [], hideSold: true, sort: 'nieuw', page: 1, province };
   const r = await searchListings(f);
   return r.items.slice(0, n);
+}
+
+/** Woningen die nu Topper van de maand zijn (homepage). */
+export async function topperListings(n: number): Promise<Listing[]> {
+  const today = new Date().toISOString().slice(0, 10);
+  if (isDemo()) return demoVisible().filter((l) => l.topperUntil && l.topperUntil >= today && l.status === 'beschikbaar').slice(0, n);
+  if (!hasSupabase()) return [];
+  const { data } = await createAnonClient().from('listings').select('*').in('status', ['beschikbaar', 'onder_bod', 'onder_voorbehoud']).gte('topper_until', today).order('published_at', { ascending: false }).limit(n);
+  return (data ?? []).map(mapListing);
 }
 
 export async function provinceCounts(): Promise<Record<Province, number>> {

@@ -14,7 +14,7 @@ Draait op GitHub, Vercel (fra1) en Supabase (EU, Frankfurt). Later komen er AI-d
 6. Koppelingen (`/api/feeds/[id]`) gaan via de database-functie `ingest_listings`: alleen de hash van de sleutel staat in de database; geen account of service key nodig. Een foute woning blokkeert de rest niet.
 7. Alle teksten in de UI in het Nederlands.
 7a. Bezichtigingen worden alleen ingepland via de database-functie `book_viewing` (controleert beschikbaarheid, capaciteit en dubbel boeken); vrije momenten komen uit `viewing_slots`. Een zoeker wordt voor een kantoor pas zichtbaar via een eigen gesprek of bezichtiging (`conversation_contacts`). Nieuwe zoekersrollen: `seeker` (open registratie); makelaars worden uitgenodigd.
-8. Publieke pagina's lezen met de anonieme rol (`src/lib/supabase/anon.ts`), zonder cookies. De middleware raakt alleen `/beheer`, `/login`, `/mfa`, `/wachtwoord`.
+8. Publieke pagina's lezen met de anonieme rol (`src/lib/supabase/anon.ts`), zonder cookies. De middleware raakt alleen `/beheer`, `/voorbeeld` (voorbeeldweergave van een woning voor het beheer), `/login`, `/mfa`, `/wachtwoord`.
 9. Workflows met wachttijd draaien in Trigger.dev (of Inngest), nooit in een Vercel functie. De dagelijkse alert-cron is kort en blijft een Vercel Cron.
 10. Demomodus (`DEMO_MODE=1`) werkt alleen buiten productie en zonder Supabase; nooit afhankelijk van maken.
 

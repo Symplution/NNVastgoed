@@ -668,6 +668,23 @@ insert into usage_events (kind, unique_key, office_id, units, detail, created_at
   ('mail', 'testdata:mail:12', 'a0000001-0000-4000-8000-000000000001', 1, '{"subject":"Nieuw bericht over een woning"}'::jsonb, now() - interval '25 days'),
   ('mail', 'testdata:mail:13', 'a0000001-0000-4000-8000-000000000002', 1, '{"subject":"Bezichtiging aangevraagd"}'::jsonb, now() - interval '27 days');
 
+-- 10. Topper van de maand en statistieken van de laatste 30 dagen (alleen als migratie 0013 is gedraaid; anders wordt dit overgeslagen)
+do $$ begin
+  if to_regclass('public.listing_stats_daily') is not null then
+    update listings set topper_until = current_date + 20 where slug in ('nieuwe-ebbingestraat-34-groningen', 'stationsweg-3-veendam', 'burchtstraat-14-appingedam', 'prof-dr-j-w-de-langestraat-19-leeuwarden');
+    insert into listing_stats_daily (listing_id, office_id, day, impressions, views, saves, brochures)
+    select l.id, l.office_id, (current_date - d)::date,
+           (30 + abs(hashtext(l.slug || d || 'i')) % 110) * case when l.topper_until is not null then 3 else 1 end,
+           0, case when abs(hashtext(l.slug || d || 's')) % 9 = 0 then 1 else 0 end, 0
+    from listings l cross join generate_series(0, 29) d
+    where l.id::text like 'a0000002-%' and l.status in ('beschikbaar', 'onder_bod', 'onder_voorbehoud') and coalesce(l.published_at, now())::date <= current_date - d
+    on conflict (listing_id, day) do nothing;
+    update listing_stats_daily s set views = greatest(1, s.impressions * (5 + abs(hashtext(s.listing_id::text || s.day::text)) % 8) / 100)
+      where s.listing_id::text like 'a0000002-%' and s.impressions > 0;
+    update listing_stats_daily s set brochures = s.views / 12 where s.listing_id::text like 'a0000002-%' and s.impressions > 0;
+  end if;
+end $$;
+
 -- Klaar: een overzicht van wat er nu staat.
 select (select count(*) from offices where id in ('a0000001-0000-4000-8000-000000000001', 'a0000001-0000-4000-8000-000000000002', 'a0000001-0000-4000-8000-000000000003', 'a0000001-0000-4000-8000-000000000004', 'a0000001-0000-4000-8000-000000000005', 'a0000001-0000-4000-8000-000000000006')) as kantoren,
        (select count(*) from listings where id::text like 'a0000002-%') as woningen,

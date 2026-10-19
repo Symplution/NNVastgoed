@@ -2,7 +2,7 @@
 // Draai: npm run testdata
 import { createHash } from 'node:crypto';
 import { mkdirSync, writeFileSync } from 'node:fs';
-import { DEMO_LISTINGS, DEMO_OFFICES } from '../src/lib/demo-data';
+import { DEMO_LISTINGS, DEMO_OFFICES, DEMO_TOPPER_SLUGS } from '../src/lib/demo-data';
 
 const PASSWORD = 'NNV-testaccount-2026';
 const DOMAIN = 'nnv.test';   // gereserveerd domein: er gaat nooit echte mail naartoe
@@ -385,6 +385,23 @@ insert into saved_searches (id, email, filters, confirmed_at, last_sent_at) valu
 ${searchRows};
 
 ${extraSql}
+-- 10. Topper van de maand en statistieken van de laatste 30 dagen (alleen als migratie 0013 is gedraaid; anders wordt dit overgeslagen)
+do $$ begin
+  if to_regclass('public.listing_stats_daily') is not null then
+    update listings set topper_until = current_date + 20 where slug in (${DEMO_TOPPER_SLUGS.map(q).join(', ')});
+    insert into listing_stats_daily (listing_id, office_id, day, impressions, views, saves, brochures)
+    select l.id, l.office_id, (current_date - d)::date,
+           (30 + abs(hashtext(l.slug || d || 'i')) % 110) * case when l.topper_until is not null then 3 else 1 end,
+           0, case when abs(hashtext(l.slug || d || 's')) % 9 = 0 then 1 else 0 end, 0
+    from listings l cross join generate_series(0, 29) d
+    where l.id::text like 'a0000002-%' and l.status in ('beschikbaar', 'onder_bod', 'onder_voorbehoud') and coalesce(l.published_at, now())::date <= current_date - d
+    on conflict (listing_id, day) do nothing;
+    update listing_stats_daily s set views = greatest(1, s.impressions * (5 + abs(hashtext(s.listing_id::text || s.day::text)) % 8) / 100)
+      where s.listing_id::text like 'a0000002-%' and s.impressions > 0;
+    update listing_stats_daily s set brochures = s.views / 12 where s.listing_id::text like 'a0000002-%' and s.impressions > 0;
+  end if;
+end $$;
+
 -- Klaar: een overzicht van wat er nu staat.
 select (select count(*) from offices where id in (${officeIds.map(q).join(', ')})) as kantoren,
        (select count(*) from listings where id::text like 'a0000002-%') as woningen,

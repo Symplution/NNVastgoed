@@ -1,6 +1,6 @@
 import Link from 'next/link';
 import { ArrowRight, BarChart3, BellRing, Briefcase, Building2, CalendarCheck, KeyRound, MapPin, Network, Palmtree, ShieldCheck } from 'lucide-react';
-import { latestListings, provinceCounts } from '@/lib/data';
+import { latestListings, provinceCounts, topperListings } from '@/lib/data';
 import { ARTICLES } from '@/lib/articles';
 import { ArticleTile } from '@/components/article-tile';
 import { POPULAR_PLACES, placeHref } from '@/lib/places';
@@ -14,7 +14,7 @@ import { ListingCard } from '@/components/listing-card';
 export const revalidate = 300;
 
 export default async function Home() {
-  const [counts, latest, recreation] = await Promise.all([provinceCounts(), latestListings(4), latestListings(4, undefined, 'recreatie')]);
+  const [counts, latest, recreation, toppers] = await Promise.all([provinceCounts(), latestListings(4), latestListings(4, undefined, 'recreatie'), topperListings(4)]);
   return (
     <>
       <section className="relative overflow-hidden bg-gradient-to-b from-[#d9f0fb] to-[#eaf8fe] text-brand-dark">
@@ -56,6 +56,19 @@ export default async function Home() {
           </Link>
         ))}
       </section>
+
+      {toppers.length > 0 && (
+        <section className="container-x mt-16" aria-labelledby="topper">
+          <div className="flex items-end justify-between gap-4">
+            <div>
+              <h2 id="topper" className="text-2xl font-extrabold tracking-tight">Topper van de maand</h2>
+              <p className="mt-1 text-muted">Woningen die makelaars deze maand extra uitlichten.</p>
+            </div>
+            <Link href="/koop" className="shrink-0 text-sm font-semibold text-brand hover:underline">Alle woningen →</Link>
+          </div>
+          <div className="mt-6 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">{toppers.map((l) => <ListingCard key={l.id} l={l} />)}</div>
+        </section>
+      )}
 
       <section className="container-x mt-16" aria-labelledby="nieuw">
         <div className="flex items-end justify-between gap-4">
