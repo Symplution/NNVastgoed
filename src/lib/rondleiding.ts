@@ -1,7 +1,11 @@
 // De rondleiding over de site: één voor een woningzoeker en één voor een makelaar. Elke stap markeert een onderdeel van de site
 // (target = CSS-selector) en is af zodra de bezoeker op die pagina is geweest (match) of de stap zelf afvinkt.
 export type TourId = 'klant' | 'makelaar';
-export interface TourStep { id: string; title: string; text: string; href: string; target: string; match: (path: string) => boolean }
+export interface TourStep { id: string; title: string; text: string; href: string; target: string; match: (path: string) => boolean; /** Alleen te bereiken als je bent ingelogd (het beheer). */ needsLogin?: boolean }
+
+/** De inlogpagina's voor makelaars: daar begeleiden we naar het formulier. */
+export const isLoginPage = (path: string) => path === '/login' || path === '/mfa' || path === '/wachtwoord'
+export const LOGIN_TARGET = 'main form'
 export interface Tour { id: TourId; label: string; intro: string; steps: TourStep[] }
 
 const under = (base: string) => (p: string) => p === base || p.startsWith(`${base}/`);
@@ -35,14 +39,14 @@ export const TOURS: Record<TourId, Tour> = {
       { id: 'prijzen', title: 'Bekijk de prijzen', text: 'Registreren is gratis, een woning plaatsen kost € 250 en Topper van de maand is € 75 extra (excl. btw). Geen abonnement.', href: '/voor-makelaars', target: 'a[href="/voor-makelaars/prijzen"]', match: exact('/voor-makelaars/prijzen') },
       { id: 'aanmelden', title: 'Registreer je kantoor', text: 'Meld je kantoor gratis aan. Wij nemen binnen twee werkdagen contact met je op.', href: '/voor-makelaars/aanmelden', target: 'footer a[href="/voor-makelaars/aanmelden"]', match: under('/voor-makelaars/aanmelden') },
       { id: 'inloggen', title: 'Log in als makelaar', text: 'Heb je een account? Log in met je wachtwoord en de tweede inlogstap.', href: '/login', target: 'footer a[href="/login"]', match: (p) => p === '/login' || p === '/mfa' || under('/beheer')(p) },
-      { id: 'overzicht', title: 'Overzicht', text: 'Je startpagina met het stappenplan en wat er vandaag speelt.', href: '/beheer', target: nav('Beheer', '/beheer'), match: exact('/beheer') },
-      { id: 'woningen', title: 'Woningen', text: 'Je woningen met statistieken per woning (getoond, bekeken, bewaard), een voorbeeldweergave en Topper van de maand.', href: '/beheer/woningen', target: nav('Beheer', '/beheer/woningen'), match: under('/beheer/woningen') },
-      { id: 'bezichtigingen', title: 'Bezichtigingen', text: 'De agenda met geplande bezichtigingen, en hier stel je in wanneer zoekers zelf mogen plannen.', href: '/beheer/bezichtigingen', target: nav('Beheer', '/beheer/bezichtigingen'), match: under('/beheer/bezichtigingen') },
-      { id: 'berichten', title: 'Berichten', text: 'Gesprekken met woningzoekers. Je ziet direct wat nog ongelezen is.', href: '/beheer/berichten', target: nav('Beheer', '/beheer/berichten'), match: under('/beheer/berichten') },
-      { id: 'leads', title: 'Leads', text: 'Elk contactverzoek, met de woning erbij. Zet de status op opgepakt of afgehandeld.', href: '/beheer/leads', target: nav('Beheer', '/beheer/leads'), match: under('/beheer/leads') },
-      { id: 'contacten', title: 'Contacten', text: 'Alle zoekers die jou schreven of een bezichtiging planden.', href: '/beheer/contacten', target: nav('Beheer', '/beheer/contacten'), match: under('/beheer/contacten') },
-      { id: 'koppelingen', title: 'Koppelingen', text: 'Koppel je kantoorsoftware, zoals Realworks, zodat je aanbod vanzelf bijgewerkt wordt.', href: '/beheer/koppelingen', target: nav('Beheer', '/beheer/koppelingen'), match: under('/beheer/koppelingen') },
-      { id: 'kantoor', title: 'Mijn kantoor', text: 'Je kantoorprofiel met logo, adres en telefoonnummer. Je logo komt bij elke woning en op de brochure.', href: '/beheer/kantoor', target: nav('Beheer', '/beheer/kantoor'), match: under('/beheer/kantoor') },
+      { id: 'overzicht', title: 'Overzicht', text: 'Je startpagina met het stappenplan en wat er vandaag speelt.', href: '/beheer', target: nav('Beheer', '/beheer'), match: exact('/beheer'), needsLogin: true },
+      { id: 'woningen', title: 'Woningen', text: 'Je woningen met statistieken per woning (getoond, bekeken, bewaard), een voorbeeldweergave en Topper van de maand.', href: '/beheer/woningen', target: nav('Beheer', '/beheer/woningen'), match: under('/beheer/woningen'), needsLogin: true },
+      { id: 'bezichtigingen', title: 'Bezichtigingen', text: 'De agenda met geplande bezichtigingen, en hier stel je in wanneer zoekers zelf mogen plannen.', href: '/beheer/bezichtigingen', target: nav('Beheer', '/beheer/bezichtigingen'), match: under('/beheer/bezichtigingen'), needsLogin: true },
+      { id: 'berichten', title: 'Berichten', text: 'Gesprekken met woningzoekers. Je ziet direct wat nog ongelezen is.', href: '/beheer/berichten', target: nav('Beheer', '/beheer/berichten'), match: under('/beheer/berichten'), needsLogin: true },
+      { id: 'leads', title: 'Leads', text: 'Elk contactverzoek, met de woning erbij. Zet de status op opgepakt of afgehandeld.', href: '/beheer/leads', target: nav('Beheer', '/beheer/leads'), match: under('/beheer/leads'), needsLogin: true },
+      { id: 'contacten', title: 'Contacten', text: 'Alle zoekers die jou schreven of een bezichtiging planden.', href: '/beheer/contacten', target: nav('Beheer', '/beheer/contacten'), match: under('/beheer/contacten'), needsLogin: true },
+      { id: 'koppelingen', title: 'Koppelingen', text: 'Koppel je kantoorsoftware, zoals Realworks, zodat je aanbod vanzelf bijgewerkt wordt.', href: '/beheer/koppelingen', target: nav('Beheer', '/beheer/koppelingen'), match: under('/beheer/koppelingen'), needsLogin: true },
+      { id: 'kantoor', title: 'Mijn kantoor', text: 'Je kantoorprofiel met logo, adres en telefoonnummer. Je logo komt bij elke woning en op de brochure.', href: '/beheer/kantoor', target: nav('Beheer', '/beheer/kantoor'), match: under('/beheer/kantoor'), needsLogin: true },
     ],
   },
 };

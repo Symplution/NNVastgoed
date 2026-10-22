@@ -3,8 +3,8 @@
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { ArrowRight, Check, Compass, PartyPopper, RotateCcw, X } from 'lucide-react';
-import { useCallback, useEffect, useState } from 'react';
-import { EMPTY_STATE, TOURS, TOUR_IDS, currentStep, isComplete, markVisited, parseState, type TourId, type TourState } from '@/lib/rondleiding';
+import { useCallback, useEffect, useRef, useState } from 'react';
+import { EMPTY_STATE, LOGIN_TARGET, TOURS, isLoginPage, TOUR_IDS, currentStep, isComplete, markVisited, parseState, type TourId, type TourState } from '@/lib/rondleiding';
 
 const KEY = 'nnv-rondleiding';
 type Box = { top: number; left: number; width: number; height: number };
@@ -27,6 +27,8 @@ export function Rondleiding() {
   const [box, setBox] = useState<Box | null>(null);
   const [onPage, setOnPage] = useState(false);
   const [congrats, setCongrats] = useState<TourId | null>(null);
+  const [side, setSide] = useState<'left' | 'right'>('left');
+  const panelRef = useRef<HTMLElement>(null);
 
   useEffect(() => { try { setState(parseState(localStorage.getItem(KEY))); } catch { /* opslag geblokkeerd */ } setReady(true); }, []);
   useEffect(() => { if (ready) try { localStorage.setItem(KEY, JSON.stringify(state)); } catch { /* opslag geblokkeerd: de voortgang blijft dan bij deze pagina */ } }, [state, ready]);
@@ -46,17 +48,31 @@ export function Rondleiding() {
   const spotlight = state.open && state.started[state.tab] && step;
 
   // Het belichte onderdeel volgen, ook bij scrollen en een andere schermgrootte.
-  const target = spotlight ? step.target : null;
+  const needsLogin = Boolean(step?.needsLogin && isLoginPage(path));
+  const target = spotlight ? (needsLogin ? LOGIN_TARGET : step.target) : null;
   useEffect(() => {
     if (!target) { setBox(null); setOnPage(false); return; }
     let scrolledFor = '';
+    let last = '';
+    let flips = 0;
     const measure = () => {
       const el = findTarget(target);
       setOnPage(Boolean(el));
-      if (!el) { setBox(null); return; }
-      const r = el.getBoundingClientRect();
-      if (scrolledFor !== target && (r.top < 80 || r.bottom > window.innerHeight - 20)) { scrolledFor = target; el.scrollIntoView({ block: 'center', behavior: 'smooth' }); }
-      else scrolledFor = target;
+      if (!el) { last = ''; setBox(null); return; }
+      let r = el.getBoundingClientRect();
+      if (scrolledFor !== target) {
+        scrolledFor = target;
+        if (r.top < 80 || r.bottom > window.innerHeight - 20) { el.scrollIntoView({ block: 'center', behavior: 'smooth' }); r = el.getBoundingClientRect(); }
+      }
+      // Het paneel mag het gemarkeerde onderdeel nooit afdekken: op een groot scherm gaat het naar de andere kant, op een telefoon schuift de pagina op.
+      const p = panelRef.current?.getBoundingClientRect();
+      const hits = Boolean(p && r.left < p.right && r.right > p.left && r.top < p.bottom && r.bottom > p.top);
+      if (hits && window.innerWidth >= 640 && flips < 2) { flips += 1; setSide((s) => (s === 'left' ? 'right' : 'left')); }
+      else if (hits && window.innerWidth < 640 && flips < 3) { flips += 1; window.scrollBy({ top: r.top - 110, behavior: 'smooth' }); }
+      // Alleen bijwerken als er echt iets verschoven is, zodat de markering rustig blijft staan.
+      const key = [r.top, r.left, r.width, r.height].map(Math.round).join(',');
+      if (key === last) return;
+      last = key;
       setBox({ top: r.top, left: r.left, width: r.width, height: r.height });
     };
     measure();
@@ -83,7 +99,7 @@ export function Rondleiding() {
   return (
     <>
       {box && (
-        <div aria-hidden className="pointer-events-none fixed z-[45] rounded-xl ring-4 ring-accent motion-safe:animate-pulse" style={{ top: box.top - 6, left: box.left - 6, width: box.width + 12, height: box.height + 12, boxShadow: '0 0 0 9999px rgba(10, 53, 80, 0.5)' }} />
+        <div aria-hidden className="pointer-events-none fixed z-[45] rounded-xl ring-4 ring-accent transition-[top,left,width,height] duration-200" style={{ top: box.top - 6, left: box.left - 6, width: box.width + 12, height: box.height + 12, boxShadow: '0 0 0 9999px rgba(10, 53, 80, 0.38)' }} />
       )}
 
       {!state.open && (
@@ -95,7 +111,7 @@ export function Rondleiding() {
       )}
 
       {state.open && (
-        <section role="dialog" aria-label="Rondleiding" className="fixed inset-x-3 bottom-3 z-[50] flex max-h-[55vh] flex-col sm:max-h-[80vh] overflow-hidden rounded-2xl border border-line bg-white shadow-2xl sm:inset-x-auto sm:bottom-4 sm:left-4 sm:w-[24rem]">
+        <section ref={panelRef} role="dialog" aria-label="Rondleiding" className={`fixed inset-x-3 bottom-3 z-[50] flex max-h-[55vh] flex-col overflow-hidden rounded-2xl border border-line bg-white shadow-2xl sm:inset-x-auto sm:bottom-4 sm:max-h-[80vh] sm:w-[24rem] ${side === 'left' ? 'sm:left-4' : 'sm:right-4'}`}>
           <header className="flex items-center justify-between gap-3 bg-brand px-4 py-3 text-white">
             <h2 className="flex items-center gap-2 font-extrabold"><Compass size={18} aria-hidden /> Rondleiding</h2>
             <button type="button" onClick={() => setState((s) => ({ ...s, open: false }))} className="focus-ring rounded p-1 hover:bg-white/15" aria-label="Rondleiding sluiten"><X size={18} aria-hidden /></button>
@@ -126,9 +142,13 @@ export function Rondleiding() {
                     <p className="text-xs font-bold uppercase tracking-wide text-accent-dark">Nu: stap {doneCount + 1}</p>
                     <p className="mt-0.5 font-bold">{step.title}</p>
                     <p className="mt-1 text-sm">{step.text}</p>
-                    <p className="mt-3 text-sm font-semibold text-brand-dark">{onPage ? 'Klik op het gemarkeerde onderdeel.' : 'Dit onderdeel staat op een andere pagina.'}</p>
+                    {needsLogin ? (
+                      <p className="mt-3 text-sm font-semibold text-brand-dark">Dit onderdeel zit in het beheer. Log eerst in als makelaar (in het gemarkeerde formulier). Daarna wijzen we je de weg naar “{step.title}”.</p>
+                    ) : (
+                      <p className="mt-3 text-sm font-semibold text-brand-dark">{onPage ? 'Klik op het gemarkeerde onderdeel.' : step.needsLogin ? 'Dit onderdeel zit in het beheer. Via “Ga erheen” log je zo nodig eerst in.' : 'Dit onderdeel staat op een andere pagina.'}</p>
+                    )}
                     <div className="mt-3 flex flex-wrap gap-2">
-                      {!onPage && <Link href={step.href} className="btn-accent !py-2 text-sm">Ga erheen <ArrowRight size={15} aria-hidden /></Link>}
+                      {!onPage && !needsLogin && <Link href={step.href} className="btn-accent !py-2 text-sm">Ga erheen <ArrowRight size={15} aria-hidden /></Link>}
                       <button type="button" onClick={() => finishStep(step.id)} className="btn-ghost !py-2 text-sm">Klaar, volgende</button>
                     </div>
                   </div>

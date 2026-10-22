@@ -32,3 +32,12 @@ describe('rondleiding', () => {
     expect(parseState(null)).toEqual(EMPTY_STATE);
   });
 });
+
+describe('rondleiding voor makelaars', () => {
+  it('alle stappen in het beheer weten dat je eerst moet inloggen, de openbare niet', () => {
+    const [openbaar, beheer] = [TOURS.makelaar.steps.filter((s) => !s.href.startsWith('/beheer')), TOURS.makelaar.steps.filter((s) => s.href.startsWith('/beheer'))];
+    expect(openbaar.every((s) => !s.needsLogin)).toBe(true);
+    expect(beheer).toHaveLength(8);
+    expect(beheer.every((s) => s.needsLogin)).toBe(true);
+  });
+});
