@@ -11,7 +11,7 @@ import { geocodeAddress } from '@/lib/geo';
 import { resolveProvince } from '@/lib/regions';
 import { TOPPER_FEE } from '@/lib/pricing';
 
-export type SaveState = { errors?: string[]; secret?: { id: string; value: string }; ok?: string } | undefined;
+export type SaveState = { errors?: string[]; secret?: { id: string; value: string; name?: string; kind?: 'json' | 'xml'; officeName?: string; software?: string }; ok?: string } | undefined;
 const refresh = () => revalidatePath('/', 'layout');
 const uuid = (v: unknown) => (typeof v === 'string' && /^[0-9a-f-]{36}$/i.test(v) ? v : null);
 
@@ -84,19 +84,36 @@ export async function setLeadStatus(form: FormData) {
 export async function createConnection(_: SaveState, form: FormData): Promise<SaveState> {
   const staff = await requireStaff();
   if (!canWrite(staff)) return { errors: ['Je hebt alleen leesrechten.'] };
-  const name = String(form.get('name') ?? '').trim();
+  const software = String(form.get('software') ?? 'realworks');
+  const given = String(form.get('name') ?? '').trim();
+  const name = software === 'realworks' ? 'Realworks' : given;
   const kind = form.get('kind') === 'xml' ? 'xml' : 'json';
-  const officeId = isManager(staff.role) ? uuid(form.get('office_id')) : staff.officeId;
+  const officeId = isManager(staff.role) ? uuid(form.get('office_id')) ?? staff.officeId : staff.officeId;
   if (name.length < 2 || name.length > 80) return { errors: ['Geef de koppeling een naam (2 tot 80 tekens).'] };
-  if (!officeId) return { errors: ['Kies een kantoor.'] };
+  if (!officeId) return { errors: ['Kies een kantoor, of maak eerst je kantoor aan onder Mijn kantoor.'] };
   const secret = randomBytes(32).toString('base64url');
   const id = randomUUID();
-  const { error } = await (await createClient()).from('feed_connections').insert({
+  const supabase = await createClient();
+  const { error } = await supabase.from('feed_connections').insert({
     id, office_id: officeId, name, kind, secret_hash: createHash('sha256').update(secret).digest('hex'), secret_hint: secret.slice(-4),
   });
   if (error) return { errors: ['De koppeling kon niet worden aangemaakt.'] };
+  const { data: office } = await supabase.from('offices').select('name').eq('id', officeId).maybeSingle();
   revalidatePath('/beheer/koppelingen');
-  return { secret: { id, value: secret } };
+  return { secret: { id, value: secret, name, kind, officeName: office?.name ?? 'je kantoor', software } };
+}
+
+/** Nieuwe geheime sleutel voor een bestaande koppeling (de oude werkt meteen niet meer). */
+export async function rotateConnectionKey(_: SaveState, form: FormData): Promise<SaveState> {
+  const staff = await requireStaff();
+  const id = uuid(form.get('id'));
+  if (!canWrite(staff) || !id) return { errors: ['Je hebt hier geen rechten voor.'] };
+  const secret = randomBytes(32).toString('base64url');
+  const supabase = await createClient();
+  const { data, error } = await supabase.from('feed_connections').update({ secret_hash: createHash('sha256').update(secret).digest('hex'), secret_hint: secret.slice(-4) }).eq('id', id).select('name, kind, offices(name)').maybeSingle();
+  if (error || !data) return { errors: ['De sleutel kon niet worden vernieuwd.'] };
+  revalidatePath('/beheer/koppelingen');
+  return { secret: { id, value: secret, name: data.name, kind: data.kind === 'xml' ? 'xml' : 'json', officeName: (data as any).offices?.name ?? 'je kantoor' } };
 }
 
 export async function toggleConnection(form: FormData) {
@@ -144,11 +161,26 @@ export async function saveOffice(id: string | null, _: SaveState, form: FormData
     if (error || !row) return { errors: ['Opslaan is niet gelukt.'] };
   } else {
     const slug = slugify(data.name) || randomBytes(3).toString('hex');
-    const { error } = await supabase.from('offices').insert({ ...data, slug });
-    if (error) return { errors: [/duplicate|unique/i.test(error.message) ? 'Er bestaat al een kantoor met deze naam.' : 'Het kantoor kon niet worden aangemaakt.'] };
+    const { data: created, error } = await supabase.from('offices').insert({ ...data, slug }).select('id').single();
+    if (error || !created) return { errors: [/duplicate|unique/i.test(error?.message ?? '') ? 'Er bestaat al een kantoor met deze naam.' : 'Het kantoor kon niet worden aangemaakt.'] };
+    // Meteen aan je eigen account koppelen (eigenaar of beheerder), zodat je direct verder kunt.
+    if (form.get('link_to_me') === 'on' && isManager(staff.role)) {
+      const { error: linkError } = await supabase.rpc('set_my_office', { p_office: created.id });
+      if (linkError) { refresh(); return { errors: ['Het kantoor is aangemaakt, maar koppelen aan je account is niet gelukt. Kies het kantoor onder Alle kantoren.'] }; }
+    }
   }
   refresh();
   return { ok: 'Opgeslagen.' };
+}
+
+/** Eigenaar of beheerder kiest een bestaand kantoor als het eigen kantoor. */
+export async function claimOffice(form: FormData): Promise<void> {
+  const staff = await requireStaff();
+  const id = uuid(form.get('office_id'));
+  if (!isManager(staff.role) || !id) return;
+  await (await createClient()).rpc('set_my_office', { p_office: id });
+  refresh();
+  redirect('/beheer/kantoor');
 }
 
 /** Rol en kantoor van een gebruiker: alleen de eigenaar (de database dwingt dat ook af). */

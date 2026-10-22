@@ -617,3 +617,26 @@ describe('topper van de maand', () => {
     expect(r[0].topper_until).toBeNull();
   });
 });
+
+describe('eigen kantoor kiezen', () => {
+  const kies = (o: string | null) => `select public.set_my_office(${o ? `'${o}'` : 'null'})`;
+  it('eigenaar en beheerder koppelen hun eigen account aan een kantoor, en kunnen dat weer loslaten', async () => {
+    await as(ids.owner, kies(office.a));
+    expect((await db.query<Row>(`select office_id from profiles where id = '${ids.owner}'`)).rows[0].office_id).toBe(office.a);
+    await as(ids.nieuw, kies(office.b));   // is eerder in deze test een beheerder geworden
+    expect((await db.query<Row>(`select office_id from profiles where id = '${ids.nieuw}'`)).rows[0].office_id).toBe(office.b);
+    await as(ids.owner, kies(null)); await as(ids.nieuw, kies(null));
+    expect((await db.query<Row>(`select office_id from profiles where id in ('${ids.owner}', '${ids.nieuw}')`)).rows.every((r) => r.office_id === null)).toBe(true);
+  });
+  it('een makelaar, alleen-lezen, zoeker of iemand zonder tweede stap kan dit niet', async () => {
+    await expect(as(ids.agentA, kies(office.b))).rejects.toThrow(/eigenaar of een beheerder/);
+    await expect(as(ids.lezerA, kies(office.b))).rejects.toThrow(/eigenaar of een beheerder/);
+    await expect(as(ids.zoekerA, kies(office.b))).rejects.toThrow(/eigenaar of een beheerder/);
+    await expect(as(ids.owner, kies(office.b), 'aal1')).rejects.toThrow(/eigenaar of een beheerder/);
+    await expect(as(null, kies(office.b))).rejects.toThrow();
+  });
+  it('een kantoor dat niet bestaat wordt geweigerd, en de rechtstreekse route blijft dicht voor een beheerder', async () => {
+    await expect(as(ids.owner, kies('00000000-0000-4000-8000-000000000000'))).rejects.toThrow(/bestaat niet/);
+    await expect(as(ids.nieuw, `update profiles set office_id = '${office.a}' where id = '${ids.nieuw}'`)).rejects.toThrow(/eigenaar/);
+  });
+});

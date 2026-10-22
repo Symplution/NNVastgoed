@@ -12,7 +12,7 @@ export function SiteHeader() {
           <div className="hidden sm:block"><ModeNav /></div>
         </div>
         <div className="flex items-center gap-1">
-          <Link href="/voor-makelaars" className="focus-ring hidden rounded-md px-2.5 py-1.5 text-sm font-medium hover:bg-brand-soft hover:text-brand md:inline-flex">Voor makelaars</Link>
+          <Link href="/voor-makelaars" className="focus-ring hidden whitespace-nowrap rounded-md px-2.5 py-1.5 text-sm font-medium hover:bg-brand-soft hover:text-brand lg:inline-flex">Voor makelaars</Link>
           <AccountMenu />
         </div>
       </div>
