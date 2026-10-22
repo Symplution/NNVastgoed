@@ -22,7 +22,7 @@ export default async function Aanmeldingen() {
     <div className="space-y-6">
       <div>
         <h1 className="text-2xl font-extrabold tracking-tight">Aanmeldingen van makelaars</h1>
-        <p className="mt-1 text-sm text-muted">Kantoren die zich via <code>/voor-makelaars/aanmelden</code> hebben aangemeld. Met één klik maak je van een aanvraag het kantoor aan. Daarna koppel je een medewerker aan het kantoor onder Gebruikers (Supabase → Authentication → Invite voor een nieuw account).</p>
+        <p className="mt-1 text-sm text-muted">Kantoren die zich via <code>/voor-makelaars/aanmelden</code> hebben aangemeld. Met één klik maak je van een aanvraag het kantoor aan. Daarna nodig je een medewerker uit onder Gebruikers; die krijgt meteen de juiste rol en het juiste kantoor.</p>
       </div>
       {rows.length === 0 ? <p className="rounded-2xl bg-sand p-8 text-center text-muted">Er zijn nog geen aanmeldingen.</p> : (
         <ul className="space-y-3">

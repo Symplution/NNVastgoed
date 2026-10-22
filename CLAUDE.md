@@ -9,7 +9,7 @@ Draait op GitHub, Vercel (fra1) en Supabase (EU, Frankfurt). Later komen er AI-d
 1. Alleen woningen in Groningen, Friesland en Drenthe (database-enum `province_t`, validatie in `src/lib/feeds/normalize.ts` en `listing-input.ts`).
 2. Elke schemawijziging is een migratie in `supabase/migrations`.
 3. Row level security op elke tabel. Alles aan de makelaarskant vraagt een tweede stap (aal2): via `can_read_office` / `can_write_office` of de restrictive `require_mfa` policy. Zoekerstabellen (favorieten, eigen bezichtigingen, gesprekken) zijn per `auth.uid()` en hebben bewust geen tweede stap. Elke nieuwe tabel krijgt een test in `tests/db.test.ts` die bewijst wie erbij kan en wie niet (bezoeker, collega-kantoor, alleen lezen, zonder tweede stap).
-4. Geen service key in de browser. `SUPABASE_SERVICE_ROLE_KEY` alleen in `src/lib/supabase/service.ts` (server-only), alleen voor mail en gebruikslog. Rollen en kantoor komen uit `profiles`, nooit uit de client.
+4. Geen service key in de browser. `SUPABASE_SERVICE_ROLE_KEY` alleen in `src/lib/supabase/service.ts` (server-only), alleen voor mail, gebruikslog en het uitnodigen van collega's (`inviteStaff`: account maken, rol en kantoor zetten; de uitnodigingsmail gaat via de usage gate). Rollen en kantoor komen uit `profiles`, nooit uit de client.
 5. Elke uitgaande mail (en later elke betaalde AI-aanroep) gaat via de usage gate `src/lib/usage.ts`: maandbudget, uurlimiet, unieke sleutel, loggen naar `usage_events`.
 6. Koppelingen (`/api/feeds/[id]`) gaan via de database-functie `ingest_listings`: alleen de hash van de sleutel staat in de database; geen account of service key nodig. Een foute woning blokkeert de rest niet.
 7. Alle teksten in de UI in het Nederlands.
