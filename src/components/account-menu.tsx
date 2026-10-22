@@ -30,7 +30,7 @@ export function AccountMenu() {
         <Heart size={16} aria-hidden /><span className="hidden md:inline">Favorieten</span>
       </Link>
       <details ref={ref} className="relative">
-        <summary className="focus-ring flex cursor-pointer list-none items-center gap-1.5 rounded-lg border border-line bg-white px-3 py-1.5 text-sm font-semibold hover:bg-sand [&::-webkit-details-marker]:hidden">
+        <summary data-tour="account" className="focus-ring flex cursor-pointer list-none items-center gap-1.5 rounded-lg border border-line bg-white px-3 py-1.5 text-sm font-semibold hover:bg-sand [&::-webkit-details-marker]:hidden">
           {user ? <User size={16} aria-hidden /> : <LogIn size={16} aria-hidden />}
           <span className="max-w-[8rem] truncate">{user === undefined ? 'Inloggen' : user ? user.name.split(' ')[0] : 'Inloggen'}</span>
           <ChevronDown size={14} aria-hidden />

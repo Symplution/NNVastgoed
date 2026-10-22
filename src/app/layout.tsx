@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from 'next';
 import './globals.css';
 import { SiteHeader } from '@/components/site-header';
 import { SiteFooter } from '@/components/site-footer';
+import { Rondleiding } from '@/components/rondleiding';
 import { siteUrl } from '@/lib/env';
 
 export const metadata: Metadata = {
@@ -20,6 +21,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <SiteHeader />
         <main id="inhoud" className="flex-1">{children}</main>
         <SiteFooter />
+        <Rondleiding />
       </body>
     </html>
   );
