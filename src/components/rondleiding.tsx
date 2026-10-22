@@ -99,7 +99,23 @@ export function Rondleiding() {
   return (
     <>
       {box && (
-        <div aria-hidden className="pointer-events-none fixed z-[45] rounded-xl ring-4 ring-accent transition-[top,left,width,height] duration-200" style={{ top: box.top - 6, left: box.left - 6, width: box.width + 12, height: box.height + 12, boxShadow: '0 0 0 9999px rgba(10, 53, 80, 0.38)' }} />
+        <>
+          <div aria-hidden className="pointer-events-none fixed z-[45] rounded-xl ring-4 ring-accent transition-[top,left,width,height] duration-200" style={{ top: box.top - 6, left: box.left - 6, width: box.width + 12, height: box.height + 12, boxShadow: '0 0 0 3px #fff, 0 0 0 9999px rgba(10, 53, 80, 0.38)' }} />
+          {/* Een duidelijk label met pijl, ook op een donkere achtergrond zoals de footer. Het staat naast het onderdeel zodat het geen buren afdekt. */}
+          {(() => {
+            const right = box.left + box.width + 150 < window.innerWidth;
+            const above = box.top > 80;
+            const pos = right ? { left: box.left + box.width + 18, top: box.top + box.height / 2 - 22 } : { left: Math.min(Math.max(box.left, 8), Math.max(8, window.innerWidth - 150)), top: above ? box.top - 58 : box.top + box.height + 16 };
+            return (
+              <div aria-hidden className="pointer-events-none fixed z-[46] transition-[top,left] duration-200" style={pos}>
+                <span className="relative inline-block whitespace-nowrap rounded-lg bg-accent px-4 py-2 text-base font-extrabold text-white shadow-xl ring-2 ring-white">
+                  {right ? '← Klik hier' : 'Klik hier'}
+                  {!right && <span className={`absolute left-5 h-3 w-3 rotate-45 bg-accent ${above ? '-bottom-1.5 border-b-2 border-r-2 border-white' : '-top-1.5 border-l-2 border-t-2 border-white'}`} />}
+                </span>
+              </div>
+            );
+          })()}
+        </>
       )}
 
       {!state.open && (
