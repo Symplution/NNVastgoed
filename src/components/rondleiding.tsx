@@ -26,6 +26,7 @@ export function Rondleiding() {
   const [ready, setReady] = useState(false);
   const [box, setBox] = useState<Box | null>(null);
   const [onPage, setOnPage] = useState(false);
+  const [label, setLabel] = useState('');
   const [congrats, setCongrats] = useState<TourId | null>(null);
   const [side, setSide] = useState<'left' | 'right'>('left');
   const panelRef = useRef<HTMLElement>(null);
@@ -52,18 +53,19 @@ export function Rondleiding() {
   const target = spotlight ? (needsLogin ? LOGIN_TARGET : step.target) : null;
   useEffect(() => {
     if (!target) { setBox(null); setOnPage(false); return; }
-    let scrolledFor = '';
+    let lastEl: HTMLElement | null = null;
+    let watchUntil = 0;
     let last = '';
     let flips = 0;
     const measure = () => {
       const el = findTarget(target);
       setOnPage(Boolean(el));
       if (!el) { last = ''; setBox(null); return; }
+      setLabel((el.getAttribute('aria-label') || el.textContent || '').replace(/\s+/g, ' ').trim().slice(0, 40));
       let r = el.getBoundingClientRect();
-      if (scrolledFor !== target) {
-        scrolledFor = target;
-        if (r.top < 80 || r.bottom > window.innerHeight - 20) { el.scrollIntoView({ block: 'center', behavior: 'smooth' }); r = el.getBoundingClientRect(); }
-      }
+      // Naar het onderdeel scrollen zodra het (nieuw) in beeld moet. Even blijven controleren, want de pagina zet zichzelf na het navigeren soms weer bovenaan.
+      if (el !== lastEl) { lastEl = el; watchUntil = Date.now() + 1800; }
+      if (Date.now() < watchUntil && (r.top < 80 || r.bottom > window.innerHeight - 20)) { el.scrollIntoView({ block: 'center', behavior: 'auto' }); r = el.getBoundingClientRect(); }
       // Het paneel mag het gemarkeerde onderdeel nooit afdekken: op een groot scherm gaat het naar de andere kant, op een telefoon schuift de pagina op.
       const p = panelRef.current?.getBoundingClientRect();
       const hits = Boolean(p && r.left < p.right && r.right > p.left && r.top < p.bottom && r.bottom > p.top);
@@ -100,7 +102,7 @@ export function Rondleiding() {
     <>
       {box && (
         <>
-          <div aria-hidden className="pointer-events-none fixed z-[45] rounded-xl ring-4 ring-accent transition-[top,left,width,height] duration-200" style={{ top: box.top - 6, left: box.left - 6, width: box.width + 12, height: box.height + 12, boxShadow: '0 0 0 3px #fff, 0 0 0 9999px rgba(10, 53, 80, 0.38)' }} />
+          <div aria-hidden className="pointer-events-none fixed z-[45] rounded-xl ring-4 ring-accent ring-offset-0 transition-[top,left,width,height] duration-200" style={{ top: box.top - 6, left: box.left - 6, width: box.width + 12, height: box.height + 12, boxShadow: '0 0 0 3px #fff, 0 0 26px 8px rgba(232, 116, 31, 0.85), 0 0 0 9999px rgba(10, 53, 80, 0.38)' }} />
           {/* Een duidelijk label met pijl, ook op een donkere achtergrond zoals de footer. Het staat naast het onderdeel zodat het geen buren afdekt. */}
           {(() => {
             const right = box.left + box.width + 150 < window.innerWidth;
@@ -161,7 +163,7 @@ export function Rondleiding() {
                     {needsLogin ? (
                       <p className="mt-3 text-sm font-semibold text-brand-dark">Dit onderdeel zit in het beheer. Log eerst in als makelaar (in het gemarkeerde formulier). Daarna wijzen we je de weg naar “{step.title}”.</p>
                     ) : (
-                      <p className="mt-3 text-sm font-semibold text-brand-dark">{onPage ? 'Klik op het gemarkeerde onderdeel.' : step.needsLogin ? 'Dit onderdeel zit in het beheer. Via “Ga erheen” log je zo nodig eerst in.' : 'Dit onderdeel staat op een andere pagina.'}</p>
+                      <p className="mt-3 text-sm font-semibold text-brand-dark">{onPage ? (label ? <>Klik op het gloeiende veld: <span className="rounded bg-white px-1.5 py-0.5 text-accent-dark">{label}</span></> : 'Klik op het gloeiende veld.') : step.needsLogin ? 'Dit onderdeel zit in het beheer. Via “Ga erheen” log je zo nodig eerst in.' : 'Dit onderdeel staat op een andere pagina.'}</p>
                     )}
                     <div className="mt-3 flex flex-wrap gap-2">
                       {!onPage && !needsLogin && <Link href={step.href} className="btn-accent !py-2 text-sm">Ga erheen <ArrowRight size={15} aria-hidden /></Link>}
