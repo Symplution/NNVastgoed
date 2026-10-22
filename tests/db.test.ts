@@ -640,3 +640,14 @@ describe('eigen kantoor kiezen', () => {
     await expect(as(ids.nieuw, `update profiles set office_id = '${office.a}' where id = '${ids.nieuw}'`)).rejects.toThrow(/eigenaar/);
   });
 });
+
+describe('kantoor aanmaken uit een aanmelding', () => {
+  it('de eigenaar maakt het kantoor aan met de gegevens van de aanvraag en zet hem op aangesloten; een makelaar kan dat niet', async () => {
+    await as(null, `insert into broker_requests (office_name, city, province, contact_name, email, phone, consent) values ('Nieuw Makelaars', 'Emmen', 'drenthe', 'Eva', 'eva@nieuw.nl', '0591 000000', true)`);
+    const req = (await as(ids.owner, `select office_name, city, province, email, phone, id from broker_requests where office_name = 'Nieuw Makelaars'`))[0];
+    await expect(as(ids.agentA, `insert into offices (slug, name, city, province, email, nvm_member) values ('nieuw-makelaars', 'Nieuw Makelaars', 'Emmen', 'drenthe', 'eva@nieuw.nl', false)`)).rejects.toThrow();
+    expect(await as(ids.owner, `insert into offices (slug, name, city, province, email, phone, description, nvm_member) values ('nieuw-makelaars', '${req.office_name}', '${req.city}', '${req.province}', '${req.email}', '${req.phone}', '', false) returning slug`)).toHaveLength(1);
+    expect(await as(ids.owner, `update broker_requests set status = 'aangesloten' where id = '${req.id}' returning 1`)).toHaveLength(1);
+    expect((await as(null, `select nvm_member from offices where slug = 'nieuw-makelaars'`))[0].nvm_member).toBe(false);
+  });
+});

@@ -300,6 +300,29 @@ export async function markOfficeRead(conversationId: string) {
   revalidatePath('/beheer', 'layout');
 }
 
+/** Maakt uit een aanmelding het kantoor aan (met de gegevens van de aanvraag) en zet de aanvraag op Aangesloten. Alleen eigenaar of beheerder. */
+export async function createOfficeFromRequest(form: FormData): Promise<void> {
+  const staff = await requireStaff();
+  const id = uuid(form.get('id'));
+  if (!isManager(staff.role) || !id) return;
+  const supabase = await createClient();
+  const { data: r } = await supabase.from('broker_requests').select('office_name, city, province, email, phone').eq('id', id).maybeSingle();
+  if (!r) return;
+  const base = slugify(r.office_name) || randomBytes(3).toString('hex');
+  const { data: existing } = await supabase.from('offices').select('id').eq('slug', base).maybeSingle();
+  if (!existing) {
+    const { error } = await supabase.from('offices').insert({
+      slug: base, name: r.office_name, city: r.city, province: r.province, email: r.email, phone: r.phone || null, description: '',
+      // Het NVM-lidmaatschap zet NNV-beheer pas na controle; de aanvraag alleen is geen bewijs.
+      nvm_member: false,
+    });
+    if (error) return;
+  }
+  await supabase.from('broker_requests').update({ status: 'aangesloten' }).eq('id', id);
+  refresh();
+  revalidatePath('/beheer/aanmeldingen');
+}
+
 const REQUEST_STATUS = ['nieuw', 'in_behandeling', 'aangesloten', 'afgewezen'];
 /** Status van een aanmelding van een makelaar. Alleen eigenaar en beheerder; RLS dwingt dat ook in de database af. */
 export async function setBrokerRequestStatus(form: FormData): Promise<void> {
