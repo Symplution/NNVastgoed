@@ -195,13 +195,14 @@ export async function claimOffice(form: FormData): Promise<void> {
   redirect('/beheer/kantoor');
 }
 
-/** Toegang van het account van een kantoor aan of uit: alleen de eigenaar (de database dwingt dat ook af). */
-export async function setAccountActive(form: FormData): Promise<void> {
+/** Rol en kantoor van een gebruiker: alleen de eigenaar (de database dwingt dat ook af). */
+export async function setProfile(form: FormData) {
   const staff = await requireStaff();
   const id = uuid(form.get('id'));
-  if (staff.role !== 'owner' || !id) return;
-  await (await createClient()).from('profiles').update({ active: form.get('active') === '1' }).eq('id', id);
-  revalidatePath('/beheer/kantoren');
+  const role = String(form.get('role'));
+  if (staff.role !== 'owner' || !id || !['owner', 'admin', 'agent', 'readonly', 'seeker'].includes(role)) return;
+  await (await createClient()).from('profiles').update({ role, office_id: uuid(form.get('office_id')), active: form.get('active') === '1' }).eq('id', id);
+  revalidatePath('/beheer/gebruikers');
 }
 
 // ───────────────────────── Bezichtigingen en berichten ─────────────────────────
@@ -345,22 +346,18 @@ export async function inviteStaff(_: InviteState, form: FormData): Promise<Invit
   if (!hasService()) return { errors: ['Uitnodigen werkt pas als SUPABASE_SERVICE_ROLE_KEY in Vercel staat.'] };
   const { name, email, role, officeId } = v.value;
   const svc = createServiceClient();
-  if (role === 'agent' && officeId) {
-    const { count } = await svc.from('profiles').select('id', { count: 'exact', head: true }).eq('office_id', officeId).eq('role', 'agent');
-    if ((count ?? 0) > 0) return { errors: ['Dit kantoor heeft al een account. Er is één account per kantoor; je collega\u2019s gebruiken hetzelfde account.'] };
-  }
   const { data, error } = await svc.auth.admin.generateLink({ type: 'invite', email, options: { data: { full_name: name } } });
   if (error || !data?.user || !data.properties?.hashed_token) {
-    return { errors: [/already|registered|exists/i.test(error?.message ?? '') ? 'Dit e-mailadres heeft al een account.' : 'De uitnodiging kon niet worden gemaakt.'] };
+    return { errors: [/already|registered|exists/i.test(error?.message ?? '') ? 'Dit e-mailadres heeft al een account. Pas de rol en het kantoor hieronder in de lijst aan.' : 'De uitnodiging kon niet worden gemaakt.'] };
   }
   // Het account is er nu; geef het meteen de juiste rol en het juiste kantoor (de server mag dat, een makelaar zelf niet).
   const { error: pErr } = await svc.from('profiles').update({ role, office_id: officeId, full_name: name, active: true }).eq('id', data.user.id);
-  if (pErr) return { errors: ['Het account is gemaakt, maar rol en kantoor instellen is niet gelukt. Probeer het opnieuw onder Alle kantoren.'] };
+  if (pErr) return { errors: ['Het account is gemaakt, maar rol en kantoor instellen is niet gelukt. Doe dat in de lijst hieronder.'] };
   const link = `${siteUrl()}/auth/callback?token_hash=${encodeURIComponent(data.properties.hashed_token)}&type=invite&next=${encodeURIComponent('/wachtwoord')}`;
   const { data: office } = officeId ? await svc.from('offices').select('name').eq('id', officeId).maybeSingle() : { data: null };
   const sent = await sendMail({ to: email, key: `uitnodiging:${data.user.id}`, officeId: officeId ?? undefined, subject: 'Je bent uitgenodigd voor het beheer van NNvastgoed',
     text: inviteMailText({ name, officeName: office?.name ?? null, roleLabel: INVITE_ROLE_LABEL[role], link, from: staff.name }) });
-  revalidatePath('/beheer/kantoren');
+  revalidatePath('/beheer/gebruikers');
   return { ok: { email, link, mailed: sent === 'verzonden' } };
 }
 

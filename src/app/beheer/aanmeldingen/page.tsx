@@ -22,7 +22,7 @@ export default async function Aanmeldingen() {
     <div className="space-y-6">
       <div>
         <h1 className="text-2xl font-extrabold tracking-tight">Aanmeldingen van makelaars</h1>
-        <p className="mt-1 text-sm text-muted">Kantoren die zich via <code>/voor-makelaars/aanmelden</code> hebben aangemeld. Met één klik maak je van een aanvraag het kantoor aan. Daarna nodig je het account van het kantoor uit onder Alle kantoren (één account per kantoor).</p>
+        <p className="mt-1 text-sm text-muted">Kantoren die zich via <code>/voor-makelaars/aanmelden</code> hebben aangemeld. Met één klik maak je van een aanvraag het kantoor aan. Daarna nodig je een medewerker uit onder Gebruikers; die krijgt meteen de juiste rol en het juiste kantoor.</p>
       </div>
       {rows.length === 0 ? <p className="rounded-2xl bg-sand p-8 text-center text-muted">Er zijn nog geen aanmeldingen.</p> : (
         <ul className="space-y-3">
@@ -39,7 +39,7 @@ export default async function Aanmeldingen() {
               {r.message && <p className="mt-2 whitespace-pre-line rounded-lg bg-sand p-3 text-sm">{r.message}</p>}
               {(() => {
                 const office = bySlug.get(slugify(r.officeName));
-                if (office) return <p className="mt-3 flex flex-wrap items-center gap-2 rounded-lg bg-green-50 p-3 text-sm font-semibold text-green-800"><Building2 size={16} aria-hidden /> Het kantoor staat al aangemaakt. <Link href="/beheer/kantoren" className="underline">Bekijk bij Alle kantoren</Link> · <Link href="/beheer/kantoren" className="underline">Account uitnodigen</Link></p>;
+                if (office) return <p className="mt-3 flex flex-wrap items-center gap-2 rounded-lg bg-green-50 p-3 text-sm font-semibold text-green-800"><Building2 size={16} aria-hidden /> Het kantoor staat al aangemaakt. <Link href="/beheer/kantoren" className="underline">Bekijk bij Alle kantoren</Link> · <Link href="/beheer/gebruikers" className="underline">Medewerker koppelen</Link></p>;
                 if (r.status === 'afgewezen') return null;
                 return <form action={createOfficeFromRequest} className="mt-3"><input type="hidden" name="id" value={r.id} /><button className="btn-accent !py-2 text-sm"><Building2 size={15} aria-hidden /> Kantoor aanmaken en goedkeuren</button></form>;
               })()}

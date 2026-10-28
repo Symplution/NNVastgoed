@@ -663,15 +663,3 @@ describe('banner van een kantoor', () => {
     expect((await as(null, `select banner_url from offices where id = '${office.a}'`))[0].banner_url).toBe(url);
   });
 });
-
-describe('één account per kantoor', () => {
-  it('een kantoor krijgt hoogstens één makelaarsaccount; alleen-lezen collega’s en NNV-beheer tellen niet mee', async () => {
-    // kantoor A heeft al een makelaar (agentA); een tweede makelaar bij A mag niet
-    await expect(db.exec(`update profiles set role = 'agent' where id = '${ids.lezerA}'`)).rejects.toThrow(/unique|duplicate/i);
-    // een andere kantoor-makelaar kan wel (B heeft agentB), en na verplaatsen van B naar A niet
-    await expect(db.exec(`update profiles set office_id = '${office.a}' where id = '${ids.agentB}'`)).rejects.toThrow(/unique|duplicate/i);
-    // alleen-lezen en eigenaar/beheerder bij een kantoor mogen wel
-    await db.exec(`update profiles set office_id = '${office.a}' where id = '${ids.owner}'`);
-    await db.exec(`update profiles set office_id = null where id = '${ids.owner}'`);
-  });
-});
