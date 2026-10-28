@@ -84,15 +84,16 @@ class Doc {
   }
   ensure(h: number) { if (this.y - h < BOTTOM) this.newPage(); }
 
-  /** Het woordmerk van NNvastgoed: huisje op een golf, met de naam ernaast. (x, yTop) is de linkerbovenhoek. */
+  /** Het woordmerk van NNVastgoed: een woning in een vergrootglas, met de naam ernaast. (x, yTop) is de linkerbovenhoek. */
   nnvLogo(x: number, yTop: number, s = 1) {
     const p = this.page;
     p.drawSvgPath(rrectPath(34, 34, 9), { x, y: yTop, scale: s, color: C.brand });
-    p.drawSvgPath('M7 16.5 L17 8 L27 16.5', { x, y: yTop, scale: s, borderColor: C.accent, borderWidth: 2.6 * s, borderLineCap: 1 });
-    p.drawSvgPath('M9 17 V24 H25 V17', { x, y: yTop, scale: s, borderColor: C.white, borderWidth: 2.2 * s });
-    p.drawSvgPath('M5 27.5 C8 25.3 10 25.3 13 27.5 S18 29.7 21 27.5 S26 25.3 29 27.5', { x, y: yTop, scale: s, borderColor: rgb(0.61, 0.78, 0.88), borderWidth: 1.8 * s });
-    p.drawText('NNvastgoed', { x: x + 44 * s, y: yTop - 18 * s, size: 17 * s, font: this.bold, color: C.brand });
-    p.drawText('NOORD NEDERLAND VASTGOED', { x: x + 44 * s, y: yTop - 29 * s, size: 6.2 * s, font: this.bold, color: C.muted });
+    p.drawSvgPath('M22.6 22.6 L28.8 28.8', { x, y: yTop, scale: s, borderColor: C.accent, borderWidth: 3.8 * s, borderLineCap: 1 });
+    p.drawSvgPath('M25 14.8 A10.2 10.2 0 1 1 4.6 14.8 A10.2 10.2 0 1 1 25 14.8', { x, y: yTop, scale: s, borderColor: C.white, borderWidth: 2.5 * s });
+    p.drawSvgPath('M9 15.4 L14.8 10.2 L20.6 15.4', { x, y: yTop, scale: s, borderColor: C.accent, borderWidth: 2.3 * s, borderLineCap: 1 });
+    p.drawSvgPath('M10.8 14.8 V20.7 H18.8 V14.8', { x, y: yTop, scale: s, borderColor: C.white, borderWidth: 1.9 * s });
+    p.drawSvgPath('M13.8 20.7 V17.2 H15.8 V20.7 Z', { x, y: yTop, scale: s, color: C.accent });
+    p.drawText('NNVastgoed', { x: x + 44 * s, y: yTop - 22 * s, size: 19 * s, font: this.bold, color: C.brand });
   }
 
   text(t: string, o: { x?: number; size?: number; font?: PDFFont; color?: ReturnType<typeof rgb>; width?: number; lead?: number } = {}) {
