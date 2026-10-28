@@ -8,7 +8,7 @@ import { PROVINCES } from '@/lib/types';
 import { PROVINCE_INFO } from '@/lib/regions';
 import { ProvinceFlag } from '@/components/province-flag';
 import { HeroSearch } from '@/components/hero-search';
-import { HeroSkyline } from '@/components/hero-skyline';
+import { HeroIllustration } from '@/components/hero-illustration';
 import { ListingCard } from '@/components/listing-card';
 
 export const revalidate = 300;
@@ -17,10 +17,10 @@ export default async function Home() {
   const [counts, latest, recreation, toppers] = await Promise.all([provinceCounts(), latestListings(4), latestListings(4, undefined, 'recreatie'), topperListings(4)]);
   return (
     <>
-      <section className="relative overflow-hidden bg-[linear-gradient(180deg,#1a3350_0%,#35648a_42%,#d99a86_82%,#f3c19c_100%)] text-white">
-        <HeroSkyline className="pointer-events-none absolute inset-x-0 bottom-0 hidden h-[24rem] w-full lg:block" />
+      <section className="relative overflow-hidden bg-gradient-to-b from-[#cfe4ee] to-[#eef6f8] text-brand-dark">
+        <HeroIllustration className="pointer-events-none absolute inset-x-0 bottom-0 hidden h-[24rem] w-full lg:block" />
         <div className="container-x relative z-10 pb-24 pt-16 sm:pt-24 lg:pb-[24rem]">
-          <h1 className="mx-auto max-w-3xl text-center text-4xl font-extrabold leading-tight tracking-tight drop-shadow-[0_2px_12px_rgba(10,25,45,0.45)] sm:text-5xl">Vind je huis in het noorden</h1>
+          <h1 className="mx-auto max-w-3xl text-center text-4xl font-extrabold leading-tight tracking-tight sm:text-5xl">Vind je huis in het noorden</h1>
 
           <HeroSearch />
         </div>
