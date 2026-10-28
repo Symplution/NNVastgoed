@@ -663,3 +663,24 @@ describe('banner van een kantoor', () => {
     expect((await as(null, `select banner_url from offices where id = '${office.a}'`))[0].banner_url).toBe(url);
   });
 });
+
+describe('notitie bij een lead', () => {
+  it('het kantoor zet een notitie bij een lead van het eigen kantoor; een collega-kantoor of zoeker niet; een bezoeker kan er geen meesturen', async () => {
+    await as(null, `insert into leads (listing_id, office_id, name, email, message, consent, note) values ('${listing.pubA}', '${office.a}', 'Notitie Koper', 'notitie@koper.nl', 'Hallo', true, 'ik doe me voor als makelaar')`);
+    const own = await as(ids.agentA, `select id, note from leads where email = 'notitie@koper.nl'`);
+    expect(own[0].note).toBeNull();
+    const id = own[0].id;
+    expect(await as(ids.agentA, `update leads set note = '  Teruggebeld, bezichtiging vrijdag  ' where id = '${id}' returning note, note_at`)).toHaveLength(1);
+    const row = (await as(ids.agentA, `select note, note_at from leads where id = '${id}'`))[0];
+    expect(row.note).toBe('Teruggebeld, bezichtiging vrijdag');
+    expect(row.note_at).not.toBeNull();
+    expect(await as(ids.agentB, `update leads set note = 'ander kantoor' where id = '${id}' returning 1`)).toHaveLength(0);
+    expect(await as(ids.zoekerA, `update leads set note = 'zoeker' where id = '${id}' returning 1`)).toHaveLength(0);
+    await expect(as(ids.agentA, `update leads set note = '${'x'.repeat(2001)}' where id = '${id}'`)).rejects.toThrow();
+    // een lege notitie wist de notitie en de tijd
+    await as(ids.agentA, `update leads set note = '   ' where id = '${id}'`);
+    expect((await as(ids.agentA, `select note, note_at from leads where id = '${id}'`))[0]).toEqual({ note: null, note_at: null });
+    // alleen lezen mag niet schrijven
+    expect(await as(ids.lezerA, `update leads set note = 'lezer' where id = '${id}' returning 1`)).toHaveLength(0);
+  });
+});

@@ -13,7 +13,7 @@ export default async function Leads() {
   return (
     <div>
       <h1 className="text-2xl font-extrabold tracking-tight">Leads</h1>
-      <p className="mt-1 text-sm text-muted">Contactverzoeken bij jouw woningen. Je krijgt ze ook per mail. {canWrite(staff) ? 'Pak een lead vast en sleep hem naar het volgende stadium, of kies het stadium in het menu op de kaart.' : ''}</p>
+      <p className="mt-1 text-sm text-muted">Contactverzoeken bij jouw woningen. Je krijgt ze ook per mail. {canWrite(staff) ? 'Kies het stadium op de kaart. Staat een lead op Opgepakt, dan kun je er een notitie bij zetten; die staat ook bij Contacten.' : ''}</p>
       {leads.length ? <div className="mt-6"><LeadsBoard leads={leads} canEdit={canWrite(staff)} showOffice={isManager(staff.role)} dateOf={dateOf} /></div> : <p className="mt-6 rounded-xl bg-sand p-10 text-center text-muted">Nog geen leads.</p>}
     </div>
   );

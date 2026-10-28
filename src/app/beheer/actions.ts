@@ -90,6 +90,22 @@ export async function moveLead(id: string, status: string): Promise<{ ok: boolea
   return { ok: !error && Boolean(data) };
 }
 
+/** Een notitie bij een lead: alleen zolang de lead op Opgepakt staat (daarna blijft de notitie leesbaar). */
+export async function saveLeadNote(id: string, note: string): Promise<{ ok: boolean; error?: string }> {
+  const staff = await requireStaff();
+  if (!canWrite(staff) || !uuid(id)) return { ok: false, error: 'Je hebt hier geen rechten voor.' };
+  const text = String(note ?? '').trim();
+  if (text.length > 2000) return { ok: false, error: 'Maximaal 2000 tekens.' };
+  const supabase = await createClient();
+  const { data: lead } = await supabase.from('leads').select('status').eq('id', id).maybeSingle();
+  if (!lead) return { ok: false, error: 'Deze lead bestaat niet.' };
+  if (lead.status !== 'opgepakt') return { ok: false, error: 'Een notitie kan alleen als de lead op Opgepakt staat.' };
+  const { error } = await supabase.from('leads').update({ note: text || null }).eq('id', id);
+  if (error) return { ok: false, error: 'Opslaan is niet gelukt.' };
+  revalidatePath('/beheer/contacten');
+  return { ok: true };
+}
+
 /** Nieuwe koppeling: de geheime sleutel wordt één keer getoond; in de database staat alleen de hash. */
 export async function createConnection(_: SaveState, form: FormData): Promise<SaveState> {
   const staff = await requireStaff();

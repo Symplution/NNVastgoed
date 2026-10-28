@@ -18,12 +18,12 @@ export async function myOffices(): Promise<Office[]> {
   const { data } = await (await createClient()).from('offices').select('*').order('name');
   return (data ?? []).map(mapOffice);
 }
-export interface LeadRow { id: string; listingId: string; listing: string; name: string; email: string; phone: string | null; message: string; kind: string; status: string; createdAt: string; office: string }
+export interface LeadRow { id: string; listingId: string; listing: string; name: string; email: string; phone: string | null; message: string; kind: string; status: string; createdAt: string; office: string; note?: string | null; noteAt?: string | null }
 export async function myLeads(): Promise<LeadRow[]> {
   const { data } = await (await createClient()).from('leads').select('*, listings(street, house_number, city), offices(name)').order('created_at', { ascending: false }).limit(300);
   return (data ?? []).map((r: Row) => ({
     id: r.id, listingId: r.listing_id, listing: r.listings ? `${r.listings.street} ${r.listings.house_number}, ${r.listings.city}` : 'Onbekende woning',
-    name: r.name, email: r.email, phone: r.phone, message: r.message, kind: r.kind, status: r.status, createdAt: r.created_at, office: r.offices?.name ?? '',
+    name: r.name, email: r.email, phone: r.phone, message: r.message, kind: r.kind, status: r.status, createdAt: r.created_at, office: r.offices?.name ?? '', note: r.note ?? null, noteAt: r.note_at ?? null,
   }));
 }
 export interface ConnectionRow { id: string; officeId: string; name: string; kind: string; hint: string; active: boolean; lastRunAt: string | null; lastStatus: string | null; lastReceived: number | null; lastUpserted: number | null }
@@ -114,7 +114,7 @@ export async function staffUnread(): Promise<number> {
 }
 
 // Eén persoon, uit alle plekken waar hij contact opnam: contactformulier, bezichtigingen en gesprekken.
-export interface ContactEvent { at: string; kind: 'lead' | 'bezichtiging' | 'bericht'; title: string; detail: string; href?: string }
+export interface ContactEvent { at: string; kind: 'lead' | 'bezichtiging' | 'bericht'; title: string; detail: string; href?: string; /** Bij een lead: het stadium en de notitie van het kantoor. */ status?: string; note?: string | null; noteAt?: string | null }
 export interface Contact { email: string; name: string; phone: string | null; hasAccount: boolean; lastAt: string; leads: number; viewings: number; conversations: number; events: ContactEvent[] }
 
 export function buildContacts(input: { leads: LeadRow[]; viewings: ViewingRow[]; threads: StaffThread[] }): Contact[] {
@@ -129,7 +129,7 @@ export function buildContacts(input: { leads: LeadRow[]; viewings: ViewingRow[];
   };
   for (const l of input.leads) {
     const c = get(l.email, l.name, l.phone); c.leads++;
-    c.events.push({ at: l.createdAt, kind: 'lead', title: `${l.kind === 'bezichtiging' ? 'Bezichtiging gevraagd' : 'Vraag'} over ${l.listing}`, detail: l.message });
+    c.events.push({ at: l.createdAt, kind: 'lead', title: `${l.kind === 'bezichtiging' ? 'Bezichtiging gevraagd' : 'Vraag'} over ${l.listing}`, detail: l.message, status: l.status, note: l.note, noteAt: l.noteAt });
   }
   for (const v of input.viewings) {
     const c = get(v.email, v.name, v.phone); c.viewings++; if (v.byAccount) c.hasAccount = true;

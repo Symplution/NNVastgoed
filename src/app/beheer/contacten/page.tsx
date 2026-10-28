@@ -50,7 +50,9 @@ export default async function Contacten({ searchParams }: { searchParams: Promis
                       <span className="absolute -left-[1.85rem] top-0.5 inline-flex h-6 w-6 items-center justify-center rounded-full bg-brand-soft text-brand"><Icon size={13} aria-hidden /></span>
                       <p className="text-sm font-semibold">{e.href ? <Link href={e.href} className="hover:underline">{e.title}</Link> : e.title}</p>
                       <p className="text-xs text-muted">{formatDate(e.at)}</p>
+                      {e.status && <p className="mt-1"><span className={`pill ${e.status === 'afgehandeld' ? 'bg-green-100 text-green-900' : e.status === 'opgepakt' ? 'bg-brand-soft text-brand' : 'bg-accent-soft text-accent-dark'}`}>{e.status === 'afgehandeld' ? 'Afgehandeld' : e.status === 'opgepakt' ? 'Opgepakt' : 'Nieuw'}</span></p>}
                       {e.detail && <p className="mt-1 line-clamp-3 text-sm text-ink/80">{e.detail}</p>}
+                      {e.note && <div className="mt-2 rounded-xl bg-sand p-3 text-sm"><p className="mb-1 text-xs font-bold uppercase tracking-wide text-muted">Notitie{e.noteAt && <span className="font-normal normal-case tracking-normal"> · {formatDate(e.noteAt)}</span>}</p><p className="whitespace-pre-line">{e.note}</p></div>}
                     </li>
                   );
                 })}
