@@ -3,12 +3,12 @@ import { Building, Home, KeyRound, MapPin, Tag, Wrench, type LucideIcon } from '
 import type { Article } from '@/lib/articles';
 
 export const TAG_STYLE: Record<Article['tag'], { pill: string; from: string; to: string; Icon: LucideIcon }> = {
-  Kopen: { pill: 'bg-brand-soft text-brand', from: '#1f4d3f', to: '#4f8a6f', Icon: Home },
-  Verkopen: { pill: 'bg-accent-soft text-accent-dark', from: '#b4432c', to: '#d9774f', Icon: Tag },
-  Huren: { pill: 'bg-green-100 text-green-800', from: '#2f6b4f', to: '#7fb596', Icon: KeyRound },
-  Nieuwbouw: { pill: 'bg-amber-100 text-amber-900', from: '#6b5a3a', to: '#b08d57', Icon: Building },
-  Wonen: { pill: 'bg-yellow-100 text-yellow-900', from: '#8a6d3b', to: '#d4ae5e', Icon: Wrench },
-  Regio: { pill: 'bg-sand text-ink', from: '#3d6b3a', to: '#9bc46a', Icon: MapPin },
+  Kopen: { pill: 'bg-brand-soft text-brand', from: '#0e4a6e', to: '#2b86b5', Icon: Home },
+  Verkopen: { pill: 'bg-accent-soft text-accent-dark', from: '#e8742c', to: '#ffb02e', Icon: Tag },
+  Huren: { pill: 'bg-green-100 text-green-800', from: '#14917f', to: '#3fd0ae', Icon: KeyRound },
+  Nieuwbouw: { pill: 'bg-purple-100 text-purple-800', from: '#6d4bb3', to: '#9b7bdc', Icon: Building },
+  Wonen: { pill: 'bg-yellow-100 text-yellow-900', from: '#c98a14', to: '#ffd45a', Icon: Wrench },
+  Regio: { pill: 'bg-sand text-ink', from: '#2f6b4f', to: '#7ccf4e', Icon: MapPin },
 };
 
 /** Klein artikel: een gekleurd vlak met pictogram, de rubriek, de titel en een link. */

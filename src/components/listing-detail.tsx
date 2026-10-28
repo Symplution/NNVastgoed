@@ -65,7 +65,7 @@ export async function ListingDetail({ l, preview = false }: { l: Listing; previe
           <header className="flex items-start justify-between gap-6">
             <div className="min-w-0">
               <p className="mb-3 flex flex-wrap gap-2">
-                {isNew && <span className="rounded-full bg-accent px-3 py-1 text-sm font-bold text-white">Nieuw</span>}
+                {isNew && <span className="rounded bg-[#ff9a1f] px-2.5 py-1 text-sm font-bold text-white">Nieuw</span>}
                 <span className="pill bg-brand-soft text-brand">{OFFER_LABEL[l.offer]}</span>
                 {l.newBuild && <span className="pill bg-green-100 text-green-900">Nieuwbouw</span>}
                 {l.status !== 'beschikbaar' && <span className="pill bg-accent-soft text-accent-dark">{STATUS_LABEL[l.status]}</span>}
@@ -90,7 +90,7 @@ export async function ListingDetail({ l, preview = false }: { l: Listing; previe
             {facts.map((f) => <li key={f.label} className="flex items-center gap-2.5 text-muted">{f.icon}<span className="inline-flex items-center gap-1.5"><strong className="font-bold text-ink">{f.value}</strong> {f.label}</span></li>)}
           </ul>
 
-          {headline && <p className="rounded-2xl bg-brand-soft px-6 py-5 text-lg text-brand-dark">{headline}</p>}
+          {headline && <p className="rounded-lg bg-[#e4f4fd] px-6 py-5 text-lg text-brand-dark">{headline}</p>}
 
           <section aria-labelledby="omschrijving">
             <h2 id="omschrijving" className="text-3xl font-extrabold tracking-tight">Omschrijving</h2>

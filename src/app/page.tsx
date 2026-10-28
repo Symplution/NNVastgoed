@@ -7,43 +7,26 @@ import { POPULAR_PLACES, placeHref } from '@/lib/places';
 import { PROVINCES } from '@/lib/types';
 import { PROVINCE_INFO } from '@/lib/regions';
 import { ProvinceFlag } from '@/components/province-flag';
-import { HeroWizard } from '@/components/hero-wizard';
-import { formatPrice } from '@/lib/format';
+import { HeroSearch } from '@/components/hero-search';
+import { HeroIllustration } from '@/components/hero-illustration';
 import { ListingCard } from '@/components/listing-card';
 
 export const revalidate = 300;
 
 export default async function Home() {
   const [counts, latest, recreation, toppers] = await Promise.all([provinceCounts(), latestListings(4), latestListings(4, undefined, 'recreatie'), topperListings(4)]);
-  const arches = (toppers.length >= 3 ? toppers : [...toppers, ...latest.filter((l) => !toppers.some((t) => t.id === l.id))]).filter((l) => l.photos[0]).slice(0, 3);
   return (
     <>
-      <section className="relative overflow-hidden bg-cream">
-        <div aria-hidden className="pointer-events-none absolute -right-24 -top-24 h-[26rem] w-[26rem] rounded-full bg-brand-soft" />
-        <div aria-hidden className="pointer-events-none absolute -bottom-32 left-[-6rem] h-[22rem] w-[22rem] rounded-full bg-accent-soft/70" />
-        <div className="container-x relative grid items-center gap-10 py-10 lg:grid-cols-[1.05fr_0.95fr] lg:py-14">
-          <div>
-            <p className="inline-flex items-center gap-2 rounded-full bg-white px-3 py-1 text-xs font-bold uppercase tracking-[0.14em] text-brand shadow-sm"><span aria-hidden className="h-2 w-2 rounded-full bg-accent" /> Groningen · Friesland · Drenthe</p>
-            <h1 className="mt-4 text-5xl font-bold leading-[1.05] sm:text-6xl">Vind de plek die bij jou past in het <span className="italic text-accent">noorden</span></h1>
-            <p className="mt-4 max-w-xl text-lg text-muted">Stel in wat je zoekt en zie meteen wat er is. Rechtstreeks van makelaars in het noorden.</p>
-            <HeroWizard />
-          </div>
-          <div className="hidden lg:block" aria-label="Uitgelichte woningen">
-            <ul className="grid grid-cols-3 items-end gap-4">
-              {arches.map((l, i) => (
-                <li key={l.id} className={i === 1 ? 'mb-10' : i === 2 ? 'mb-24' : ''}>
-                  <Link href={`/woning/${l.slug}`} className={`focus-ring group relative block overflow-hidden rounded-t-[999px] rounded-b-3xl bg-sand shadow-card ${i === 1 ? 'h-[26rem]' : i === 2 ? 'h-[18rem]' : 'h-[22rem]'}`} aria-label={`${l.street} ${l.houseNumber}, ${l.city}`}>
-                    {l.photos[0] && /* eslint-disable-next-line @next/next/no-img-element */ <img src={l.photos[0].url} alt="" className="h-full w-full object-cover transition duration-500 group-hover:scale-105" />}
-                    <span className="absolute inset-x-2 bottom-2 rounded-2xl bg-white/95 px-3 py-2 text-xs shadow"><strong className="block text-sm text-brand">{formatPrice(l)}</strong><span className="text-muted">{l.city}</span></span>
-                  </Link>
-                </li>
-              ))}
-            </ul>
-          </div>
+      <section className="relative overflow-hidden bg-gradient-to-b from-[#d9f0fb] to-[#eaf8fe] text-brand-dark">
+        <HeroIllustration className="pointer-events-none absolute inset-x-0 bottom-0 hidden h-[24rem] w-full lg:block" />
+        <div className="container-x relative z-10 pb-24 pt-16 sm:pt-24 lg:pb-[24rem]">
+          <h1 className="mx-auto max-w-3xl text-center text-4xl font-extrabold leading-tight tracking-tight sm:text-5xl">Vind je huis in het noorden</h1>
+
+          <HeroSearch />
         </div>
       </section>
 
-      <section className="container-x relative z-10 mt-4" aria-label="Snel naar">
+      <section className="container-x relative z-10 mt-8" aria-label="Snel naar">
         <ul className="grid gap-3 sm:grid-cols-2 lg:grid-cols-5">
           {[
             { href: '/bedrijfsruimte', Icon: Building2, t: 'Zoek een bedrijfsruimte', d: 'Kantoor, hal, winkel of horeca' },

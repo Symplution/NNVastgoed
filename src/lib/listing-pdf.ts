@@ -14,7 +14,7 @@ import type { Listing, Office } from './types';
 const A4 = { w: 595.28, h: 841.89 };
 const M = 40;                       // marge
 const BOTTOM = 92;                  // onder deze hoogte komt de voettekst
-const C = { brand: rgb(0.122, 0.302, 0.247), accent: rgb(0.706, 0.263, 0.173), ink: rgb(0.1, 0.13, 0.16), muted: rgb(0.38, 0.43, 0.47), line: rgb(0.89, 0.91, 0.93), sand: rgb(0.965, 0.945, 0.917), white: rgb(1, 1, 1), soft: rgb(0.86, 0.92, 0.96) };
+const C = { brand: rgb(0.055, 0.29, 0.431), accent: rgb(0.91, 0.455, 0.12), ink: rgb(0.1, 0.13, 0.16), muted: rgb(0.38, 0.43, 0.47), line: rgb(0.89, 0.91, 0.93), sand: rgb(0.965, 0.945, 0.917), white: rgb(1, 1, 1), soft: rgb(0.86, 0.92, 0.96) };
 
 /** Alleen tekens die de standaardlettertypen (WinAnsi) kennen; de rest wordt een vraagteken, zodat een pdf nooit stukgaat op een vreemd teken. */
 export const safeText = (s: string) => s.normalize('NFC').replace(/\t/g, ' ').replace(/[^\x20-\x7E\xA0-\xFF€‘’“”–—•…\n]/g, '?');

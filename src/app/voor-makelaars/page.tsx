@@ -29,7 +29,7 @@ export default function VoorMakelaars() {
       <p className="mt-4 max-w-2xl text-lg text-muted">NNvastgoed (Noord Nederland Vastgoed) is dé plek voor woningzoekers in Groningen, Friesland en Drenthe. Jij houdt je eigen werkwijze; wij zorgen dat je aanbod er goed uitziet en dat reacties direct bij jou aankomen.</p>
 
       <section className="mt-10" aria-labelledby="prijslijst">
-        <div className="overflow-hidden rounded-3xl bg-gradient-to-br from-brand-dark via-brand to-[#2f6b4f] p-8 text-white sm:p-10">
+        <div className="overflow-hidden rounded-3xl bg-gradient-to-br from-brand-dark via-brand to-[#1c6a93] p-8 text-white sm:p-10">
           <p className="text-sm font-semibold uppercase tracking-[0.16em] text-white/70">Prijslijst</p>
           <h2 id="prijslijst" className="mt-2 max-w-2xl text-3xl font-extrabold tracking-tight">Eerlijke prijzen, zonder abonnement</h2>
           <p className="mt-2 max-w-2xl text-white/85">Geen pakketten en geen abonnement: je betaalt alleen per woning.</p>

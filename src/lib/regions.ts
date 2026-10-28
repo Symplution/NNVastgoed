@@ -6,7 +6,7 @@ export const PROVINCE_INFO: Record<Province, { name: string; tagline: string; in
     tagline: 'Van levendige stad tot weidse Ommelanden',
     intro: 'De stad Groningen is jong, bruisend en groeit hard. Daarbuiten wacht ruimte: terpdorpen, Hogeland aan de Waddenzee en de Veenkoloniën. Wonen in de provincie Groningen betekent veel woning voor je geld en altijd een horizon.',
     towns: ['Groningen', 'Haren', 'Hoogezand', 'Veendam', 'Winschoten', 'Delfzijl', 'Stadskanaal', 'Leek', 'Appingedam', 'Uithuizen', 'Bedum', 'Zuidhorn', 'Winsum', 'Ten Boer', 'Slochteren', 'Oldambt'],
-    hue: '#b4432c',
+    hue: '#0e4a6e',
   },
   friesland: {
     name: 'Friesland',
