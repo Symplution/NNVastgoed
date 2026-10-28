@@ -18,7 +18,7 @@ export const mapListing = (r: Row): Listing => ({
   description: r.description ?? '', features: r.features ?? [], photos: r.photos ?? [], topperUntil: r.topper_until ?? null, topperRequestedAt: r.topper_requested_at ?? null, videoUrl: r.video_url ?? null, floorplans: r.floorplans ?? [], photos360: r.photos_360 ?? [], publishedAt: r.published_at, updatedAt: r.updated_at,
 });
 export const mapOffice = (r: Row): Office => ({
-  id: r.id, slug: r.slug, name: r.name, city: r.city, province: r.province, street: r.street, postcode: r.postcode, phone: r.phone, email: r.email, website: r.website, description: r.description ?? '', nvmMember: Boolean(r.nvm_member), logoUrl: r.logo_url ?? null,
+  id: r.id, slug: r.slug, name: r.name, city: r.city, province: r.province, street: r.street, postcode: r.postcode, phone: r.phone, email: r.email, website: r.website, description: r.description ?? '', nvmMember: Boolean(r.nvm_member), logoUrl: r.logo_url ?? null, bannerUrl: r.banner_url ?? null,
 });
 
 const demoVisible = () => DEMO_LISTINGS.filter((l) => PUBLIC_STATUSES.includes(l.status));

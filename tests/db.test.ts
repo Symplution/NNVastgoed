@@ -651,3 +651,15 @@ describe('kantoor aanmaken uit een aanmelding', () => {
     expect((await as(null, `select nvm_member from offices where slug = 'nieuw-makelaars'`))[0].nvm_member).toBe(false);
   });
 });
+
+describe('banner van een kantoor', () => {
+  it('het eigen kantoor zet een banner, een collega-kantoor of zoeker niet, en alleen een https-adres kan', async () => {
+    const url = `https://x.supabase.co/storage/v1/object/public/office-logos/${office.a}/banner-1.jpg`;
+    expect(await as(ids.agentA, `update offices set banner_url = '${url}' where id = '${office.a}' returning 1`)).toHaveLength(1);
+    expect(await as(ids.agentB, `update offices set banner_url = 'https://x.nl/b.jpg' where id = '${office.a}' returning 1`)).toHaveLength(0);
+    expect(await as(ids.zoekerA, `update offices set banner_url = 'https://x.nl/b.jpg' where id = '${office.a}' returning 1`)).toHaveLength(0);
+    await expect(as(ids.agentA, `update offices set banner_url = 'http://x.nl/b.jpg' where id = '${office.a}'`)).rejects.toThrow();
+    await expect(as(ids.agentA, `update offices set banner_url = 'javascript:alert(1)' where id = '${office.a}'`)).rejects.toThrow();
+    expect((await as(null, `select banner_url from offices where id = '${office.a}'`))[0].banner_url).toBe(url);
+  });
+});

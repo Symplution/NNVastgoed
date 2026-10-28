@@ -22,7 +22,9 @@ export default async function Makelaar({ params }: Props) {
   return (
     <div className="container-x py-10">
       <nav aria-label="Kruimelpad" className="mb-4 text-sm text-muted"><Link href="/makelaars" className="hover:underline">Makelaars</Link> / {o.name}</nav>
-      <header className="grid gap-6 rounded-3xl bg-brand-soft p-8 sm:grid-cols-[1fr_auto]">
+      <div className="overflow-hidden rounded-3xl bg-brand-soft">
+      {o.bannerUrl && /* eslint-disable-next-line @next/next/no-img-element */ <img src={o.bannerUrl} alt="" className="aspect-[4/1] max-h-60 w-full object-cover" />}
+      <header className="grid gap-6 p-8 sm:grid-cols-[1fr_auto]">
         <div>
           <h1 className="text-3xl font-extrabold tracking-tight">{o.name}</h1>
           {o.nvmMember && <p className="mt-2 inline-flex items-center gap-1.5 rounded-full bg-white px-3 py-1 text-xs font-semibold text-brand"><ShieldCheck size={14} aria-hidden /> NVM-lid</p>}
@@ -35,6 +37,7 @@ export default async function Makelaar({ params }: Props) {
           {web && <li><a className="inline-flex items-center gap-2 hover:underline" href={web} rel="noopener noreferrer" target="_blank"><Globe size={15} aria-hidden /> Website</a></li>}
         </ul>
       </header>
+      </div>
       <h2 className="mt-10 text-2xl font-extrabold tracking-tight">Woningen van {o.name} <span className="text-muted">({listings.length})</span></h2>
       {listings.length ? <div className="mt-6 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">{listings.map((l) => <ListingCard key={l.id} l={l} />)}</div> : <p className="mt-6 rounded-2xl bg-sand p-8 text-center text-muted">Dit kantoor heeft nu geen woningen online.</p>}
     </div>

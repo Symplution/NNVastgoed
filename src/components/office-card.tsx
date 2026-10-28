@@ -6,14 +6,16 @@ import { useState, type ReactNode } from 'react';
 import type { Office } from '@/lib/types';
 
 /** De makelaar naast een woning: logo, naam, telefoonnummer (pas na een klik) en knoppen om contact op te nemen of een bezichtiging aan te vragen. */
-export function OfficeCard({ office, bookable, children }: { office: Pick<Office, 'name' | 'slug' | 'city' | 'street' | 'postcode' | 'phone' | 'email' | 'nvmMember' | 'logoUrl'>; bookable: boolean; children: ReactNode }) {
+export function OfficeCard({ office, bookable, children }: { office: Pick<Office, 'name' | 'slug' | 'city' | 'street' | 'postcode' | 'phone' | 'email' | 'nvmMember' | 'logoUrl' | 'bannerUrl'>; bookable: boolean; children: ReactNode }) {
   const [phone, setPhone] = useState(false);
   const [form, setForm] = useState(false);
   const bookingTab = () => { window.location.hash = 'bezichtigen'; document.getElementById('tab-bezichtigen')?.scrollIntoView({ behavior: 'smooth', block: 'center' }); };
   return (
     <section className="card overflow-hidden" aria-labelledby="makelaar">
       <div className="relative h-24 overflow-hidden bg-gradient-to-br from-brand-dark via-brand to-[#1c6a93]">
-        <span aria-hidden className="absolute -right-6 -top-8 h-28 w-28 rounded-full bg-white/10" /><span aria-hidden className="absolute bottom-[-2.5rem] left-1/3 h-24 w-24 rounded-full bg-accent/30" />
+        {office.bannerUrl
+          ? /* eslint-disable-next-line @next/next/no-img-element */ <img src={office.bannerUrl} alt="" className="absolute inset-0 h-full w-full object-cover" />
+          : <><span aria-hidden className="absolute -right-6 -top-8 h-28 w-28 rounded-full bg-white/10" /><span aria-hidden className="absolute bottom-[-2.5rem] left-1/3 h-24 w-24 rounded-full bg-accent/30" /></>}
         {office.nvmMember && <span className="absolute right-3 top-3 inline-flex items-center gap-1 rounded-full bg-white px-2.5 py-1 text-xs font-bold text-brand"><ShieldCheck size={14} aria-hidden /> NVM</span>}
       </div>
       <div className="px-5 pb-5">

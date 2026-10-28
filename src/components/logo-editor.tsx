@@ -37,7 +37,7 @@ export function LogoEditor({ officeId, initial }: { officeId: string | null; ini
         ) : <p className="text-sm text-muted">Nog geen logo.</p>}
         <label className="btn-ghost cursor-pointer"><ImagePlus size={16} aria-hidden /> {busy ? 'Uploaden…' : url ? 'Ander logo' : 'Logo uploaden'}<input type="file" accept="image/jpeg,image/png,image/webp" className="sr-only" disabled={busy} onChange={(e) => { void upload(e.target.files); e.target.value = ''; }} /></label>
       </div>
-      <p className="mt-2 text-xs text-muted">Een logo op een witte of doorzichtige achtergrond ziet er het mooist uit.</p>
+      <p className="mt-2 text-xs text-muted">Formaat: <strong>1000 × 1000 pixels</strong> (vierkant), JPG, PNG of WebP, maximaal 2 MB. Een logo op een witte of doorzichtige achtergrond ziet er het mooist uit.</p>
       {error && <p role="alert" className="mt-2 text-sm text-red-700">{error}</p>}
     </div>
   );

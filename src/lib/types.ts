@@ -29,6 +29,8 @@ export interface Office {
   nvmMember: boolean;
   /** Logo van het kantoor (https-adres), voor in het pdf-overzicht van een woning. */
   logoUrl?: string | null;
+  /** Banner achter het logo (https-adres): getoond op de makelaarskaart en de kantoorpagina. */
+  bannerUrl?: string | null;
 }
 
 export interface Listing {

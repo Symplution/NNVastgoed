@@ -145,6 +145,7 @@ export async function saveOffice(id: string | null, _: SaveState, form: FormData
     name: clean(form, 'name', 120), city: clean(form, 'city', 80), province, street: clean(form, 'street', 120) || null, postcode: clean(form, 'postcode', 10) || null,
     phone: clean(form, 'phone', 40) || null, email: clean(form, 'email', 200), website: clean(form, 'website', 200) || null, description: clean(form, 'description', 2000),
     logo_url: clean(form, 'logo_url', 500) || null,
+    banner_url: clean(form, 'banner_url', 500) || null,
     // Het NVM-lidmaatschap zet alleen NNV-beheer; voor anderen blijft het veld buiten de wijziging (en de database weigert het ook).
     ...(isManager(staff.role) ? { nvm_member: form.get('nvm_member') === 'on' } : {}),
   };
@@ -155,6 +156,7 @@ export async function saveOffice(id: string | null, _: SaveState, form: FormData
   if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(data.email)) errors.push('Vul een geldig e-mailadres in.');
   if (data.website && !/^https:\/\/\S+$/.test(data.website)) errors.push('De website moet met https:// beginnen.');
   if (data.logo_url && !/^https:\/\/\S+$/.test(data.logo_url)) errors.push('Het logo moet een https-adres hebben.');
+  if (data.banner_url && !/^https:\/\/\S+$/.test(data.banner_url)) errors.push('De banner moet een https-adres hebben.');
   if (errors.length) return { errors };
   const supabase = await createClient();
   if (id) {
