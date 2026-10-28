@@ -5,16 +5,21 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
-        // Waddenblauw als hoofdkleur, zonsondergang-oranje als accent, zand en klei voor warmte.
-        brand: { DEFAULT: '#0e4a6e', dark: '#0a3550', soft: '#e6f0f6' },
-        accent: { DEFAULT: '#e8741f', dark: '#c85f12', soft: '#fdf0e4' },
-        ink: '#14212b',
-        muted: '#5d6b76',
-        line: '#dde4e9',
-        sand: '#f7f4ee',
+        // Veengroen als hoofdkleur, Groningse baksteen als accent, crème voor warmte.
+        brand: { DEFAULT: '#1f4d3f', dark: '#143428', soft: '#e4eee8' },
+        accent: { DEFAULT: '#b4432c', dark: '#8f3320', soft: '#f7e4dc' },
+        ink: '#1b2620',
+        muted: '#5c6860',
+        line: '#e0e3da',
+        sand: '#f4efe4',
+        cream: '#fbf8f1',
       },
-      fontFamily: { sans: ['-apple-system', 'BlinkMacSystemFont', 'SF Pro Text', 'Inter', 'system-ui', 'sans-serif'] },
-      boxShadow: { card: '0 1px 2px rgba(20,33,43,0.05), 0 8px 24px -12px rgba(20,33,43,0.14)' },
+      // Koppen in een zachte serif (op elk apparaat aanwezig, dus niets om te laden); de rest blijft rustig sans-serif.
+      fontFamily: {
+        sans: ['-apple-system', 'BlinkMacSystemFont', 'SF Pro Text', 'Inter', 'system-ui', 'sans-serif'],
+        display: ['"Iowan Old Style"', '"Palatino Linotype"', 'Palatino', 'Charter', 'Georgia', 'serif'],
+      },
+      boxShadow: { card: '0 1px 2px rgba(27,38,32,0.05), 0 12px 28px -14px rgba(27,38,32,0.18)' },
     },
   },
   plugins: [],

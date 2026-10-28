@@ -11,7 +11,7 @@ export const metadata: Metadata = {
   description: 'Zoek je nieuwe huis in het noorden. NNvastgoed (Noord Nederland Vastgoed) toont het aanbod van makelaars in Groningen, Friesland en Drenthe.',
   openGraph: { siteName: 'NNvastgoed', locale: 'nl_NL', type: 'website' },
 };
-export const viewport: Viewport = { themeColor: '#0e4a6e', width: 'device-width', initialScale: 1 };
+export const viewport: Viewport = { themeColor: '#1f4d3f', width: 'device-width', initialScale: 1 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (

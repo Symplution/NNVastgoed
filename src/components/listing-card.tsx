@@ -19,7 +19,7 @@ export function ListingCard({ l, priority = false, preview = false }: { l: Listi
       <Link href={`/woning/${l.slug}`} className="focus-ring block rounded-2xl" aria-label={`${address(l)}, ${l.city}, ${formatPrice(l)}`}>
         <div className="relative aspect-[4/3] overflow-hidden bg-sand">
           {photo && /* eslint-disable-next-line @next/next/no-img-element */ <img src={photo.url} alt={photo.alt ?? `${address(l)}, ${l.city}`} loading={priority ? 'eager' : 'lazy'} className="h-full w-full object-cover transition duration-500 group-hover:scale-105" />}
-          {topper && !BADGE[l.status] && <span className="pill absolute left-3 top-3 bg-[#ff9a1f] text-white">Topper</span>}
+          {topper && !BADGE[l.status] && <span className="pill absolute left-3 top-3 bg-accent text-white">Topper</span>}
           {!topper && !BADGE[l.status] && l.publishedAt && Date.now() - new Date(l.publishedAt).getTime() < 7 * 86_400_000 && <span className="pill absolute left-3 top-3 bg-accent text-white">Nieuw</span>}
           {BADGE[l.status] && <span className={`pill absolute left-3 top-3 ${BADGE[l.status]}`}>{STATUS_LABEL[l.status]}</span>}
           <span className="absolute bottom-3 left-3 flex gap-1.5">

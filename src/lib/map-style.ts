@@ -12,7 +12,7 @@ export function pdokStyle(): StyleSpecification {
   return {
     version: 8,
     sources: { pdok: { type: 'raster', tiles: [PDOK_TILES], tileSize: 256, maxzoom: 19, attribution: 'Kaartgegevens © <a href="https://www.kadaster.nl" target="_blank" rel="noopener noreferrer">Kadaster</a>' } },
-    layers: [{ id: 'achtergrond', type: 'background', paint: { 'background-color': '#e9edf0' } }, { id: 'pdok', type: 'raster', source: 'pdok' }],
+    layers: [{ id: 'achtergrond', type: 'background', paint: { 'background-color': '#ece8dc' } }, { id: 'pdok', type: 'raster', source: 'pdok' }],
   };
 }
 

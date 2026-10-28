@@ -3,8 +3,9 @@
 @tailwind utilities;
 
 html { color-scheme: light; scroll-behavior: smooth; }
-body { @apply bg-white font-sans text-ink antialiased; }
-input[type='checkbox'], input[type='radio'] { accent-color: #0e4a6e; }
+body { @apply bg-cream font-sans text-ink antialiased; }
+h1, h2 { @apply font-display tracking-tight; }
+input[type='checkbox'], input[type='radio'] { accent-color: #1f4d3f; }
 
 /* Een gewone select (als die ergens nog staat) krijgt een eigen pijltje met ruimte rondom, en valt er niet meer tegenaan. */
 select.field {
@@ -16,13 +17,13 @@ select.field {
 
 @layer components {
   .focus-ring { @apply focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand; }
-  .btn { @apply focus-ring inline-flex items-center justify-center gap-2 rounded-lg px-4 py-2.5 text-sm font-semibold transition disabled:opacity-60; }
+  .btn { @apply focus-ring inline-flex items-center justify-center gap-2 rounded-full px-5 py-2.5 text-sm font-semibold transition disabled:opacity-60; }
   .btn-primary { @apply btn bg-brand text-white hover:bg-brand-dark; }
   .btn-accent { @apply btn bg-accent text-white hover:bg-accent-dark; }
   .btn-ghost { @apply btn border border-line bg-white text-ink hover:bg-sand; }
-  .field { @apply focus-ring w-full rounded-lg border border-line bg-white px-3 py-2.5 text-sm placeholder:text-muted/70; }
+  .field { @apply focus-ring w-full rounded-xl border border-line bg-white px-3 py-2.5 text-sm placeholder:text-muted/70; }
   .label { @apply mb-1 block text-xs font-semibold uppercase tracking-wide text-muted; }
-  .card { @apply rounded-2xl border border-line bg-white shadow-card; }
+  .card { @apply rounded-3xl border border-line bg-white shadow-card; }
   .pill { @apply inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-semibold; }
   .container-x { @apply mx-auto w-full max-w-6xl px-4 sm:px-6; }
 }
@@ -31,16 +32,16 @@ select.field {
 .nnv-pin { display: flex; flex-direction: column; align-items: center; cursor: pointer; }
 .nnv-pin__body {
   display: inline-flex; align-items: center; gap: 5px; white-space: nowrap; border-radius: 999px; padding: 4px 10px 4px 7px;
-  background: #0e4a6e; color: #fff; font: 700 12px/1 -apple-system, BlinkMacSystemFont, 'SF Pro Text', Inter, system-ui, sans-serif;
+  background: #1f4d3f; color: #fff; font: 700 12px/1 -apple-system, BlinkMacSystemFont, 'SF Pro Text', Inter, system-ui, sans-serif;
   box-shadow: 0 2px 6px rgba(20, 33, 43, 0.35); border: 2px solid #fff; transition: transform 0.15s ease, background 0.15s ease;
 }
 .nnv-pin__body svg { width: 14px; height: 14px; flex: none; }
-.nnv-pin__tip { width: 0; height: 0; margin-top: -1px; border-left: 6px solid transparent; border-right: 6px solid transparent; border-top: 7px solid #0e4a6e; filter: drop-shadow(0 2px 1px rgba(20, 33, 43, 0.25)); }
+.nnv-pin__tip { width: 0; height: 0; margin-top: -1px; border-left: 6px solid transparent; border-right: 6px solid transparent; border-top: 7px solid #1f4d3f; filter: drop-shadow(0 2px 1px rgba(20, 33, 43, 0.25)); }
 .nnv-pin--huur .nnv-pin__body { background: #2f6b4f; } .nnv-pin--huur .nnv-pin__tip { border-top-color: #2f6b4f; }
 .nnv-pin:hover, .nnv-pin:focus-visible, .nnv-pin--on { z-index: 10; }
-.nnv-pin:hover .nnv-pin__body, .nnv-pin:focus-visible .nnv-pin__body, .nnv-pin--on .nnv-pin__body { background: #e8741f; transform: scale(1.12); }
-.nnv-pin:hover .nnv-pin__tip, .nnv-pin:focus-visible .nnv-pin__tip, .nnv-pin--on .nnv-pin__tip { border-top-color: #e8741f; }
-.nnv-search-dot { width: 18px; height: 18px; border-radius: 999px; background: #e8741f; border: 3px solid #fff; box-shadow: 0 0 0 6px rgba(232, 116, 31, 0.25); }
+.nnv-pin:hover .nnv-pin__body, .nnv-pin:focus-visible .nnv-pin__body, .nnv-pin--on .nnv-pin__body { background: #b4432c; transform: scale(1.12); }
+.nnv-pin:hover .nnv-pin__tip, .nnv-pin:focus-visible .nnv-pin__tip, .nnv-pin--on .nnv-pin__tip { border-top-color: #b4432c; }
+.nnv-search-dot { width: 18px; height: 18px; border-radius: 999px; background: #b4432c; border: 3px solid #fff; box-shadow: 0 0 0 6px rgba(232, 116, 31, 0.25); }
 .nnv-popup .maplibregl-popup-content { border-radius: 14px; padding: 0; overflow: hidden; box-shadow: 0 12px 32px -8px rgba(20, 33, 43, 0.35); width: 240px; }
 .nnv-popup .maplibregl-popup-close-button { color: #fff; font-size: 20px; text-shadow: 0 1px 3px rgba(0, 0, 0, 0.6); top: 4px; right: 6px; background: transparent; }
 .maplibregl-ctrl-group { border-radius: 12px !important; box-shadow: 0 4px 14px rgba(20, 33, 43, 0.2) !important; overflow: hidden; }

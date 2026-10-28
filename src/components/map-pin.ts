@@ -34,12 +34,12 @@ export function popupContent(m: MapMarker): HTMLElement {
     root.appendChild(img);
   }
   const body = document.createElement('div'); body.style.cssText = 'padding:12px 14px 14px;font:14px/1.35 -apple-system,BlinkMacSystemFont,Inter,system-ui,sans-serif;color:#14212b';
-  const price = document.createElement('div'); price.textContent = m.price; price.style.cssText = 'font-size:17px;font-weight:800;color:#0e4a6e';
+  const price = document.createElement('div'); price.textContent = m.price; price.style.cssText = 'font-size:17px;font-weight:800;color:#1f4d3f';
   const addr = document.createElement('div'); addr.textContent = m.address; addr.style.cssText = 'font-weight:700;margin-top:2px';
   const place = document.createElement('div'); place.textContent = m.place; place.style.cssText = 'color:#5d6b76;font-size:13px';
   const line = document.createElement('div'); line.textContent = m.line; line.style.cssText = 'margin-top:4px;font-size:13px';
   const link = document.createElement('a'); link.href = `/woning/${encodeURIComponent(m.slug)}`; link.textContent = 'Bekijk de woning →';
-  link.style.cssText = 'display:inline-block;margin-top:10px;background:#0e4a6e;color:#fff;border-radius:8px;padding:7px 12px;font-weight:700;font-size:13px;text-decoration:none';
+  link.style.cssText = 'display:inline-block;margin-top:10px;background:#1f4d3f;color:#fff;border-radius:8px;padding:7px 12px;font-weight:700;font-size:13px;text-decoration:none';
   body.append(price, addr, place, line, link);
   root.appendChild(body);
   return root;

@@ -14,7 +14,7 @@ export default function Prijzen() {
   const total = LISTING_FEE.amount + TOPPER_FEE.amount;
   return (
     <div>
-      <section className="bg-gradient-to-br from-brand-dark via-brand to-[#1c6a93] text-white">
+      <section className="bg-gradient-to-br from-brand-dark via-brand to-[#2f6b4f] text-white">
         <div className="container-x py-14">
           <Link href="/voor-makelaars" className="focus-ring inline-flex items-center gap-1.5 rounded text-sm font-semibold text-white/80 hover:text-white hover:underline"><ArrowLeft size={15} aria-hidden /> Terug naar voor makelaars</Link>
           <p className="mt-6 text-sm font-semibold uppercase tracking-[0.16em] text-white/70">Prijslijst 2026</p>
