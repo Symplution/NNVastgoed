@@ -4,7 +4,7 @@ import { ArrowLeft, ArrowRight, Check, Eye, Gift, Home, Receipt, Sparkles } from
 import { LISTING_FEE, REGISTRATION, TOPPER_FEE, euro } from '@/lib/pricing';
 
 // Bewust niet in de sitemap, de footer of de zoekresultaten: alleen bereikbaar via "Bekijk prijzen" bij de makelaarspagina.
-export const metadata: Metadata = { title: 'Prijzen voor makelaars', description: 'Registreren is gratis. Een woning plaatsen kost € 250 en Topper van de maand is € 75 extra per woning (excl. btw). Geen pakketten, geen abonnement.', robots: { index: false, follow: false } };
+export const metadata: Metadata = { title: 'Prijzen voor makelaars', description: 'Registreren is gratis. Een woning plaatsen kost € 200 en Topper van de maand is € 75 extra per woning (excl. btw). Geen pakketten, geen abonnement.', robots: { index: false, follow: false } };
 
 function Bullets({ items }: { items: string[] }) {
   return <ul className="mt-6 space-y-2.5 text-[15px]">{items.map((x) => <li key={x} className="flex gap-2.5"><Check size={18} className="mt-0.5 shrink-0 text-green-600" aria-hidden />{x}</li>)}</ul>;

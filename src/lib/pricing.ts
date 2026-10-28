@@ -2,7 +2,7 @@
 export const REGISTRATION = { name: 'Registreren', note: 'Een kantoor aansluiten is gratis.' };
 
 /** Een woning plaatsen: eenmalig per woning (koop, huur, nieuwbouw, recreatie of bedrijfsruimte). */
-export const LISTING_FEE = { name: 'Woning plaatsen', amount: 250, note: 'Eenmalig per woning, zolang de woning online staat. Geen abonnement.' };
+export const LISTING_FEE = { name: 'Woning plaatsen', amount: 200, note: 'Eenmalig per woning, zolang de woning online staat. Geen abonnement.' };
 
 /** Een woning extra laten opvallen: Topper van de maand, per woning en voor één maand. */
 export const TOPPER_FEE = { name: 'Topper van de maand', amount: 75, days: 31, note: 'Meerprijs per woning, voor één maand. Geen abonnement en geen vaste kosten.' };
