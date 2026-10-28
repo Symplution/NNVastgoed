@@ -19,7 +19,7 @@ Draait op GitHub, Vercel (fra1) en Supabase (EU, Frankfurt). Later komen er AI-d
 10. Demomodus (`DEMO_MODE=1`) werkt alleen buiten productie en zonder Supabase; nooit afhankelijk van maken.
 
 ## Rollen
-Eigenaar en beheerder: alle kantoren. Makelaar (`agent`): schrijft alleen bij het eigen kantoor. Alleen lezen: kijkt mee binnen het eigen kantoor. Nieuwe gebruikers beginnen met alleen lezen en zonder kantoor; de eerste gebruiker wordt eigenaar.
+Eigenaar en beheerder: alle kantoren. Makelaar (`agent`): schrijft alleen bij het eigen kantoor. Alleen lezen: kijkt mee binnen het eigen kantoor. Elk kantoor heeft één makelaarsaccount (teamleden delen het); dat account nodigt de eigenaar uit onder Alle kantoren (`inviteStaff`, uniek per kantoor via migratie 0016). Nieuwe gebruikers beginnen met alleen lezen en zonder kantoor; de eerste gebruiker wordt eigenaar.
 
 ## Commando's
 npm run dev | npm run build | npm run typecheck | npm test
