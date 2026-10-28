@@ -29,5 +29,17 @@ describe('aanbod van Unistee Makelaars', () => {
     expect((await q(`select count(*)::int n from listings where postcode !~ '^[1-9][0-9]{3} [A-Z]{2}$'`))[0].n).toBe(0);
     await db.exec(`set role anon`);
     expect((await q(`select count(*)::int n from listings`))[0].n).toBe(10);
+    await db.exec(`reset role`);
+    // een koppeling erbij en een woning van een ander kantoor, dan alles van Unistee verwijderen
+    const o = (await q(`select id from offices where slug = 'unistee-makelaars'`))[0].id;
+    await db.exec(`insert into feed_connections (office_id, name, kind, secret_hash) values ('${o}', 'Realworks', 'json', 'x')`);
+    await db.exec(`insert into offices (slug, name, city, province, email) values ('ander', 'Ander', 'Assen', 'drenthe', 'a@x.nl')`);
+    await db.exec(`insert into listings (office_id, slug, status, street, house_number, postcode, city, province, asking_price, living_area, rooms, property_type) values ((select id from offices where slug = 'ander'), 'ander-1', 'beschikbaar', 'x', '1', '9401 AA', 'Assen', 'drenthe', 1, 1, 1, 'overig')`);
+    const cleanup = readFileSync(join(root, 'seed/unistee_verwijderen.sql'), 'utf8');
+    await db.exec(cleanup); await db.exec(cleanup);   // herhaalbaar
+    expect((await q(`select count(*)::int n from listings where office_id = '${o}'`))[0].n).toBe(0);
+    expect((await q(`select count(*)::int n from feed_connections where office_id = '${o}'`))[0].n).toBe(0);
+    expect((await q(`select count(*)::int n from offices where slug = 'unistee-makelaars'`))[0].n).toBe(1);
+    expect((await q(`select count(*)::int n from listings where slug = 'ander-1'`))[0].n).toBe(1);
   }, 60_000);
 });
