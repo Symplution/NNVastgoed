@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+import Link from 'next/link';
 import { redirect } from 'next/navigation';
 import { OfficeForm } from '@/components/office-form';
 import { isManager, requireStaff } from '@/lib/auth';
@@ -14,7 +15,7 @@ export default async function Kantoren() {
   const offices = await myOffices();
   return (
     <div className="space-y-8">
-      <h1 className="text-2xl font-extrabold tracking-tight">Alle kantoren</h1>
+      <div className="flex flex-wrap items-center justify-between gap-3"><h1 className="text-2xl font-extrabold tracking-tight">Alle kantoren</h1>{staff.role === 'owner' && <Link href="/beheer/gebruikers" className="btn-ghost !py-1.5 text-sm">Accounts en uitnodigen →</Link>}</div>
       <section aria-labelledby="nieuw"><h2 id="nieuw" className="mb-3 text-lg font-bold">Kantoor toevoegen</h2><OfficeForm canSetNvm linkToMe={!staff.officeId} /></section>
       <section aria-labelledby="lijst"><h2 id="lijst" className="mb-3 text-lg font-bold">Aangesloten ({offices.length})</h2>
         <ul className="divide-y divide-line rounded-xl border border-line">{offices.map((o) => (
