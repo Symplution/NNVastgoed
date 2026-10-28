@@ -1,3 +1,4 @@
+import { NNV_LOGO_PNG_BASE64 } from './brand-logo';
 import { isIP } from 'node:net';
 import { PDFDocument, StandardFonts, rgb, type PDFFont, type PDFImage, type PDFPage } from 'pdf-lib';
 import sharp from 'sharp';
@@ -63,7 +64,7 @@ const hex = (h: string) => rgb(parseInt(h.slice(1, 3), 16) / 255, parseInt(h.sli
 const rrectPath = (w: number, h: number, r: number) => `M${r},0 H${w - r} Q${w},0 ${w},${r} V${h - r} Q${w},${h} ${w - r},${h} H${r} Q0,${h} 0,${h - r} V${r} Q0,0 ${r},0 Z`;
 
 class Doc {
-  pdf!: PDFDocument; reg!: PDFFont; bold!: PDFFont;
+  pdf!: PDFDocument; reg!: PDFFont; bold!: PDFFont; mark!: PDFImage;
   pages: PDFPage[] = []; page!: PDFPage; y = 0;
   headline = '';
 
@@ -71,6 +72,7 @@ class Doc {
     const d = new Doc();
     d.pdf = await PDFDocument.create(); d.reg = await d.pdf.embedFont(StandardFonts.Helvetica); d.bold = await d.pdf.embedFont(StandardFonts.HelveticaBold);
     d.headline = headline;
+    d.mark = await d.pdf.embedPng(Buffer.from(NNV_LOGO_PNG_BASE64, 'base64'));
     return d;
   }
   newPage(running = true) {
@@ -84,16 +86,11 @@ class Doc {
   }
   ensure(h: number) { if (this.y - h < BOTTOM) this.newPage(); }
 
-  /** Het woordmerk van NNVastgoed: een woning in een vergrootglas, met de naam ernaast. (x, yTop) is de linkerbovenhoek. */
+  /** Het woordmerk van NNVastgoed: het logo (woning in een vergrootglas, transparant) met de naam ernaast. (x, yTop) is de linkerbovenhoek. */
   nnvLogo(x: number, yTop: number, s = 1) {
-    const p = this.page;
-    p.drawSvgPath(rrectPath(34, 34, 9), { x, y: yTop, scale: s, color: C.brand });
-    p.drawSvgPath('M22.6 22.6 L28.8 28.8', { x, y: yTop, scale: s, borderColor: C.accent, borderWidth: 3.8 * s, borderLineCap: 1 });
-    p.drawSvgPath('M25 14.8 A10.2 10.2 0 1 1 4.6 14.8 A10.2 10.2 0 1 1 25 14.8', { x, y: yTop, scale: s, borderColor: C.white, borderWidth: 2.5 * s });
-    p.drawSvgPath('M9 15.4 L14.8 10.2 L20.6 15.4', { x, y: yTop, scale: s, borderColor: C.accent, borderWidth: 2.3 * s, borderLineCap: 1 });
-    p.drawSvgPath('M10.8 14.8 V20.7 H18.8 V14.8', { x, y: yTop, scale: s, borderColor: C.white, borderWidth: 1.9 * s });
-    p.drawSvgPath('M13.8 20.7 V17.2 H15.8 V20.7 Z', { x, y: yTop, scale: s, color: C.accent });
-    p.drawText('NNVastgoed', { x: x + 44 * s, y: yTop - 22 * s, size: 19 * s, font: this.bold, color: C.brand });
+    const h = 36 * s, w = h * (this.mark.width / this.mark.height);
+    this.page.drawImage(this.mark, { x, y: yTop - h, width: w, height: h });
+    this.page.drawText('NNVastgoed', { x: x + w + 8 * s, y: yTop - 24 * s, size: 19 * s, font: this.bold, color: C.brand });
   }
 
   text(t: string, o: { x?: number; size?: number; font?: PDFFont; color?: ReturnType<typeof rgb>; width?: number; lead?: number } = {}) {
