@@ -58,7 +58,7 @@ function Martinitoren({ x, y, s = 1 }: { x: number; y: number; s?: number }) {
       <g fill={CREAM}><rect x="-33" y="-76" width="66" height="7" rx="2" /><rect x="-29" y="-136" width="58" height="6" rx="2" /><rect x="-24" y="-176" width="48" height="6" rx="2" /><rect x="-18" y="-208" width="36" height="6" rx="2" /></g>
       <path d="M-19 -208L0 -262L19 -208Z" fill="url(#hz-maroon)" />
       <circle cx="0" cy="-221" r="11" fill={CREAM} /><path d="M-11 -221H11M0 -232V-210" stroke="#2f3d4c" strokeWidth="1.6" opacity=".7" />
-      <path d="M0 -270V-258M-5 -266H5" stroke="#2f3d4c" strokeWidth="2" strokeLinecap="round" />
+      <circle cx="0" cy="-267" r="5.2" fill="#2f3d4c" /><circle cx="-1.6" cy="-268.6" r="1.5" fill="#fff" opacity=".35" />
       <g fill="url(#hz-blue)"><path d="M-21 -20V-46a7 7 0 0 1 14 0V-20Z" /><path d="M7 -20V-46a7 7 0 0 1 14 0V-20Z" /></g>
       <path d="M-9 0V-24a9 9 0 0 1 18 0V0Z" fill="url(#hz-orange)" />
       <g fill="url(#hz-glow)"><path d="M-18 -92V-112a5 5 0 0 1 10 0V-92Z" /><path d="M8 -92V-112a5 5 0 0 1 10 0V-92Z" /></g>
