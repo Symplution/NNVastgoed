@@ -82,6 +82,14 @@ export async function setLeadStatus(form: FormData) {
   revalidatePath('/beheer/leads');
 }
 
+/** Een lead naar een andere kolom slepen (of via het keuzemenu): het nieuwe stadium wordt direct opgeslagen. */
+export async function moveLead(id: string, status: string): Promise<{ ok: boolean }> {
+  const staff = await requireStaff();
+  if (!canWrite(staff) || !uuid(id) || !['nieuw', 'opgepakt', 'afgehandeld'].includes(status)) return { ok: false };
+  const { data, error } = await (await createClient()).from('leads').update({ status }).eq('id', id).select('id').maybeSingle();
+  return { ok: !error && Boolean(data) };
+}
+
 /** Nieuwe koppeling: de geheime sleutel wordt één keer getoond; in de database staat alleen de hash. */
 export async function createConnection(_: SaveState, form: FormData): Promise<SaveState> {
   const staff = await requireStaff();
